@@ -1,12 +1,21 @@
 #!/usr/bin/env node
 
 import { createReadStream, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ensureSchema } from '../src/adapters/schema.js';
 import { withTransaction } from '../src/adapters/pg.js';
 import { ensureCharacterOwnership } from '../src/adapters/character-repo.js';
+import {
+  createAuthSession,
+  createUser,
+  deleteSessionByToken,
+  getSessionByToken,
+  getUserById,
+  purgeExpiredSessions,
+} from '../src/adapters/auth-repo.js';
 import { getPreparedList, replacePreparedList } from '../src/adapters/prepared-list-repo.js';
 import { PendingPlanVersionConflictError } from '../src/adapters/pending-plan-repo.js';
 import {
@@ -29,7 +38,9 @@ const port = Number(process.env.PORT || 3000);
 const remotePendingPlanEnabled = process.env.PERSIST_PENDING_PLAN_REMOTE === 'true';
 const defaultCharacterId = process.env.DEFAULT_CHARACTER_ID || 'default-character';
 const defaultCharacterName = process.env.DEFAULT_CHARACTER_NAME || 'Default Character';
-const defaultUserId = process.env.DEFAULT_USER_ID || 'demo-user';
+const sessionMaxAgeSeconds = Number.parseInt(process.env.AUTH_SESSION_TTL_SECONDS || '', 10) || 60 * 60 * 24 * 30;
+const sessionCookieName = 'spellbook_session_token';
+const characterCookieName = 'spellbook_character_id';
 
 const database = JSON.parse(readFileSync(dbPath, 'utf8'));
 const spells = Array.isArray(database.spells) ? database.spells : [];
@@ -182,6 +193,17 @@ function normalizeIdentity(rawValue, fallback) {
   return /^[a-zA-Z0-9_.-]{2,64}$/.test(value) ? value : fallback;
 }
 
+function asRequiredIdentity(rawValue, fieldName) {
+  const value = String(rawValue || '').trim();
+  if (!value) {
+    throw new Error(`\`${fieldName}\` is required.`);
+  }
+  if (!/^[a-zA-Z0-9_.-]{2,64}$/.test(value)) {
+    throw new Error(`\`${fieldName}\` must use 2-64 chars: letters, numbers, dot, underscore, hyphen.`);
+  }
+  return value;
+}
+
 function getCharacterIdFromRequest(req, url) {
   const fromQuery = url?.searchParams?.get('characterId');
   if (typeof fromQuery === 'string' && fromQuery.trim()) {
@@ -189,23 +211,41 @@ function getCharacterIdFromRequest(req, url) {
   }
 
   const cookies = parseCookies(req);
-  if (cookies.spellbook_character_id) {
-    return normalizeIdentity(cookies.spellbook_character_id, defaultCharacterId);
+  if (cookies[characterCookieName]) {
+    return normalizeIdentity(cookies[characterCookieName], defaultCharacterId);
   }
 
   return defaultCharacterId;
 }
 
-function getAuthenticatedUserId(req) {
-  const userHeader = req.headers['x-user-id'];
-  if (typeof userHeader === 'string' && userHeader.trim()) {
-    return normalizeIdentity(userHeader.trim(), defaultUserId);
-  }
-
+function getSessionTokenFromRequest(req) {
   const cookies = parseCookies(req);
-  if (cookies.spellbook_user_id) return normalizeIdentity(cookies.spellbook_user_id, defaultUserId);
+  const token = String(cookies[sessionCookieName] || '').trim();
+  return token || null;
+}
 
-  return defaultUserId;
+function formatSessionCookie(token) {
+  return `${sessionCookieName}=${encodeURIComponent(token)}; Path=/; HttpOnly; Max-Age=${sessionMaxAgeSeconds}; SameSite=Lax`;
+}
+
+function clearSessionCookie() {
+  return `${sessionCookieName}=; Path=/; HttpOnly; Max-Age=0; SameSite=Lax`;
+}
+
+function formatCharacterCookie(characterId) {
+  return `${characterCookieName}=${encodeURIComponent(characterId)}; Path=/; Max-Age=${sessionMaxAgeSeconds}; SameSite=Lax`;
+}
+
+async function getAuthenticatedSession(client, req) {
+  await purgeExpiredSessions(client);
+
+  const token = getSessionTokenFromRequest(req);
+  if (!token) return null;
+
+  const session = await getSessionByToken(client, token);
+  if (!session) return null;
+
+  return session;
 }
 
 async function withCharacterScope({ req, characterId }, run) {
@@ -216,7 +256,14 @@ async function withCharacterScope({ req, characterId }, run) {
   }
 
   return withTransaction(async (client) => {
-    const userId = getAuthenticatedUserId(req);
+    const session = await getAuthenticatedSession(client, req);
+    if (!session) {
+      const error = new Error('Authentication required.');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const userId = session.userId;
 
     const owned = await ensureCharacterOwnership(client, {
       userId,
@@ -231,12 +278,11 @@ async function withCharacterScope({ req, characterId }, run) {
       throw error;
     }
 
-    return run({ client, userId });
+    return run({ client, userId, session });
   });
 }
 
 function withUserCharacterScope({ req, url }, run) {
-  const userId = getAuthenticatedUserId(req);
   const characterId = getCharacterIdFromRequest(req, url);
 
   return withCharacterScope(
@@ -244,7 +290,7 @@ function withUserCharacterScope({ req, url }, run) {
       req,
       characterId,
     },
-    ({ client }) => run({ client, userId, characterId }),
+    ({ client, userId }) => run({ client, userId, characterId }),
   );
 }
 
@@ -321,7 +367,12 @@ async function handleCharacterRoutes(req, res, url) {
       return sendJson(res, 200, payload);
     }
 
-    return sendJson(res, 405, { error: 'Method not allowed' });
+    return sendJson(res, 405, {
+      error: `Method not allowed: ${req.method} ${url.pathname}`,
+      path: url.pathname,
+      method: req.method,
+      allowed: ['GET', 'PUT', 'DELETE', 'POST'],
+    });
   } catch (error) {
     if (error instanceof SyntaxError) {
       return sendJson(res, 400, { error: 'Invalid JSON payload.' });
@@ -351,56 +402,277 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && url.pathname === '/api/config') {
-    const currentCharacterId = getCharacterIdFromRequest(req, url);
-    return sendJson(res, 200, {
-      remotePendingPlanEnabled,
-      defaultCharacterId,
-      characterId: currentCharacterId,
-      userId: getAuthenticatedUserId(req),
+    if (!remotePendingPlanEnabled) {
+      return sendJson(res, 200, {
+        remotePendingPlanEnabled,
+        defaultCharacterId,
+        characterId: getCharacterIdFromRequest(req, url),
+        authenticated: false,
+        userId: null,
+        displayName: null,
+      });
+    }
+
+    const payload = await withTransaction(async (client) => {
+      const session = await getAuthenticatedSession(client, req);
+      return {
+        remotePendingPlanEnabled,
+        defaultCharacterId,
+        characterId: getCharacterIdFromRequest(req, url),
+        authenticated: Boolean(session),
+        userId: session?.userId || null,
+        displayName: session?.displayName || null,
+      };
     });
+
+    return sendJson(res, 200, payload);
   }
 
-  if (url.pathname === '/api/session' && req.method === 'GET') {
-    return sendJson(res, 200, {
-      userId: getAuthenticatedUserId(req),
-      characterId: getCharacterIdFromRequest(req, url),
+  if (url.pathname === '/api/auth/me' && req.method === 'GET') {
+    if (!remotePendingPlanEnabled) {
+      return sendJson(res, 200, {
+        authenticated: false,
+        userId: null,
+        displayName: null,
+        characterId: getCharacterIdFromRequest(req, url),
+      });
+    }
+
+    const payload = await withTransaction(async (client) => {
+      const session = await getAuthenticatedSession(client, req);
+      return {
+        authenticated: Boolean(session),
+        userId: session?.userId || null,
+        displayName: session?.displayName || null,
+        characterId: getCharacterIdFromRequest(req, url),
+      };
     });
+
+    return sendJson(res, 200, payload);
   }
 
-  if (url.pathname === '/api/session' && req.method === 'PUT') {
+  if (url.pathname === '/api/auth/signup' && req.method === 'POST') {
+    if (!remotePendingPlanEnabled) {
+      return sendJson(res, 404, { error: 'Auth requires remote persistence mode.' });
+    }
+
     try {
       const body = parseJsonBody(await readRequestBody(req));
-      const userId = normalizeIdentity(body.userId, defaultUserId);
+      const userId = asRequiredIdentity(body.userId, 'userId');
+      const displayName = String(body.displayName || userId).trim().slice(0, 80) || userId;
       const characterId = normalizeIdentity(body.characterId, defaultCharacterId);
 
-      if (remotePendingPlanEnabled) {
-        await withTransaction(async (client) =>
-          ensureCharacterOwnership(client, {
-            userId,
-            characterId,
-            defaultName: defaultCharacterName,
-            initialPreparedSpellIds: defaultPreparedSpellIds,
-          }),
-        );
-      }
+      const payload = await withTransaction(async (client) => {
+        const user = await createUser(client, { userId, displayName });
+        if (!user) {
+          const error = new Error('User ID already exists.');
+          error.statusCode = 409;
+          throw error;
+        }
 
-      const oneYear = 60 * 60 * 24 * 365;
-      res.setHeader('Set-Cookie', [
-        `spellbook_user_id=${encodeURIComponent(userId)}; Path=/; Max-Age=${oneYear}; SameSite=Lax`,
-        `spellbook_character_id=${encodeURIComponent(characterId)}; Path=/; Max-Age=${oneYear}; SameSite=Lax`,
-      ]);
+        const token = randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + sessionMaxAgeSeconds * 1000);
 
-      return sendJson(res, 200, {
+        await createAuthSession(client, {
+          token,
+          userId,
+          expiresAt,
+        });
+
+        const owned = await ensureCharacterOwnership(client, {
+          userId,
+          characterId,
+          defaultName: defaultCharacterName,
+          initialPreparedSpellIds: defaultPreparedSpellIds,
+        });
+        if (!owned) {
+          const error = new Error('Character ID belongs to another account.');
+          error.statusCode = 403;
+          throw error;
+        }
+
+        return {
+          token,
+          userId,
+          displayName,
+          characterId,
+        };
+      });
+
+      res.setHeader('Set-Cookie', [formatSessionCookie(payload.token), formatCharacterCookie(payload.characterId)]);
+      return sendJson(res, 201, {
         ok: true,
-        userId,
-        characterId,
+        userId: payload.userId,
+        displayName: payload.displayName,
+        characterId: payload.characterId,
       });
     } catch (error) {
       if (error instanceof SyntaxError) {
         return sendJson(res, 400, { error: 'Invalid JSON payload.' });
       }
-      return sendJson(res, 400, { error: error.message });
+      const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 400;
+      return sendJson(res, statusCode, { error: error.message });
     }
+  }
+
+  if (url.pathname === '/api/auth/signin' && req.method === 'POST') {
+    if (!remotePendingPlanEnabled) {
+      return sendJson(res, 404, { error: 'Auth requires remote persistence mode.' });
+    }
+
+    try {
+      const body = parseJsonBody(await readRequestBody(req));
+      const userId = asRequiredIdentity(body.userId, 'userId');
+      const characterId = normalizeIdentity(body.characterId, defaultCharacterId);
+
+      const payload = await withTransaction(async (client) => {
+        const user = await getUserById(client, userId);
+        if (!user) {
+          const error = new Error('User not found. Sign up first.');
+          error.statusCode = 404;
+          throw error;
+        }
+
+        const token = randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + sessionMaxAgeSeconds * 1000);
+        await createAuthSession(client, {
+          token,
+          userId,
+          expiresAt,
+        });
+
+        const owned = await ensureCharacterOwnership(client, {
+          userId,
+          characterId,
+          defaultName: defaultCharacterName,
+          initialPreparedSpellIds: defaultPreparedSpellIds,
+        });
+        if (!owned) {
+          const error = new Error('Character ID belongs to another account.');
+          error.statusCode = 403;
+          throw error;
+        }
+
+        return {
+          token,
+          userId: user.id,
+          displayName: user.displayName || user.id,
+          characterId,
+        };
+      });
+
+      res.setHeader('Set-Cookie', [formatSessionCookie(payload.token), formatCharacterCookie(payload.characterId)]);
+      return sendJson(res, 200, {
+        ok: true,
+        userId: payload.userId,
+        displayName: payload.displayName,
+        characterId: payload.characterId,
+      });
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        return sendJson(res, 400, { error: 'Invalid JSON payload.' });
+      }
+      const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 400;
+      return sendJson(res, statusCode, { error: error.message });
+    }
+  }
+
+  if (url.pathname === '/api/auth/logout' && req.method === 'POST') {
+    if (remotePendingPlanEnabled) {
+      await withTransaction(async (client) => {
+        const token = getSessionTokenFromRequest(req);
+        if (!token) return;
+        await deleteSessionByToken(client, token);
+      });
+    }
+
+    res.setHeader('Set-Cookie', [clearSessionCookie(), formatCharacterCookie(defaultCharacterId)]);
+    return sendJson(res, 200, { ok: true });
+  }
+
+  if (url.pathname === '/api/session' && req.method === 'GET') {
+    if (!remotePendingPlanEnabled) {
+      return sendJson(res, 200, {
+        authenticated: false,
+        userId: null,
+        displayName: null,
+        characterId: getCharacterIdFromRequest(req, url),
+      });
+    }
+
+    const payload = await withTransaction(async (client) => {
+      const session = await getAuthenticatedSession(client, req);
+      return {
+        authenticated: Boolean(session),
+        userId: session?.userId || null,
+        displayName: session?.displayName || null,
+        characterId: getCharacterIdFromRequest(req, url),
+      };
+    });
+
+    return sendJson(res, 200, payload);
+  }
+
+  if (url.pathname === '/api/session' && req.method === 'PUT') {
+    if (!remotePendingPlanEnabled) {
+      return sendJson(res, 404, { error: 'Session switching requires remote persistence mode.' });
+    }
+
+    try {
+      const body = parseJsonBody(await readRequestBody(req));
+      const characterId = normalizeIdentity(body.characterId, defaultCharacterId);
+
+      const payload = await withTransaction(async (client) => {
+        const session = await getAuthenticatedSession(client, req);
+        if (!session) {
+          const error = new Error('Authentication required.');
+          error.statusCode = 401;
+          throw error;
+        }
+
+        const owned = await ensureCharacterOwnership(client, {
+          userId: session.userId,
+          characterId,
+          defaultName: defaultCharacterName,
+          initialPreparedSpellIds: defaultPreparedSpellIds,
+        });
+        if (!owned) {
+          const error = new Error('Character ID belongs to another account.');
+          error.statusCode = 403;
+          throw error;
+        }
+
+        return {
+          userId: session.userId,
+          displayName: session.displayName,
+          characterId,
+        };
+      });
+
+      res.setHeader('Set-Cookie', formatCharacterCookie(payload.characterId));
+      return sendJson(res, 200, {
+        ok: true,
+        authenticated: true,
+        userId: payload.userId,
+        displayName: payload.displayName,
+        characterId: payload.characterId,
+      });
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        return sendJson(res, 400, { error: 'Invalid JSON payload.' });
+      }
+      const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 400;
+      return sendJson(res, statusCode, { error: error.message });
+    }
+  }
+
+  if (url.pathname === '/api/session') {
+    return sendJson(res, 405, {
+      error: `Method not allowed: ${req.method} ${url.pathname}`,
+      path: url.pathname,
+      method: req.method,
+      allowed: ['GET', 'PUT'],
+    });
   }
 
   if (await handleCharacterRoutes(req, res, url)) {
@@ -408,36 +680,48 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && url.pathname === '/api/spells') {
-    let filtered;
+    try {
+      let filtered;
 
-    if (remotePendingPlanEnabled) {
-      filtered = await withUserCharacterScope({ req, url }, async ({ client, characterId }) => {
-        const preparedList = await getPreparedList(client, characterId);
-        const preparedSet = new Set(preparedList.spellIds);
-        const scopedSpells = spells.map((spell) => ({
-          ...spell,
-          prepared: preparedSet.has(spell.id),
-        }));
-        return querySpells(url, scopedSpells);
+      if (remotePendingPlanEnabled) {
+        filtered = await withUserCharacterScope({ req, url }, async ({ client, characterId }) => {
+          const preparedList = await getPreparedList(client, characterId);
+          const preparedSet = new Set(preparedList.spellIds);
+          const scopedSpells = spells.map((spell) => ({
+            ...spell,
+            prepared: preparedSet.has(spell.id),
+          }));
+          return querySpells(url, scopedSpells);
+        });
+      } else {
+        filtered = querySpells(url);
+      }
+
+      return sendJson(res, 200, {
+        count: filtered.length,
+        filters: {
+          name: url.searchParams.get('name'),
+          level: url.searchParams.get('level'),
+          source: url.searchParams.get('source'),
+          tags: url.searchParams.get('tags'),
+          prepared: url.searchParams.get('prepared'),
+        },
+        spells: filtered,
       });
-    } else {
-      filtered = querySpells(url);
+    } catch (error) {
+      const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 400;
+      return sendJson(res, statusCode, { error: error.message });
     }
-
-    return sendJson(res, 200, {
-      count: filtered.length,
-      filters: {
-        name: url.searchParams.get('name'),
-        level: url.searchParams.get('level'),
-        source: url.searchParams.get('source'),
-        tags: url.searchParams.get('tags'),
-        prepared: url.searchParams.get('prepared'),
-      },
-      spells: filtered,
-    });
   }
 
   if (req.method === 'PATCH' && url.pathname.startsWith('/api/spells/')) {
+    if (remotePendingPlanEnabled) {
+      const session = await withTransaction(async (client) => getAuthenticatedSession(client, req));
+      if (!session) {
+        return sendJson(res, 401, { error: 'Authentication required.' });
+      }
+    }
+
     const encodedId = url.pathname.slice('/api/spells/'.length);
     const spellId = decodeURIComponent(encodedId);
     const index = spells.findIndex((spell) => spell.id === spellId);
@@ -515,11 +799,19 @@ const server = http.createServer(async (req, res) => {
           return sendJson(res, 400, { error: error.message });
         }
       })
-      .catch((error) => sendJson(res, 500, { error: error.message }));
+      .catch((error) => {
+        const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 500;
+        return sendJson(res, statusCode, { error: error.message });
+      });
   }
 
   if (req.method !== 'GET' && req.method !== 'HEAD') {
-    return sendJson(res, 405, { error: 'Method not allowed' });
+    return sendJson(res, 405, {
+      error: `Method not allowed: ${req.method} ${url.pathname}`,
+      path: url.pathname,
+      method: req.method,
+      allowed: ['GET', 'HEAD'],
+    });
   }
 
   const staticPath = getStaticFilePath(url.pathname);

@@ -119,11 +119,29 @@ h1 {
   align-items: end;
 }
 
+.auth-grid + .auth-grid {
+  margin-top: 0.5rem;
+}
+
 .account-grid label {
   font-size: 0.85rem;
   color: var(--muted);
   display: grid;
   gap: 0.35rem;
+}
+
+.account-actions {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.account-switch-grid {
+  margin-top: 0.45rem;
+}
+
+.account-inline-note {
+  align-self: center;
+  font-size: 0.8rem;
 }
 
 .account-summary {
@@ -664,6 +682,10 @@ tbody tr:hover {
   .action-row:has(#replaceFromSelect),
   .account-grid {
     grid-template-columns: 1fr;
+  }
+
+  .account-actions {
+    justify-content: flex-start;
   }
 
   .prep-grid {
