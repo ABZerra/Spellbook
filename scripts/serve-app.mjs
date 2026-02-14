@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { createReadStream, existsSync, readFileSync } from 'node:fs';
+import { createReadStream, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,6 +20,73 @@ const spells = Array.isArray(database.spells) ? database.spells : [];
 function sendJson(res, code, payload) {
   res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8' });
   res.end(JSON.stringify(payload, null, 2));
+}
+
+function readRequestBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    req.on('error', reject);
+  });
+}
+
+function parseCsvList(value) {
+  return String(value || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function persistDatabase() {
+  database.totalSpells = spells.length;
+  writeFileSync(dbPath, `${JSON.stringify(database, null, 2)}\n`, 'utf8');
+}
+
+function normalizeSpellPatch(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    throw new Error('Payload must be a JSON object.');
+  }
+
+  const hasOwn = (key) => Object.prototype.hasOwnProperty.call(input, key);
+  const patch = {};
+
+  if (hasOwn('name')) {
+    const name = String(input.name || '').trim();
+    if (!name) throw new Error('`name` is required.');
+    patch.name = name;
+  }
+
+  if (hasOwn('level')) {
+    const parsed = Number.parseInt(String(input.level), 10);
+    if (!Number.isFinite(parsed) || parsed < 0) throw new Error('`level` must be a non-negative integer.');
+    patch.level = parsed;
+  }
+
+  if (hasOwn('source')) {
+    const source = Array.isArray(input.source) ? input.source : parseCsvList(input.source);
+    patch.source = source.map((entry) => String(entry).trim()).filter(Boolean);
+  }
+
+  if (hasOwn('tags')) {
+    const tags = Array.isArray(input.tags) ? input.tags : parseCsvList(input.tags);
+    patch.tags = tags.map((entry) => String(entry).trim()).filter(Boolean);
+  }
+
+  if (hasOwn('prepared')) {
+    patch.prepared = Boolean(input.prepared);
+  }
+
+  return patch;
+}
+
+function updateRawFields(spell) {
+  spell.raw = spell.raw || {};
+  spell.raw['Prepared?'] = spell.prepared ? 'Yes' : 'No';
+  spell.raw['Spell Level'] = String(spell.level);
+  spell.raw.Source = (spell.source || []).join(', ');
+  spell.raw.Tags = (spell.tags || []).join(', ');
+  spell.raw.Name = spell.name;
 }
 
 function getStaticFilePath(urlPath) {
@@ -95,6 +162,38 @@ const server = http.createServer((req, res) => {
       },
       spells: filtered,
     });
+  }
+
+  if (req.method === 'PATCH' && url.pathname.startsWith('/api/spells/')) {
+    const encodedId = url.pathname.slice('/api/spells/'.length);
+    const spellId = decodeURIComponent(encodedId);
+    const index = spells.findIndex((spell) => spell.id === spellId);
+    if (index === -1) return sendJson(res, 404, { error: `Spell not found: ${spellId}` });
+
+    return readRequestBody(req)
+      .then((bodyText) => {
+        let payload = {};
+        if (bodyText.trim()) {
+          try {
+            payload = JSON.parse(bodyText);
+          } catch {
+            return sendJson(res, 400, { error: 'Invalid JSON payload.' });
+          }
+        }
+
+        try {
+          const patch = normalizeSpellPatch(payload);
+          const current = spells[index];
+          const next = { ...current, ...patch };
+          updateRawFields(next);
+          spells[index] = next;
+          persistDatabase();
+          return sendJson(res, 200, { ok: true, spell: next });
+        } catch (error) {
+          return sendJson(res, 400, { error: error.message });
+        }
+      })
+      .catch((error) => sendJson(res, 500, { error: error.message }));
   }
 
   if (req.method !== 'GET' && req.method !== 'HEAD') {
