@@ -8,14 +8,10 @@ function asStringList(value) {
 }
 
 export async function ensureCharacterOwnership(client, { userId, characterId, defaultName, initialPreparedSpellIds }) {
-  await client.query(
-    `
-      INSERT INTO users (id)
-      VALUES ($1)
-      ON CONFLICT (id) DO UPDATE SET updated_at = NOW()
-    `,
-    [userId],
-  );
+  const existingUser = await client.query('SELECT 1 FROM users WHERE id = $1 LIMIT 1', [userId]);
+  if (existingUser.rowCount === 0) {
+    return false;
+  }
 
   const existingCharacter = await client.query('SELECT user_id FROM characters WHERE id = $1', [characterId]);
 

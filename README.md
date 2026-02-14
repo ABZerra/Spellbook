@@ -64,9 +64,9 @@ Required env vars:
 
 Optional env vars:
 
-- `DEFAULT_USER_ID=demo-user`
 - `DEFAULT_CHARACTER_ID=default-character`
 - `DEFAULT_CHARACTER_NAME=Default Character`
+- `AUTH_SESSION_TTL_SECONDS=2592000` (30 days by default)
 
 When enabled, `/prepare` auto-saves each queued change to:
 
@@ -78,14 +78,30 @@ When enabled, `/prepare` auto-saves each queued change to:
 
 Schema bootstrap SQL is available at `db/pending-plan-schema.sql` and is auto-applied at server startup in remote mode.
 
-### Account Sessions (user + character scoped state)
+### Auth: Signup / Signin / Logout (no password)
 
-The app now supports lightweight account sessions from the UI on both `/` and `/prepare`:
+When remote mode is enabled, both `/` and `/prepare` include an auth panel:
 
-- `User ID` and `Character ID` can be switched with `Switch Session`.
-- Session values are stored in cookies (`spellbook_user_id`, `spellbook_character_id`).
-- In remote mode, prepared spell state is scoped by `user + character` and is available across devices when signing in with the same IDs.
-- Local browser fallback drafts remain device-local, but are now also scoped per `user + character` so different users do not overwrite each other on a shared machine.
+- `Sign Up` creates a new user ID and signs in.
+- `Sign In` signs into an existing user ID.
+- `Log Out` ends the current session.
+- `Switch Character` changes the active character for the signed-in user.
+
+Session details:
+
+- Server-issued session token cookie: `spellbook_session_token` (HTTP-only).
+- Active character cookie: `spellbook_character_id`.
+- Prepared spell state and pending plans are scoped by `user + character`.
+- Local browser fallback drafts remain device-local and are keyed by `user + character`.
+
+Auth/session API endpoints:
+
+- `GET /api/auth/me`
+- `POST /api/auth/signup`
+- `POST /api/auth/signin`
+- `POST /api/auth/logout`
+- `GET /api/session`
+- `PUT /api/session` (character switch for signed-in user)
 
 ## Spell data workflow
 

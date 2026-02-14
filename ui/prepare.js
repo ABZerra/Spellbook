@@ -1,6 +1,7 @@
 import { applyPlan, validatePlan } from '/domain/planner.js';
 
 const PENDING_PLAN_KEY_PREFIX = 'spellbook.pendingPlan.v1';
+let defaultCharacterId = 'default-character';
 
 const elements = {
   currentCountValue: document.getElementById('currentCountValue'),
@@ -39,9 +40,14 @@ const elements = {
   spellDetailPreparation: document.getElementById('spellDetailPreparation'),
   spellDetailCombos: document.getElementById('spellDetailCombos'),
   spellDetailItems: document.getElementById('spellDetailItems'),
-  userIdInput: document.getElementById('userIdInput'),
+  signupUserIdInput: document.getElementById('signupUserIdInput'),
+  signupDisplayNameInput: document.getElementById('signupDisplayNameInput'),
+  signupButton: document.getElementById('signupButton'),
+  signinUserIdInput: document.getElementById('signinUserIdInput'),
+  signinButton: document.getElementById('signinButton'),
+  logoutButton: document.getElementById('logoutButton'),
   characterIdInput: document.getElementById('characterIdInput'),
-  switchAccountButton: document.getElementById('switchAccountButton'),
+  switchCharacterButton: document.getElementById('switchCharacterButton'),
   accountSessionSummary: document.getElementById('accountSessionSummary'),
 };
 
@@ -53,7 +59,9 @@ let activeSpellSidebarId = null;
 let remotePendingPlanEnabled = false;
 let pendingPlanVersion = 1;
 let currentCharacterId = 'default-character';
-let currentUserId = 'demo-user';
+let authenticated = false;
+let currentUserId = null;
+let currentDisplayName = null;
 let remoteActivePreparedSet = new Set();
 
 function normalizeIdentity(value, fallback) {
@@ -62,12 +70,43 @@ function normalizeIdentity(value, fallback) {
   return /^[A-Za-z0-9_.-]{2,64}$/.test(next) ? next : fallback;
 }
 
+function parseRequiredIdentity(value, fieldName) {
+  const next = String(value || '').trim();
+  if (!/^[A-Za-z0-9_.-]{2,64}$/.test(next)) {
+    throw new Error(`${fieldName} must use 2-64 chars: letters, numbers, dot, underscore, hyphen.`);
+  }
+  return next;
+}
+
 function getPendingPlanStorageKey() {
-  return `${PENDING_PLAN_KEY_PREFIX}.${currentUserId}.${currentCharacterId}`;
+  const userKey = currentUserId || 'anonymous';
+  return `${PENDING_PLAN_KEY_PREFIX}.${userKey}.${currentCharacterId}`;
 }
 
 function updateSessionSummary() {
-  elements.accountSessionSummary.textContent = `Active session: ${currentUserId} / ${currentCharacterId}`;
+  if (elements.signupButton) elements.signupButton.disabled = !remotePendingPlanEnabled;
+  if (elements.signinButton) elements.signinButton.disabled = !remotePendingPlanEnabled;
+  if (elements.switchCharacterButton) {
+    elements.switchCharacterButton.disabled = remotePendingPlanEnabled && !authenticated;
+  }
+  if (elements.logoutButton) {
+    elements.logoutButton.disabled = remotePendingPlanEnabled && !authenticated;
+  }
+
+  if (!remotePendingPlanEnabled) {
+    elements.accountSessionSummary.textContent = `Local mode (no remote auth). Character: ${currentCharacterId}`;
+    return;
+  }
+
+  if (!authenticated || !currentUserId) {
+    elements.accountSessionSummary.textContent = 'Not signed in.';
+    return;
+  }
+
+  const identity = currentDisplayName && currentDisplayName !== currentUserId
+    ? `${currentDisplayName} (${currentUserId})`
+    : currentUserId;
+  elements.accountSessionSummary.textContent = `Signed in as ${identity}. Character: ${currentCharacterId}`;
 }
 
 function escapeHtml(value) {
@@ -403,67 +442,135 @@ async function fetchConfig() {
 
     const payload = await response.json();
     remotePendingPlanEnabled = Boolean(payload.remotePendingPlanEnabled);
-    currentUserId = normalizeIdentity(payload.userId, currentUserId);
+    defaultCharacterId = normalizeIdentity(payload.defaultCharacterId, defaultCharacterId);
+    authenticated = Boolean(payload.authenticated);
+    currentUserId = payload.userId ? normalizeIdentity(payload.userId, null) : null;
+    currentDisplayName = payload.displayName ? String(payload.displayName) : null;
 
     const fromQuery = new URLSearchParams(window.location.search).get('characterId');
     const configCharacter = normalizeIdentity(payload.characterId || payload.defaultCharacterId, currentCharacterId);
     currentCharacterId = normalizeIdentity(fromQuery, configCharacter);
 
-    elements.userIdInput.value = currentUserId;
     elements.characterIdInput.value = currentCharacterId;
+    if (elements.signinUserIdInput && currentUserId) {
+      elements.signinUserIdInput.value = currentUserId;
+    }
     updateSessionSummary();
   } catch {
     // Keep defaults.
   }
 }
 
-async function switchSession() {
-  const nextUserId = normalizeIdentity(elements.userIdInput.value, '');
-  const nextCharacterId = normalizeIdentity(elements.characterIdInput.value, '');
+async function submitAuth(path, payload) {
+  const response = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
 
-  if (!nextUserId || !nextCharacterId) {
-    setStatus('Use letters, numbers, dot, underscore, or hyphen (2-64 chars) for user and character IDs.', true);
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(body.error || `HTTP ${response.status}`);
+  }
+
+  authenticated = true;
+  currentUserId = normalizeIdentity(body.userId, currentUserId);
+  currentDisplayName = body.displayName ? String(body.displayName) : currentUserId;
+  currentCharacterId = normalizeIdentity(body.characterId, currentCharacterId);
+  elements.characterIdInput.value = currentCharacterId;
+  if (elements.signinUserIdInput && currentUserId) {
+    elements.signinUserIdInput.value = currentUserId;
+  }
+  updateSessionSummary();
+
+  const nextUrl = new URL(window.location.href);
+  nextUrl.searchParams.set('characterId', currentCharacterId);
+  window.history.replaceState({}, '', nextUrl);
+}
+
+async function signup() {
+  const userId = parseRequiredIdentity(elements.signupUserIdInput?.value, 'Sign up User ID');
+  const displayName = String(elements.signupDisplayNameInput?.value || '').trim();
+  const characterId = normalizeIdentity(elements.characterIdInput?.value, currentCharacterId);
+
+  await submitAuth('/api/auth/signup', { userId, displayName, characterId });
+  pendingChanges = [];
+  pendingPlanVersion = 1;
+  remoteActivePreparedSet = new Set();
+  await loadSpells();
+  setStatus(`Signed up and signed in as ${currentUserId}.`);
+}
+
+async function signin() {
+  const userId = parseRequiredIdentity(elements.signinUserIdInput?.value, 'Sign in User ID');
+  const characterId = normalizeIdentity(elements.characterIdInput?.value, currentCharacterId);
+
+  await submitAuth('/api/auth/signin', { userId, characterId });
+  pendingChanges = [];
+  pendingPlanVersion = 1;
+  remoteActivePreparedSet = new Set();
+  await loadSpells();
+  setStatus(`Signed in as ${currentUserId}.`);
+}
+
+async function logout() {
+  const response = await fetch('/api/auth/logout', { method: 'POST' });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || `HTTP ${response.status}`);
+  }
+
+  authenticated = false;
+  currentUserId = null;
+  currentDisplayName = null;
+  currentCharacterId = defaultCharacterId;
+  elements.characterIdInput.value = currentCharacterId;
+  pendingChanges = [];
+  pendingPlanVersion = 1;
+  remoteActivePreparedSet = new Set();
+  updateSessionSummary();
+  await loadSpells();
+  setStatus('Signed out.');
+}
+
+async function switchCharacter() {
+  if (!remotePendingPlanEnabled) {
+    currentCharacterId = normalizeIdentity(elements.characterIdInput.value, currentCharacterId);
+    await loadSpells();
     return;
   }
 
-  elements.switchAccountButton.disabled = true;
-  setStatus('Switching session...');
-
-  try {
-    const response = await fetch('/api/session', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: nextUserId,
-        characterId: nextCharacterId,
-      }),
-    });
-
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(payload.error || `HTTP ${response.status}`);
-    }
-
-    currentUserId = normalizeIdentity(payload.userId, currentUserId);
-    currentCharacterId = normalizeIdentity(payload.characterId, currentCharacterId);
-    elements.userIdInput.value = currentUserId;
-    elements.characterIdInput.value = currentCharacterId;
-    updateSessionSummary();
-
-    const nextUrl = new URL(window.location.href);
-    nextUrl.searchParams.set('characterId', currentCharacterId);
-    window.history.replaceState({}, '', nextUrl);
-
-    pendingChanges = [];
-    pendingPlanVersion = 1;
-    remoteActivePreparedSet = new Set();
-    await loadSpells();
-    setStatus(`Session switched to ${currentUserId}/${currentCharacterId}.`);
-  } catch (error) {
-    setStatus(`Unable to switch session: ${error.message}`, true);
-  } finally {
-    elements.switchAccountButton.disabled = false;
+  if (!authenticated) {
+    throw new Error('Sign in first.');
   }
+
+  const characterId = normalizeIdentity(elements.characterIdInput.value, '');
+  if (!characterId) throw new Error('Character ID is required.');
+
+  const response = await fetch('/api/session', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ characterId }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || `HTTP ${response.status}`);
+  }
+
+  currentCharacterId = normalizeIdentity(payload.characterId, currentCharacterId);
+  elements.characterIdInput.value = currentCharacterId;
+  updateSessionSummary();
+
+  const nextUrl = new URL(window.location.href);
+  nextUrl.searchParams.set('characterId', currentCharacterId);
+  window.history.replaceState({}, '', nextUrl);
+
+  pendingChanges = [];
+  pendingPlanVersion = 1;
+  remoteActivePreparedSet = new Set();
+  await loadSpells();
+  setStatus(`Switched character to ${currentCharacterId}.`);
 }
 
 async function loadRemotePendingPlan() {
@@ -662,7 +769,10 @@ async function loadSpells() {
 
   try {
     const response = await fetch('/api/spells');
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload.error || `HTTP ${response.status}`);
+    }
 
     const payload = await response.json();
     spells = Array.isArray(payload.spells) ? payload.spells : [];
@@ -685,10 +795,21 @@ async function loadSpells() {
 
     render();
     if (!elements.prepareStatusMessage.classList.contains('error')) {
-      const mode = remotePendingPlanEnabled ? `Remote draft (${currentUserId}/${currentCharacterId})` : 'Local draft';
+      const mode = remotePendingPlanEnabled
+        ? `Remote draft (${currentUserId || 'anonymous'}/${currentCharacterId})`
+        : 'Local draft';
       setStatus(`Loaded ${spells.length} spells. ${mode}.`);
     }
   } catch (error) {
+    if (remotePendingPlanEnabled && !authenticated) {
+      spells = [];
+      pendingChanges = [];
+      remoteActivePreparedSet = new Set();
+      render();
+      setStatus('Sign in to load and sync prepared spells.', true);
+      return;
+    }
+
     if (remotePendingPlanEnabled) {
       pendingChanges = loadPendingPlanFallback();
       render();
@@ -822,8 +943,20 @@ elements.applyPlanButton.addEventListener('click', () => {
   void applyPendingPlan();
 });
 
-elements.switchAccountButton.addEventListener('click', () => {
-  void switchSession();
+elements.signupButton.addEventListener('click', () => {
+  void signup().catch((error) => setStatus(`Unable to sign up: ${error.message}`, true));
+});
+
+elements.signinButton.addEventListener('click', () => {
+  void signin().catch((error) => setStatus(`Unable to sign in: ${error.message}`, true));
+});
+
+elements.logoutButton.addEventListener('click', () => {
+  void logout().catch((error) => setStatus(`Unable to sign out: ${error.message}`, true));
+});
+
+elements.switchCharacterButton.addEventListener('click', () => {
+  void switchCharacter().catch((error) => setStatus(`Unable to switch character: ${error.message}`, true));
 });
 
 await fetchConfig();
