@@ -1,0 +1,4857 @@
+{
+  "schemaVersion": 1,
+  "importedAt": "2026-02-14T13:05:14.184Z",
+  "sourceFile": "Spells.csv",
+  "totalSpells": 172,
+  "spells": [
+    {
+      "id": "control-flames-0-druid",
+      "name": "Control Flames",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "You choose nonmagical flame that you can see within range and that fits within a 5-foot cube. You affect it in one of the following ways: (…) If you cast this spell multiple times, you can have up to three of its non-instantaneous effects active at a time, and you can dismiss such an effect as an action.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Control Flames",
+        "Component": "",
+        "Notes": "You choose nonmagical flame that you can see within range and that fits within a 5-foot cube. You affect it in one of the following ways: (…) If you cast this spell multiple times, you can have up to three of its non-instantaneous effects active at a time, and you can dismiss such an effect as an action.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "create-bonfire-0-druid",
+      "name": "Create Bonfire",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "The bonfire ignites flammable objects in its area that aren’t being worn or carried.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "Concentration",
+        "Name": "Create Bonfire",
+        "Component": "",
+        "Notes": "The bonfire ignites flammable objects in its area that aren’t being worn or carried.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "druidcraft-0-druid",
+      "name": "Druidcraft",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Whispering to the spirits of nature, you create one of the following effects within range: (…) predict weather",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Druidcraft",
+        "Component": "",
+        "Notes": "Whispering to the spirits of nature, you create one of the following effects within range: (…) predict weather",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "frostbite-0-druid",
+      "name": "Frostbite",
+      "level": 0,
+      "prepared": true,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Frostbite",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "guidance-0-cleric",
+      "name": "Guidance",
+      "level": 0,
+      "prepared": true,
+      "source": [
+        "Cleric",
+        "Druid"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "0",
+        "Source": "Cleric, Druid",
+        "Tags": "Concentration",
+        "Name": "Guidance",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "gust-0-druid",
+      "name": "Gust",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": "You seize the air and compel it to create one of the following effects at a point you can see within range: Push creatures, objects, doors…",
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Gust",
+        "Component": "You seize the air and compel it to create one of the following effects at a point you can see within range: Push creatures, objects, doors…",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "infestation-0-druid",
+      "name": "Infestation",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Damage and random forced movement",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Infestation",
+        "Component": "",
+        "Notes": "Damage and random forced movement",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "light-0-cleric",
+      "name": "Light",
+      "level": 0,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "If you target an object held or worn by a hostile creature, that creature must succeed on a Dexterity saving throw to avoid the spell.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "0",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Light",
+        "Component": "",
+        "Notes": "If you target an object held or worn by a hostile creature, that creature must succeed on a Dexterity saving throw to avoid the spell.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "magic-stone-0-druid",
+      "name": "Magic Stone",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "You touch one to three pebbles and imbue them with magic to make ranged attack rolls.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Magic Stone",
+        "Component": "",
+        "Notes": "You touch one to three pebbles and imbue them with magic to make ranged attack rolls.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "mending-0-cleric",
+      "name": "Mending",
+      "level": 0,
+      "prepared": true,
+      "source": [
+        "Cleric",
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "0",
+        "Source": "Cleric, Druid",
+        "Tags": "",
+        "Name": "Mending",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "mold-earth-0-druid",
+      "name": "Mold earth",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "You choose a portion of dirt or stone that you can see within range and that fits within a 5-foot cube. You manipulate it in one of the following ways (…) If you cast this spell multiple times, you can have no more than two of its non-instantaneous effects active at a time, and you can dismiss such an effect as an action.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Mold earth",
+        "Component": "",
+        "Notes": "You choose a portion of dirt or stone that you can see within range and that fits within a 5-foot cube. You manipulate it in one of the following ways (…) If you cast this spell multiple times, you can have no more than two of its non-instantaneous effects active at a time, and you can dismiss such an effect as an action.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "poison-spray-0-druid",
+      "name": "Poison Spray",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Poison Spray",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "primal-savagery-0-druid",
+      "name": "Primal Savagery",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Primal Savagery",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "produce-flame-0-druid",
+      "name": "Produce Flame",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Produce Flame",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "resistance-0-cleric",
+      "name": "Resistance",
+      "level": 0,
+      "prepared": true,
+      "source": [
+        "Cleric",
+        "Druid"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "0",
+        "Source": "Cleric, Druid",
+        "Tags": "Concentration",
+        "Name": "Resistance",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "sacred-flame-0-cleric",
+      "name": "Sacred Flame",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Radiant damage. The target gains no benefit from cover for this saving throw.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Sacred Flame",
+        "Component": "",
+        "Notes": "Radiant damage. The target gains no benefit from cover for this saving throw.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "shape-water-0-druid",
+      "name": "Shape Water",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "You choose an area of water that you can see within range and that fits within a 5-foot cube. If you cast this spell multiple times, you can have no more than two of its non-instantaneous effects active at a time",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Shape Water",
+        "Component": "",
+        "Notes": "You choose an area of water that you can see within range and that fits within a 5-foot cube. If you cast this spell multiple times, you can have no more than two of its non-instantaneous effects active at a time",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "shillelagh-0-druid",
+      "name": "Shillelagh",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "The wood of a club or quarterstaff you are holding is imbued with nature's power. For the duration, you can use your spellcasting ability instead of Strength for the attack and damage rolls of melee attacks using that weapon, and the weapon's damage die becomes a d8.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Shillelagh",
+        "Component": "",
+        "Notes": "The wood of a club or quarterstaff you are holding is imbued with nature's power. For the duration, you can use your spellcasting ability instead of Strength for the attack and damage rolls of melee attacks using that weapon, and the weapon's damage die becomes a d8.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "spare-the-dying-0-cleric",
+      "name": "Spare the dying",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "The creature becomes stable. This spell has no effect on undead or constructs.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Spare the dying",
+        "Component": "",
+        "Notes": "The creature becomes stable. This spell has no effect on undead or constructs.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "thaumaturgy-0-cleric",
+      "name": "Thaumaturgy",
+      "level": 0,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "0",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Thaumaturgy",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "thorn-whip-0-druid",
+      "name": "Thorn Whip",
+      "level": 0,
+      "prepared": true,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Large or smaller creature is pulled 10ft",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Thorn Whip",
+        "Component": "",
+        "Notes": "Large or smaller creature is pulled 10ft",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "thunderclap-0-druid",
+      "name": "Thunderclap",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "AOE Thunder damage",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Thunderclap",
+        "Component": "",
+        "Notes": "AOE Thunder damage",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "toll-the-dead-0-cleric",
+      "name": "Toll the Dead",
+      "level": 0,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "If the target is missing any of its hit points, it instead takes 1d12 necrotic damage.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "0",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Toll the Dead",
+        "Component": "",
+        "Notes": "If the target is missing any of its hit points, it instead takes 1d12 necrotic damage.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "word-of-radiance-0-cleric",
+      "name": "Word of Radiance",
+      "level": 0,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "AOE Radiant Damage",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "0",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Word of Radiance",
+        "Component": "",
+        "Notes": "AOE Radiant Damage",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "absorb-elements-1-druid",
+      "name": "Absorb Elements",
+      "level": 1,
+      "prepared": true,
+      "source": [
+        "Druid"
+      ],
+      "tags": [
+        "Reaction"
+      ],
+      "component": null,
+      "notes": "Duration: 1 Round. Reaction which you take when you take acid, cold, fire, lightning, or thunder damage.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "Reaction",
+        "Name": "Absorb Elements",
+        "Component": "",
+        "Notes": "Duration: 1 Round. Reaction which you take when you take acid, cold, fire, lightning, or thunder damage.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "animal-friendship-1-druid",
+      "name": "Animal Friendship",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Duration: 24h. The spell fails if the beast’s Intelligence is 4 or higher",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Animal Friendship",
+        "Component": "",
+        "Notes": "Duration: 24h. The spell fails if the beast’s Intelligence is 4 or higher",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "bane-1-cleric",
+      "name": "Bane",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "-1d4 Attack and SVT. Upcast: more targets",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Bane",
+        "Component": "",
+        "Notes": "-1d4 Attack and SVT. Upcast: more targets",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "beast-bond-1-druid",
+      "name": "Beast Bond",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Duration: 10min. The spell fails if the beast’s Intelligence is 4 or higher",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "Concentration",
+        "Name": "Beast Bond",
+        "Component": "",
+        "Notes": "Duration: 10min. The spell fails if the beast’s Intelligence is 4 or higher",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "bless-1-cleric",
+      "name": "Bless",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "attack roll or a saving throw. Upcast Multitarget",
+      "preparation": "Stapples (legacy)",
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Bless",
+        "Component": "",
+        "Notes": "attack roll or a saving throw. Upcast Multitarget",
+        "Preparation": "Stapples (legacy)",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "ceremony-1-cleric",
+      "name": "Ceremony",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast",
+        "Ritual"
+      ],
+      "component": "25 gp worth of powdered silver, which the spell consumes",
+      "notes": null,
+      "preparation": null,
+      "combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Cleric",
+        "Tags": "Long Cast, Ritual",
+        "Name": "Ceremony",
+        "Component": "25 gp worth of powdered silver, which the spell consumes",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "charm-person-1-druid",
+      "name": "Charm person",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Duration: 1hour. Works on Humanoids. Upcast Multitarget",
+      "preparation": null,
+      "combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Legendary Resistances Burners (https://www.notion.so/Legendary-Resistances-Burners-7db97fcae46246aeb24967f7f45f8a7a?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Charm person",
+        "Component": "",
+        "Notes": "Duration: 1hour. Works on Humanoids. Upcast Multitarget",
+        "Preparation": "",
+        "Combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Legendary Resistances Burners (https://www.notion.so/Legendary-Resistances-Burners-7db97fcae46246aeb24967f7f45f8a7a?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "command-1-cleric",
+      "name": "Command",
+      "level": 1,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "The spell has no effect if the target is undead, if it doesn't understand your language, or if your command is directly harmful to it. Upcast Multitarget",
+      "preparation": null,
+      "combos": "Command Steal (https://www.notion.so/Command-Steal-d039d8fed3284af8b05fe24e76663c49?pvs=21), Legendary Resistances Burners (https://www.notion.so/Legendary-Resistances-Burners-7db97fcae46246aeb24967f7f45f8a7a?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "1",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Command",
+        "Component": "",
+        "Notes": "The spell has no effect if the target is undead, if it doesn't understand your language, or if your command is directly harmful to it. Upcast Multitarget",
+        "Preparation": "",
+        "Combos": "Command Steal (https://www.notion.so/Command-Steal-d039d8fed3284af8b05fe24e76663c49?pvs=21), Legendary Resistances Burners (https://www.notion.so/Legendary-Resistances-Burners-7db97fcae46246aeb24967f7f45f8a7a?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "create-or-destroy-water-1-cleric",
+      "name": "Create or Destroy Water",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Cleric",
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "You create/destroy up to 10 gallons of clean water, or water falls/destroy fog as rain in a 30-foot cube.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Cleric, Druid",
+        "Tags": "",
+        "Name": "Create or Destroy Water",
+        "Component": "",
+        "Notes": "You create/destroy up to 10 gallons of clean water, or water falls/destroy fog as rain in a 30-foot cube. ",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "cure-wounds-1-druid",
+      "name": "Cure Wounds",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "This spell has no effect on undead or constructs.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Cure Wounds",
+        "Component": "",
+        "Notes": "This spell has no effect on undead or constructs.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "detect-evil-and-good-1-cleric",
+      "name": "Detect Evil and Good",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Works on: aberration, celestial, elemental, fey, fiend, or undead.\nBlocked by: 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt.",
+      "preparation": null,
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Detect Evil and Good",
+        "Component": "",
+        "Notes": "Works on: aberration, celestial, elemental, fey, fiend, or undead.\nBlocked by: 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt.",
+        "Preparation": "",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "detect-magic-1-cleric",
+      "name": "Detect Magic",
+      "level": 1,
+      "prepared": true,
+      "source": [
+        "Cleric",
+        "Druid"
+      ],
+      "tags": [
+        "Concentration",
+        "Ritual"
+      ],
+      "component": null,
+      "notes": "Duration: 10min. Sees invisible. \nBlocked by 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt.",
+      "preparation": "Create scroll of Detect Magic for Ghimia",
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "1",
+        "Source": "Cleric, Druid",
+        "Tags": "Concentration, Ritual",
+        "Name": "Detect Magic",
+        "Component": "",
+        "Notes": "Duration: 10min. Sees invisible. \nBlocked by 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt.",
+        "Preparation": "Create scroll of Detect Magic for Ghimia",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "detect-poison-and-disease-1-cleric",
+      "name": "Detect Poison and Disease",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Cleric",
+        "Druid"
+      ],
+      "tags": [
+        "Concentration",
+        "Ritual"
+      ],
+      "component": null,
+      "notes": "Duration: 10min. Poisonous Creatures. \nBlocked by 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Cleric, Druid",
+        "Tags": "Concentration, Ritual",
+        "Name": "Detect Poison and Disease",
+        "Component": "",
+        "Notes": "Duration: 10min. Poisonous Creatures. \nBlocked by 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "earth-tremor-1-druid",
+      "name": "Earth Tremor",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "If the ground in that area is loose earth or stone, it becomes difficult terrain until cleared, with each 5-foot-diameter portion requiring at least 1 minute to clear by hand.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Earth Tremor",
+        "Component": "",
+        "Notes": "If the ground in that area is loose earth or stone, it becomes difficult terrain until cleared, with each 5-foot-diameter portion requiring at least 1 minute to clear by hand.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "entangle-1-druid",
+      "name": "Entangle",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "For the duration, these plants turn the ground in the area into difficult terrain.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "Concentration",
+        "Name": "Entangle",
+        "Component": "",
+        "Notes": "For the duration, these plants turn the ground in the area into difficult terrain.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "faerie-fire-1-druid",
+      "name": "Faerie Fire",
+      "level": 1,
+      "prepared": true,
+      "source": [
+        "Druid"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Sees invisible",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "Concentration",
+        "Name": "Faerie Fire",
+        "Component": "",
+        "Notes": "Sees invisible",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "fog-cloud-1-druid",
+      "name": "Fog Cloud",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "The sphere spreads around corners, and its area is heavily obscured. It lasts for the duration or until a wind of moderate or greater speed (at least 10 miles per hour) disperses it.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "Concentration",
+        "Name": "Fog Cloud",
+        "Component": "",
+        "Notes": "The sphere spreads around corners, and its area is heavily obscured. It lasts for the duration or until a wind of moderate or greater speed (at least 10 miles per hour) disperses it.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "goodberry-1-druid",
+      "name": "Goodberry",
+      "level": 1,
+      "prepared": true,
+      "source": [
+        "Druid"
+      ],
+      "tags": [
+        "Rest Cast"
+      ],
+      "component": null,
+      "notes": "Works on a corpse.",
+      "preparation": "Burn Cast (legacy) Infirmary “tag game” with Styx",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "Rest Cast",
+        "Name": "Goodberry",
+        "Component": "",
+        "Notes": "Works on a corpse.",
+        "Preparation": "Burn Cast (legacy) Infirmary “tag game” with Styx",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "guiding-bolt-1-cleric",
+      "name": "Guiding Bolt",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Cleric",
+        "Druid"
+      ],
+      "tags": [
+        "Always Prepared"
+      ],
+      "component": null,
+      "notes": "next attack roll made against this target before the end of your next turn has advantage, thanks to the mystical dim light glittering on the target until then. Upcast Damage",
+      "preparation": null,
+      "combos": "Guiding Bolt Barrage (https://www.notion.so/Guiding-Bolt-Barrage-8e7bbbf87da749aa972234e04420ea04?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Cleric, Druid",
+        "Tags": "Always Prepared",
+        "Name": "Guiding Bolt",
+        "Component": "",
+        "Notes": "next attack roll made against this target before the end of your next turn has advantage, thanks to the mystical dim light glittering on the target until then. Upcast Damage",
+        "Preparation": "",
+        "Combos": "Guiding Bolt Barrage (https://www.notion.so/Guiding-Bolt-Barrage-8e7bbbf87da749aa972234e04420ea04?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "healing-word-1-cleric",
+      "name": "Healing Word",
+      "level": 1,
+      "prepared": true,
+      "source": [
+        "Cleric",
+        "Druid"
+      ],
+      "tags": [
+        "Bonus Action"
+      ],
+      "component": null,
+      "notes": "This spell has no effect on undead or constructs.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "1",
+        "Source": "Cleric, Druid",
+        "Tags": "Bonus Action",
+        "Name": "Healing Word",
+        "Component": "",
+        "Notes": "This spell has no effect on undead or constructs.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "heroism-1-cleric",
+      "name": "Heroism",
+      "level": 1,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Always Prepared",
+        "Concentration"
+      ],
+      "component": null,
+      "notes": null,
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "1",
+        "Source": "Cleric",
+        "Tags": "Always Prepared, Concentration",
+        "Name": "Heroism",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "ice-knife-1-druid",
+      "name": "Ice Knife",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Ice Knife",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "inflict-wounds-1-cleric",
+      "name": "Inflict Wounds",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Necrotic Damage. Upcast: More damage",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Inflict Wounds",
+        "Component": "",
+        "Notes": "Necrotic Damage. Upcast: More damage",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "jump-1-druid",
+      "name": "Jump",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "jump distance is tripled",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Jump",
+        "Component": "",
+        "Notes": "jump distance is tripled",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "longstrider-1-druid",
+      "name": "Longstrider",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Longstrider",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "protection-from-evil-and-good-1-cleric",
+      "name": "Protection from Evil and Good",
+      "level": 1,
+      "prepared": true,
+      "source": [
+        "Cleric",
+        "Druid"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "protects against: aberrations, celestials, elementals, fey, fiends, and undead.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "1",
+        "Source": "Cleric, Druid",
+        "Tags": "Concentration",
+        "Name": "Protection from Evil and Good",
+        "Component": "",
+        "Notes": "protects against: aberrations, celestials, elementals, fey, fiends, and undead.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "purify-food-and-drink-1-cleric",
+      "name": "Purify Food and Drink",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Cleric",
+        "Druid"
+      ],
+      "tags": [
+        "Ritual"
+      ],
+      "component": null,
+      "notes": "This spell doesn't protect the warded creature from area effects, such as the explosion of a https://www.dndbeyond.com/spells/fireball.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Cleric, Druid",
+        "Tags": "Ritual",
+        "Name": "Purify Food and Drink",
+        "Component": "",
+        "Notes": "This spell doesn't protect the warded creature from area effects, such as the explosion of a https://www.dndbeyond.com/spells/fireball.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "sanctuary-1-cleric",
+      "name": "Sanctuary",
+      "level": 1,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Always Prepared",
+        "Bonus Action"
+      ],
+      "component": null,
+      "notes": "Tech",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "1",
+        "Source": "Cleric",
+        "Tags": "Always Prepared, Bonus Action",
+        "Name": "Sanctuary",
+        "Component": "",
+        "Notes": "Tech",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "shield-of-faith-1-cleric",
+      "name": "Shield of Faith",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Bonus Action",
+        "Concentration"
+      ],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Cleric",
+        "Tags": "Bonus Action, Concentration",
+        "Name": "Shield of Faith",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "snare-1-druid",
+      "name": "Snare",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Duration: 8h",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Snare",
+        "Component": "",
+        "Notes": "Duration: 8h",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "speak-with-animals-1-druid",
+      "name": "Speak with Animals",
+      "level": 1,
+      "prepared": true,
+      "source": [
+        "Druid"
+      ],
+      "tags": [
+        "Ritual"
+      ],
+      "component": null,
+      "notes": "Duration: 10min. You gain the ability to comprehend and verbally communicate with beasts for the duration.",
+      "preparation": "Raise Sprite",
+      "combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "Ritual",
+        "Name": "Speak with Animals",
+        "Component": "",
+        "Notes": "Duration: 10min. You gain the ability to comprehend and verbally communicate with beasts for the duration.",
+        "Preparation": "Raise Sprite",
+        "Combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "thunderwave-1-druid",
+      "name": "Thunderwave",
+      "level": 1,
+      "prepared": false,
+      "source": [
+        "Druid"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Creature is pushed 10 feet away from you. unsecured objects are automatically pushed 10 feet away from you. emits a thunderous boom audible out to 300 feet",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "1",
+        "Source": "Druid",
+        "Tags": "",
+        "Name": "Thunderwave",
+        "Component": "",
+        "Notes": "Creature is pushed 10 feet away from you. unsecured objects are automatically pushed 10 feet away from you. emits a thunderous boom audible out to 300 feet",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "aid-2-cleric",
+      "name": "Aid",
+      "level": 2,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Rest Cast"
+      ],
+      "component": null,
+      "notes": "Duration: 8h. Upcast MoreHP",
+      "preparation": "Vampire Fighting Toolkit (legacy) “Life Ward” (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "Rest Cast",
+        "Name": "Aid",
+        "Component": "",
+        "Notes": "Duration: 8h. Upcast MoreHP",
+        "Preparation": "Vampire Fighting Toolkit (legacy) “Life Ward” (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "arcane-lock-2-unknown",
+      "name": "Arcane Lock",
+      "level": 2,
+      "prepared": false,
+      "source": [],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "",
+        "Tags": "",
+        "Name": "Arcane Lock",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "augury-2-cleric",
+      "name": "Augury",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast",
+        "Ritual"
+      ],
+      "component": "specially marked sticks, bones, or similar tokens worth at least 25 gp",
+      "notes": "results of a specific course of action that you plan to take within the next 30 minutes",
+      "preparation": null,
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "Long Cast, Ritual",
+        "Name": "Augury",
+        "Component": "specially marked sticks, bones, or similar tokens worth at least 25 gp",
+        "Notes": "results of a specific course of action that you plan to take within the next 30 minutes",
+        "Preparation": "",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "blindness-deafness-2-cleric",
+      "name": "Blindness/Deafness",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Great Legendary Resistance eater (no concentration, 2nd level, 1min repeated Saving Throw, Save or Suck)",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": "Legendary Resistances Burners (https://www.notion.so/Legendary-Resistances-Burners-7db97fcae46246aeb24967f7f45f8a7a?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Blindness/Deafness",
+        "Component": "",
+        "Notes": "Great Legendary Resistance eater (no concentration, 2nd level, 1min repeated Saving Throw, Save or Suck)",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "Legendary Resistances Burners (https://www.notion.so/Legendary-Resistances-Burners-7db97fcae46246aeb24967f7f45f8a7a?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "borrowed-knowledge-2-cleric",
+      "name": "Borrowed Knowledge",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": "a book worth at least 25 gp",
+      "notes": "Duration: 1h.",
+      "preparation": null,
+      "combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Borrowed Knowledge",
+        "Component": "a book worth at least 25 gp",
+        "Notes": "Duration: 1h.",
+        "Preparation": "",
+        "Combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "calm-emotions-2-cleric",
+      "name": "Calm Emotions",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Group of Humanoids",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Calm Emotions",
+        "Component": "",
+        "Notes": "Group of Humanoids",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "enhance-ability-2-cleric",
+      "name": "Enhance ability",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Duration: 1h. Upcast Multitarget",
+      "preparation": null,
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Enhance ability",
+        "Component": "",
+        "Notes": "Duration: 1h. Upcast Multitarget",
+        "Preparation": "",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "find-traps-2-cleric",
+      "name": "Find traps",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Works on: anything that would inflict a sudden or unexpected effect you consider harmful or undesirable, which was specifically intended as such by its creator.",
+      "preparation": "Xanathar Fighting kit",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Find traps",
+        "Component": "",
+        "Notes": "Works on: anything that would inflict a sudden or unexpected effect you consider harmful or undesirable, which was specifically intended as such by its creator.",
+        "Preparation": "Xanathar Fighting kit",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "gentle-repose-2-cleric",
+      "name": "Gentle Repose",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Ritual"
+      ],
+      "component": "a pinch of salt and one copper piece placed on each of the corpse's eyes, which must remain there for the duration",
+      "notes": "Duration: 10days.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "Ritual",
+        "Name": "Gentle Repose",
+        "Component": "a pinch of salt and one copper piece placed on each of the corpse's eyes, which must remain there for the duration",
+        "Notes": "Duration: 10days.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "hold-person-2-cleric",
+      "name": "Hold Person",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Upcast Multitarget",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": "Legendary Resistances Burners (https://www.notion.so/Legendary-Resistances-Burners-7db97fcae46246aeb24967f7f45f8a7a?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Hold Person",
+        "Component": "",
+        "Notes": "Upcast Multitarget",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "Legendary Resistances Burners (https://www.notion.so/Legendary-Resistances-Burners-7db97fcae46246aeb24967f7f45f8a7a?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "lesser-restoration-2-cleric",
+      "name": "Lesser Restoration",
+      "level": 2,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Lesser Restoration",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "locate-object-2-cleric",
+      "name": "Locate Object",
+      "level": 2,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Duration: 10mins. The spell can locate a specific object known to you. Alternatively, the spell can locate the nearest object of a particular kind.\nThis spell can't locate an object if any thickness of lead, even a thin sheet, blocks a direct path between you and the object.",
+      "preparation": "Spying toolkit (legacy)",
+      "combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Locate Object",
+        "Component": "",
+        "Notes": "Duration: 10mins. The spell can locate a specific object known to you. Alternatively, the spell can locate the nearest object of a particular kind.\nThis spell can't locate an object if any thickness of lead, even a thin sheet, blocks a direct path between you and the object.",
+        "Preparation": "Spying toolkit (legacy)",
+        "Combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "prayer-of-healing-2-cleric",
+      "name": "Prayer of Healing",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": null,
+      "notes": "This spell has no effect on undead or constructs.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Prayer of Healing",
+        "Component": "",
+        "Notes": "This spell has no effect on undead or constructs.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "protection-from-poison-2-cleric",
+      "name": "Protection from Poison",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Duration: 1h.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Protection from Poison",
+        "Component": "",
+        "Notes": "Duration: 1h.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "see-invisibility-2-unknown",
+      "name": "See Invisibility",
+      "level": 2,
+      "prepared": false,
+      "source": [],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": "Old Ritual and Summonings,  Last Recall (https://www.notion.so/Old-Ritual-and-Summonings-Last-Recall-168b1276d1b380f5b1a3f923c4914f75?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "",
+        "Tags": "",
+        "Name": "See Invisibility",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": "Old Ritual and Summonings,  Last Recall (https://www.notion.so/Old-Ritual-and-Summonings-Last-Recall-168b1276d1b380f5b1a3f923c4914f75?pvs=21)"
+      }
+    },
+    {
+      "id": "silence-2-cleric",
+      "name": "Silence",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration",
+        "Long Cast"
+      ],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "Concentration, Long Cast",
+        "Name": "Silence",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "spiritual-weapon-2-cleric",
+      "name": "Spiritual Weapon",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Bonus Action"
+      ],
+      "component": null,
+      "notes": "Force Damage. Upcast: Damage",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "Bonus Action",
+        "Name": "Spiritual Weapon",
+        "Component": "",
+        "Notes": "Force Damage. Upcast: Damage",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "warding-bond-2-cleric",
+      "name": "Warding Bond",
+      "level": 2,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Always Prepared"
+      ],
+      "component": "a pair of platinum rings worth at least 50 gp each, which you and the target must wear for the duration",
+      "notes": "Duration: 1hour",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "Always Prepared",
+        "Name": "Warding Bond",
+        "Component": "a pair of platinum rings worth at least 50 gp each, which you and the target must wear for the duration",
+        "Notes": "Duration: 1hour",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "zone-of-truth-2-cleric",
+      "name": "Zone of Truth",
+      "level": 2,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Duration: 10mins.",
+      "preparation": null,
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "2",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Zone of Truth",
+        "Component": "",
+        "Notes": "Duration: 10mins.",
+        "Preparation": "",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "animate-dead-3-cleric",
+      "name": "Animate Dead",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": null,
+      "notes": "This spell creates an undead servant. Upcast: More creatures",
+      "preparation": null,
+      "combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Animate Dead",
+        "Component": "",
+        "Notes": "This spell creates an undead servant. Upcast: More creatures",
+        "Preparation": "",
+        "Combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "aura-of-vitality-3-cleric",
+      "name": "Aura of Vitality",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": null,
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Aura of Vitality",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "beacon-of-hope-3-cleric",
+      "name": "Beacon of Hope",
+      "level": 3,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Always Prepared",
+        "Concentration"
+      ],
+      "component": null,
+      "notes": null,
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Always Prepared, Concentration",
+        "Name": "Beacon of Hope",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "bestow-curse-3-cleric",
+      "name": "Bestow Curse",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Tech. Upcast Duration.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Legendary Resistances Burners (https://www.notion.so/Legendary-Resistances-Burners-7db97fcae46246aeb24967f7f45f8a7a?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Bestow Curse",
+        "Component": "",
+        "Notes": "Tech. Upcast Duration.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Legendary Resistances Burners (https://www.notion.so/Legendary-Resistances-Burners-7db97fcae46246aeb24967f7f45f8a7a?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "clairvoyance-3-cleric",
+      "name": "Clairvoyance",
+      "level": 3,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration",
+        "Long Cast"
+      ],
+      "component": "Focus: worth at least 100 gp, either a jeweled horn for hearing or a glass eye for seeing",
+      "notes": "Duration: 10mins. Invisible sensor within range in a location familiar to you or in an obvious location that is unfamiliar to you",
+      "preparation": "Spying toolkit (legacy)",
+      "combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Concentration, Long Cast",
+        "Name": "Clairvoyance",
+        "Component": "Focus: worth at least 100 gp, either a jeweled horn for hearing or a glass eye for seeing",
+        "Notes": "Duration: 10mins. Invisible sensor within range in a location familiar to you or in an obvious location that is unfamiliar to you",
+        "Preparation": "Spying toolkit (legacy)",
+        "Combos": "Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "create-food-and-water-3-cleric",
+      "name": "Create Food and Water",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Burn Cast",
+        "Rest Cast"
+      ],
+      "component": null,
+      "notes": "You create 45 pounds of food and 30 gallons of water on the ground or in containers within range, enough to sustain up to fifteen humanoids or five steeds for 24 hours",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Burn Cast, Rest Cast",
+        "Name": "Create Food and Water",
+        "Component": "",
+        "Notes": "You create 45 pounds of food and 30 gallons of water on the ground or in containers within range, enough to sustain up to fifteen humanoids or five steeds for 24 hours",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "daylight-3-cleric",
+      "name": "Daylight",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "If any of this spell's area overlaps with an area of darkness created by a spell of 3rd level or lower, the spell that created the darkness is dispelled.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Daylight",
+        "Component": "",
+        "Notes": "If any of this spell's area overlaps with an area of darkness created by a spell of 3rd level or lower, the spell that created the darkness is dispelled.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "dispel-magic-3-cleric",
+      "name": "Dispel Magic",
+      "level": 3,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Upcast Spelllvl",
+      "preparation": null,
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Dispel Magic",
+        "Component": "",
+        "Notes": "Upcast Spelllvl",
+        "Preparation": "",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "fast-friends-3-cleric",
+      "name": "Fast friends",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Duration: 1h. While the creature is charmed in this way, it undertakes to perform any services or activities you ask of it in a friendly manner, to the best of its ability. Upcast Multitarget.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Fast friends",
+        "Component": "",
+        "Notes": "Duration: 1h. While the creature is charmed in this way, it undertakes to perform any services or activities you ask of it in a friendly manner, to the best of its ability. Upcast Multitarget.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "glyph-of-warding-3-cleric",
+      "name": "Glyph of Warding",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Burn Cast",
+        "Long Cast",
+        "Rest Cast"
+      ],
+      "component": "incense and powdered diamond worth at least 200 gp, which the spell consumes",
+      "notes": "When you cast this spell, you inscribe a glyph that later unleashes a magical effect. Explosive Runes, Spell Glyph (3rd). Upcast: More Damage and Spell Level",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Burn Cast, Long Cast, Rest Cast",
+        "Name": "Glyph of Warding",
+        "Component": "incense and powdered diamond worth at least 200 gp, which the spell consumes",
+        "Notes": "When you cast this spell, you inscribe a glyph that later unleashes a magical effect. Explosive Runes, Spell Glyph (3rd). Upcast: More Damage and Spell Level",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "incite-greed-3-cleric",
+      "name": "Incite Greed",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": "a gem worth at least 50 gp",
+      "notes": "choose any number of creatures within range that can see you.",
+      "preparation": null,
+      "combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Incite Greed",
+        "Component": "a gem worth at least 50 gp",
+        "Notes": "choose any number of creatures within range that can see you.",
+        "Preparation": "",
+        "Combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "life-transference-3-cleric",
+      "name": "Life Transference",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "You sacrifice some of your health to mend another creature’s injuries. Upcast: more damage/heal",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Life Transference",
+        "Component": "",
+        "Notes": "You sacrifice some of your health to mend another creature’s injuries. Upcast: more damage/heal",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "magic-circle-3-cleric",
+      "name": "Magic Circle",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": "holy water or powdered silver and iron worth at least 100 gp",
+      "notes": "Duration: 1h. Upcast Duration.",
+      "preparation": null,
+      "combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Magic Circle",
+        "Component": "holy water or powdered silver and iron worth at least 100 gp",
+        "Notes": "Duration: 1h. Upcast Duration.",
+        "Preparation": "",
+        "Combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "mass-healing-word-3-cleric",
+      "name": "Mass Healing Word",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Bonus Action"
+      ],
+      "component": null,
+      "notes": "Upcast MoreHP",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Bonus Action",
+        "Name": "Mass Healing Word",
+        "Component": "",
+        "Notes": "Upcast MoreHP",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "meld-into-stone-3-cleric",
+      "name": "Meld into Stone",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Burn Cast",
+        "Long Cast",
+        "Rest Cast"
+      ],
+      "component": null,
+      "notes": "Duration: 8h. You step into a stone object or surface large enough to fully contain your body, melding yourself and all the equipment you carry with the stone for the duration.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Burn Cast, Long Cast, Rest Cast",
+        "Name": "Meld into Stone",
+        "Component": "",
+        "Notes": "Duration: 8h. You step into a stone object or surface large enough to fully contain your body, melding yourself and all the equipment you carry with the stone for the duration. ",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "motivational-speech-3-cleric",
+      "name": "Motivational Speech",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": null,
+      "notes": "Duration: 1h. Upcast MoreTHP",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Motivational Speech",
+        "Component": "",
+        "Notes": "Duration: 1h. Upcast MoreTHP",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "protection-from-energy-3-cleric",
+      "name": "Protection from Energy",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Resistance to acid, cold, fire, lightning, or thunder.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Protection from Energy",
+        "Component": "",
+        "Notes": "Resistance to acid, cold, fire, lightning, or thunder.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "remove-curse-3-cleric",
+      "name": "Remove Curse",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "At your touch, all curses affecting one creature or object end. Breaks attunement of cursed magic item.",
+      "preparation": null,
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Remove Curse",
+        "Component": "",
+        "Notes": "At your touch, all curses affecting one creature or object end. Breaks attunement of cursed magic item.",
+        "Preparation": "",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "revivify-3-cleric",
+      "name": "Revivify",
+      "level": 3,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": "Diamonds worth 300 gp, consumed",
+      "notes": null,
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Revivify",
+        "Component": "Diamonds worth 300 gp, consumed",
+        "Notes": "",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "sending-3-cleric",
+      "name": "Sending",
+      "level": 3,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Always Prepared",
+        "Burn Cast"
+      ],
+      "component": null,
+      "notes": "if the target is on a different plane than you, there is a 5 percent chance that the message doesn't arrive.",
+      "preparation": "Burn Cast (legacy) What will Nyx do?",
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Always Prepared, Burn Cast",
+        "Name": "Sending",
+        "Component": "",
+        "Notes": "if the target is on a different plane than you, there is a 5 percent chance that the message doesn't arrive.",
+        "Preparation": "Burn Cast (legacy) What will Nyx do?",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "speak-with-dead-3-cleric",
+      "name": "Speak with Dead",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Duration: 10mins. Works on a corpse, 5 questions.",
+      "preparation": null,
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Speak with Dead",
+        "Component": "",
+        "Notes": "Duration: 10mins. Works on a corpse, 5 questions.",
+        "Preparation": "",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "spirit-guardians-3-cleric",
+      "name": "Spirit Guardians",
+      "level": 3,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Upcast Damage. Target speed is halved.",
+      "preparation": "Stapples (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Spirit Guardians",
+        "Component": "",
+        "Notes": "Upcast Damage. Target speed is halved.",
+        "Preparation": "Stapples (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "spirit-shroud-3-cleric",
+      "name": "Spirit Shroud",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Bonus Action",
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Until the spell ends, any attack you make deals 1d8 extra damage when you hit a creature within 10 feet of you. This damage is radiant, necrotic, or cold (your choice when you cast the spell). Any creature that takes this damage can’t regain hit points until the start of your next turn.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Bonus Action, Concentration",
+        "Name": "Spirit Shroud",
+        "Component": "",
+        "Notes": "Until the spell ends, any attack you make deals 1d8 extra damage when you hit a creature within 10 feet of you. This damage is radiant, necrotic, or cold (your choice when you cast the spell). Any creature that takes this damage can’t regain hit points until the start of your next turn.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "tongues-3-cleric",
+      "name": "Tongues",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Duration: 1h.",
+      "preparation": null,
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Tongues",
+        "Component": "",
+        "Notes": "Duration: 1h.",
+        "Preparation": "",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "water-walk-3-cleric",
+      "name": "Water Walk",
+      "level": 3,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": null,
+      "notes": "Duration: 1h\n\nUp to ten willing creatures you can see within range gain this ability for the duration.\n\nIf you target a creature submerged in a liquid, the spell carries the target to the surface of the liquid at a rate of 60 feet per round.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "3",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Water Walk",
+        "Component": "",
+        "Notes": "Duration: 1h\n\nUp to ten willing creatures you can see within range gain this ability for the duration.\n\nIf you target a creature submerged in a liquid, the spell carries the target to the surface of the liquid at a rate of 60 feet per round.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "aura-of-life-4-cleric",
+      "name": "Aura of Life",
+      "level": 4,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "resistance to necrotic damage, and its hit point maximum can’t be reduced. In addition, a nonhostile, living creature regains 1 hit point when it starts its turn in the aura with 0 hit points.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "4",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Aura of Life",
+        "Component": "",
+        "Notes": "resistance to necrotic damage, and its hit point maximum can’t be reduced. In addition, a nonhostile, living creature regains 1 hit point when it starts its turn in the aura with 0 hit points.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "aura-of-purity-4-cleric",
+      "name": "Aura of Purity",
+      "level": 4,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Duration: 10mins.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "4",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Aura of Purity",
+        "Component": "",
+        "Notes": "Duration: 10mins.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "banishment-4-cleric",
+      "name": "Banishment",
+      "level": 4,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": "an item distasteful to the target",
+      "notes": "Upcast Multitarget.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "4",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Banishment",
+        "Component": "an item distasteful to the target",
+        "Notes": "Upcast Multitarget.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "control-water-4-cleric",
+      "name": "Control Water",
+      "level": 4,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Until the spell ends, you control any freestanding water inside an area you choose that is a cube up to 100 feet on a side. You can choose from any of the following effects when you cast this spell. As an action on your turn, you can repeat the same effect or choose a different one. Flood, Part Water, Redirect Flow, Whirpool",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "4",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Control Water",
+        "Component": "",
+        "Notes": "Until the spell ends, you control any freestanding water inside an area you choose that is a cube up to 100 feet on a side. You can choose from any of the following effects when you cast this spell. As an action on your turn, you can repeat the same effect or choose a different one. Flood, Part Water, Redirect Flow, Whirpool",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "death-ward-4-cleric",
+      "name": "Death Ward",
+      "level": 4,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Rest Cast"
+      ],
+      "component": null,
+      "notes": "Duration 8h.",
+      "preparation": "“Life Ward” (legacy) Vampire Fighting Toolkit (legacy)",
+      "combos": "Death Ward Stacking (https://www.notion.so/Death-Ward-Stacking-b0b7307bd0b0490f8ec39561d0f1ed40?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "4",
+        "Source": "Cleric",
+        "Tags": "Rest Cast",
+        "Name": "Death Ward",
+        "Component": "",
+        "Notes": "Duration 8h.",
+        "Preparation": "“Life Ward” (legacy) Vampire Fighting Toolkit (legacy)",
+        "Combos": "Death Ward Stacking (https://www.notion.so/Death-Ward-Stacking-b0b7307bd0b0490f8ec39561d0f1ed40?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "divination-4-cleric",
+      "name": "Divination",
+      "level": 4,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Ritual"
+      ],
+      "component": "incense and a sacrificial offering appropriate to your religion, together worth at least 25 gp",
+      "notes": "You ask a single question concerning a specific goal, event, or activity to occur within 7 days.",
+      "preparation": "Spying toolkit (legacy)",
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "4",
+        "Source": "Cleric",
+        "Tags": "Ritual",
+        "Name": "Divination",
+        "Component": "incense and a sacrificial offering appropriate to your religion, together worth at least 25 gp",
+        "Notes": "You ask a single question concerning a specific goal, event, or activity to occur within 7 days.",
+        "Preparation": "Spying toolkit (legacy)",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "fabricate-4-unknown",
+      "name": "Fabricate",
+      "level": 4,
+      "prepared": false,
+      "source": [],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "4",
+        "Source": "",
+        "Tags": "",
+        "Name": "Fabricate",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)"
+      }
+    },
+    {
+      "id": "freedom-of-movement-4-cleric",
+      "name": "Freedom of Movement",
+      "level": 4,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "target’s movement is unaffected by difficult terrain, and spells and other magical effects can neither reduce the target’s speed nor cause the target to be paralyzed or restrained. automatically escape from nonmagical restraints, such as manacles and grapples. being underwater imposes no penalties on the target’s movement or attacks",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "4",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Freedom of Movement",
+        "Component": "",
+        "Notes": "target’s movement is unaffected by difficult terrain, and spells and other magical effects can neither reduce the target’s speed nor cause the target to be paralyzed or restrained. automatically escape from nonmagical restraints, such as manacles and grapples. being underwater imposes no penalties on the target’s movement or attacks",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "guardian-of-faith-4-cleric",
+      "name": "Guardian of Faith",
+      "level": 4,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Duration: 8h",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "4",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Guardian of Faith",
+        "Component": "",
+        "Notes": "Duration: 8h",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "locate-creature-4-cleric",
+      "name": "Locate Creature",
+      "level": 4,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "The spell can locate a specific creature known to you, or the nearest creature of a specific kind in 1000ft. If the creature you described or named is in a different form the spells doesnt work.\nThis spell can't locate a creature if running water at least 10 feet wide blocks a direct path between you and the creature.",
+      "preparation": "Spying toolkit (legacy)",
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "4",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Locate Creature",
+        "Component": "",
+        "Notes": "The spell can locate a specific creature known to you, or the nearest creature of a specific kind in 1000ft. If the creature you described or named is in a different form the spells doesnt work.\nThis spell can't locate a creature if running water at least 10 feet wide blocks a direct path between you and the creature.",
+        "Preparation": "Spying toolkit (legacy)",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "private-sanctum-4-unknown",
+      "name": "Private Sanctum",
+      "level": 4,
+      "prepared": false,
+      "source": [],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "4",
+        "Source": "",
+        "Tags": "",
+        "Name": "Private Sanctum",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "resilient-sphere-4-cleric",
+      "name": "Resilient Sphere",
+      "level": 4,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Always Prepared",
+        "Concentration"
+      ],
+      "component": null,
+      "notes": null,
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "4",
+        "Source": "Cleric",
+        "Tags": "Always Prepared, Concentration",
+        "Name": "Resilient Sphere",
+        "Component": "",
+        "Notes": " ",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "stone-shape-4-cleric",
+      "name": "Stone Shape",
+      "level": 4,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": "You touch a stone object of Medium size or smaller or a section of stone no more than 5 feet in any dimension and form it into any shape that suits your purpose.",
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "4",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Stone Shape",
+        "Component": "You touch a stone object of Medium size or smaller or a section of stone no more than 5 feet in any dimension and form it into any shape that suits your purpose.",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "commune-5-cleric",
+      "name": "Commune",
+      "level": 5,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast",
+        "Ritual"
+      ],
+      "component": null,
+      "notes": "You contact your deity or a divine proxy and ask up to three questions that can be answered with a yes or no.",
+      "preparation": "Spying toolkit (legacy)",
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Long Cast, Ritual",
+        "Name": "Commune",
+        "Component": "",
+        "Notes": "You contact your deity or a divine proxy and ask up to three questions that can be answered with a yes or no.",
+        "Preparation": "Spying toolkit (legacy)",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "contagion-5-cleric",
+      "name": "Contagion",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "7 days duration",
+      "preparation": null,
+      "combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Contagion",
+        "Component": "",
+        "Notes": "7 days duration",
+        "Preparation": "",
+        "Combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "dawn-5-cleric",
+      "name": "Dawn",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": "Focus: a sunburst pendant worth at least 100 gp",
+      "notes": "This light is sunlight.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Dawn",
+        "Component": "Focus: a sunburst pendant worth at least 100 gp",
+        "Notes": "This light is sunlight.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "dispel-evil-and-good-5-cleric",
+      "name": "Dispel Evil and Good",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Works on: fey, undead, and creatures originating from beyond the Material Plane.\nDismissal: If they aren't on their home plane, undead are sent to the Shadowfell, and fey are sent to the Feywild.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Dispel Evil and Good",
+        "Component": "",
+        "Notes": "Works on: fey, undead, and creatures originating from beyond the Material Plane.\nDismissal: If they aren't on their home plane, undead are sent to the Shadowfell, and fey are sent to the Feywild.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "flame-strike-5-cleric",
+      "name": "Flame Strike",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Each creature in a 10-foot-radius, 40-foot-high cylinder centered on a point within range must make a Dexterity saving throw. Fire and Radiant damage. Upcast: more damage",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Flame Strike",
+        "Component": "",
+        "Notes": "Each creature in a 10-foot-radius, 40-foot-high cylinder centered on a point within range must make a Dexterity saving throw. Fire and Radiant damage. Upcast: more damage",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "geas-5-cleric",
+      "name": "Geas",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": null,
+      "notes": "Duration: 30days. If the creature can understand you",
+      "preparation": null,
+      "combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Geas",
+        "Component": "",
+        "Notes": "Duration: 30days. If the creature can understand you",
+        "Preparation": "",
+        "Combos": "Hostile Humanoid Social Interaction (https://www.notion.so/Hostile-Humanoid-Social-Interaction-cc9736283c444defbfdfb41e4d806c66?pvs=21), Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "greater-restoration-5-cleric",
+      "name": "Greater Restoration",
+      "level": 5,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": "diamond dust worth at least 100 gp",
+      "notes": null,
+      "preparation": "Vampire Fighting Toolkit (legacy) Infirmary",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Greater Restoration",
+        "Component": "diamond dust worth at least 100 gp",
+        "Notes": "",
+        "Preparation": "Vampire Fighting Toolkit (legacy) Infirmary",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "hallow-5-cleric",
+      "name": "Hallow",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": "herbs, oils, and incense worth at least 1,000 gp, which the spell consumes",
+      "notes": "Duration 24h.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Hallow",
+        "Component": "herbs, oils, and incense worth at least 1,000 gp, which the spell consumes",
+        "Notes": "Duration 24h.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "holy-weapon-5-cleric",
+      "name": "Holy Weapon",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Weapon with light and radiant damage. AOE Burst of damage and blindness",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Holy Weapon",
+        "Component": "",
+        "Notes": "Weapon with light and radiant damage. AOE Burst of damage and blindness",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "insect-plague-5-cleric",
+      "name": "Insect Plague",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": "Range: 300ft, 20ft Sphere. The sphere remains for the duration, and its area is lightly obscured. The sphere's area is difficult terrain. Upcast: Damage",
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Insect Plague",
+        "Component": "Range: 300ft, 20ft Sphere. The sphere remains for the duration, and its area is lightly obscured. The sphere's area is difficult terrain. Upcast: Damage",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "legend-lore-5-cleric",
+      "name": "Legend Lore",
+      "level": 5,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": "incense worth at least 250 gp, which the spell consumes, and four ivory strips worth at least 50 gp each",
+      "notes": "Name or describe a person, place, or object. The spell brings to your mind a brief summary of the significant lore about the thing you named. If the thing you named isn't of legendary importance, you gain no information.",
+      "preparation": null,
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Legend Lore",
+        "Component": "incense worth at least 250 gp, which the spell consumes, and four ivory strips worth at least 50 gp each",
+        "Notes": "Name or describe a person, place, or object. The spell brings to your mind a brief summary of the significant lore about the thing you named. If the thing you named isn't of legendary importance, you gain no information.",
+        "Preparation": "",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21), Research and Investigation buffs (https://www.notion.so/Research-and-Investigation-buffs-b33a7f76c4694b0c9b977aa9833f3f35?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "mass-cure-wounds-5-cleric",
+      "name": "Mass Cure Wounds",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Upcast MoreHeal",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Mass Cure Wounds",
+        "Component": "",
+        "Notes": "Upcast MoreHeal",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "planar-binding-5-cleric",
+      "name": "Planar Binding",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Burn Cast",
+        "Long Cast",
+        "Preparation",
+        "Rest Cast"
+      ],
+      "component": "a jewel worth at least 1,000 gp, which the spell consumes",
+      "notes": "Criteria and Preparation required. Upcast: Duration",
+      "preparation": null,
+      "combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Burn Cast, Long Cast, Preparation, Rest Cast",
+        "Name": "Planar Binding",
+        "Component": "a jewel worth at least 1,000 gp, which the spell consumes",
+        "Notes": "Criteria and Preparation required. Upcast: Duration",
+        "Preparation": "",
+        "Combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "raise-dead-5-cleric",
+      "name": "Raise Dead",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": "Diamond worth at least 500 gp, consumed",
+      "notes": null,
+      "preparation": "Raise Sprite Infirmary",
+      "combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Raise Dead",
+        "Component": "Diamond worth at least 500 gp, consumed",
+        "Notes": "",
+        "Preparation": "Raise Sprite Infirmary",
+        "Combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "scrying-5-cleric",
+      "name": "Scrying",
+      "level": 5,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": "Focus: worth at least 1,000 gp, such as a crystal ball, a silver mirror, or a font filled with holy water",
+      "notes": null,
+      "preparation": "Spying toolkit (legacy)",
+      "combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Scrying",
+        "Component": "Focus: worth at least 1,000 gp, such as a crystal ball, a silver mirror, or a font filled with holy water",
+        "Notes": "",
+        "Preparation": "Spying toolkit (legacy)",
+        "Combos": "Humanoid Social Interaction Buffs (https://www.notion.so/Humanoid-Social-Interaction-Buffs-009f76b7a34b4e55ac1931c67535deb7?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "summon-celestial-5-cleric",
+      "name": "Summon Celestial",
+      "level": 5,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": "a golden reliquary worth at least 500 gp",
+      "notes": "Upcast: Better Celestial Spirit",
+      "preparation": null,
+      "combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Summon Celestial",
+        "Component": "a golden reliquary worth at least 500 gp",
+        "Notes": "Upcast: Better Celestial Spirit",
+        "Preparation": "",
+        "Combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "telepathic-bond-5-cleric",
+      "name": "Telepathic Bond",
+      "level": 5,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Always Prepared",
+        "Ritual"
+      ],
+      "component": null,
+      "notes": "Duration: 1h.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "5",
+        "Source": "Cleric",
+        "Tags": "Always Prepared, Ritual",
+        "Name": "Telepathic Bond",
+        "Component": "",
+        "Notes": "Duration: 1h.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "blade-barrier-6-cleric",
+      "name": "Blade Barrier",
+      "level": 6,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "You can make a straight wall up to 100 feet long, 20 feet high, and 5 feet thick, or a ringed wall up to 60 feet in diameter, 20 feet high, and 5 feet thick. The wall provides three-quarters cover to creatures behind it, and its space is difficult terrain.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "6",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Blade Barrier",
+        "Component": "",
+        "Notes": " You can make a straight wall up to 100 feet long, 20 feet high, and 5 feet thick, or a ringed wall up to 60 feet in diameter, 20 feet high, and 5 feet thick. The wall provides three-quarters cover to creatures behind it, and its space is difficult terrain.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "contingency-6-ruby-weave-gem",
+      "name": "Contingency",
+      "level": 6,
+      "prepared": false,
+      "source": [
+        "Ruby Weave Gem"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "6",
+        "Source": "Ruby Weave Gem",
+        "Tags": "",
+        "Name": "Contingency",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)"
+      }
+    },
+    {
+      "id": "create-undead-6-cleric",
+      "name": "Create Undead",
+      "level": 6,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Burn Cast",
+        "Long Cast",
+        "Rest Cast"
+      ],
+      "component": "150 gp black onyx stone for each corpse",
+      "notes": "Choose up to three corpses of Medium or Small humanoids within range. UpCast: More Creatures",
+      "preparation": null,
+      "combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "6",
+        "Source": "Cleric",
+        "Tags": "Burn Cast, Long Cast, Rest Cast",
+        "Name": "Create Undead",
+        "Component": "150 gp black onyx stone for each corpse",
+        "Notes": "Choose up to three corpses of Medium or Small humanoids within range. UpCast: More Creatures",
+        "Preparation": "",
+        "Combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "find-the-path-6-cleric",
+      "name": "Find the Path",
+      "level": 6,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration",
+        "Long Cast"
+      ],
+      "component": "a set of divinatory tools--such as bones, ivory sticks, cards, teeth, or carved runes--worth 100 gp and an object from the location you wish to find",
+      "notes": null,
+      "preparation": "Spying toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "6",
+        "Source": "Cleric",
+        "Tags": "Concentration, Long Cast",
+        "Name": "Find the Path",
+        "Component": "a set of divinatory tools--such as bones, ivory sticks, cards, teeth, or carved runes--worth 100 gp and an object from the location you wish to find",
+        "Notes": "",
+        "Preparation": "Spying toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "forbiddance-6-cleric",
+      "name": "Forbiddance",
+      "level": 6,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast",
+        "Ritual"
+      ],
+      "component": "Powdered Ruby worth at least 1,000 gp, consumed",
+      "notes": "Duration 1Day.",
+      "preparation": "Recast Forbiddance Management",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "6",
+        "Source": "Cleric",
+        "Tags": "Long Cast, Ritual",
+        "Name": "Forbiddance",
+        "Component": "Powdered Ruby worth at least 1,000 gp, consumed",
+        "Notes": "Duration 1Day.",
+        "Preparation": "Recast Forbiddance Management",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "harm-6-cleric",
+      "name": "Harm",
+      "level": 6,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Necrotic Damage, Hitpoint maximum reduction.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "6",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Harm",
+        "Component": "",
+        "Notes": "Necrotic Damage, Hitpoint maximum reduction.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "heal-6-cleric",
+      "name": "Heal",
+      "level": 6,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "This spell also ends blindness, deafness, and any diseases affecting the target. This spell has no effect on constructs or undead. Upcast MoreHeal.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "6",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Heal",
+        "Component": "",
+        "Notes": "This spell also ends blindness, deafness, and any diseases affecting the target. This spell has no effect on constructs or undead. Upcast MoreHeal.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "heroes-feast-6-cleric",
+      "name": "Heroes' Feast",
+      "level": 6,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast",
+        "Preparation"
+      ],
+      "component": "Gem-encrusted bowl worth at least 1,000 gp, consumed",
+      "notes": "Duration: 24h",
+      "preparation": "1 full day of preparation Spells Heroes Feast Breakfast Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "6",
+        "Source": "Cleric",
+        "Tags": "Long Cast, Preparation",
+        "Name": "Heroes' Feast",
+        "Component": "Gem-encrusted bowl worth at least 1,000 gp, consumed",
+        "Notes": "Duration: 24h",
+        "Preparation": "1 full day of preparation Spells Heroes Feast Breakfast Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "instant-summons-6-ruby-weave-gem",
+      "name": "Instant Summons",
+      "level": 6,
+      "prepared": false,
+      "source": [
+        "Ruby Weave Gem"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "6",
+        "Source": "Ruby Weave Gem",
+        "Tags": "",
+        "Name": "Instant Summons",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)"
+      }
+    },
+    {
+      "id": "planar-ally-6-cleric",
+      "name": "Planar Ally",
+      "level": 6,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": "You can ask/pay the creature to perform a service in exchange for payment, but it isn't obliged to do so.",
+      "notes": "The being must be known to you: a god, a primordial, a demon prince, or some other being of cosmic power.",
+      "preparation": "1 full day of preparation Spells Planar Ally",
+      "combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "6",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Planar Ally",
+        "Component": "You can ask/pay the creature to perform a service in exchange for payment, but it isn't obliged to do so.",
+        "Notes": "The being must be known to you: a god, a primordial, a demon prince, or some other being of cosmic power.",
+        "Preparation": "1 full day of preparation Spells Planar Ally",
+        "Combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "sunbeam-6-cleric",
+      "name": "Sunbeam",
+      "level": 6,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "This light is sunlight.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "6",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Sunbeam",
+        "Component": "",
+        "Notes": "This light is sunlight.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "true-seeing-6-cleric",
+      "name": "True Seeing",
+      "level": 6,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Burn Cast"
+      ],
+      "component": "an ointment for the eyes that costs 25 gp and is consumed by the spell",
+      "notes": "… The target's severed body members (fingers, legs, tails, and so on), if any, are restored after 2 minutes …",
+      "preparation": "Burn Cast (legacy) Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "6",
+        "Source": "Cleric",
+        "Tags": "Burn Cast",
+        "Name": "True Seeing",
+        "Component": "an ointment for the eyes that costs 25 gp and is consumed by the spell",
+        "Notes": "… The target's severed body members (fingers, legs, tails, and so on), if any, are restored after 2 minutes …",
+        "Preparation": "Burn Cast (legacy) Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "wind-walk-6-unknown",
+      "name": "Wind Walk",
+      "level": 6,
+      "prepared": false,
+      "source": [],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "6",
+        "Source": "",
+        "Tags": "",
+        "Name": "Wind Walk",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "word-of-recall-6-cleric",
+      "name": "Word of Recall",
+      "level": 6,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Preparation"
+      ],
+      "component": null,
+      "notes": "You must designate a sanctuary by casting this spell within a location, such as a temple, dedicated to or strongly linked to your deity.",
+      "preparation": "1 full day of preparation Spells Can Ngozi chapel be a Sanctuary to Selune?",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "6",
+        "Source": "Cleric",
+        "Tags": "Preparation",
+        "Name": "Word of Recall",
+        "Component": "",
+        "Notes": "You must designate a sanctuary by casting this spell within a location, such as a temple, dedicated to or strongly linked to your deity.",
+        "Preparation": "1 full day of preparation Spells Can Ngozi chapel be a Sanctuary to Selune?",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "conjure-celestial-7-cleric",
+      "name": "Conjure Celestial",
+      "level": 7,
+      "prepared": true,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Duration: 1 hour. Upcast: Bigger CR",
+      "preparation": "Xanathar Fighting kit Vampire Fighting Toolkit (legacy) Planar Ally Celestial Alliance",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "Yes",
+        "Spell Level": "7",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Conjure Celestial",
+        "Component": "",
+        "Notes": "Duration: 1 hour. Upcast: Bigger CR",
+        "Preparation": "Xanathar Fighting kit Vampire Fighting Toolkit (legacy) Planar Ally Celestial Alliance",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "divine-word-7-cleric",
+      "name": "Divine Word",
+      "level": 7,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Bonus Action"
+      ],
+      "component": null,
+      "notes": "Any target that can hear me in 30ft range, effect based on HP. Regardless of its current hit points, a celestial, an elemental, a fey, or a fiend that fails its save is forced back to its plane of origin (if it isn't there already) and can't return to your current plane for 24 hours by any means short of a wish spell.",
+      "preparation": "Vampire Fighting Toolkit (legacy)",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "7",
+        "Source": "Cleric",
+        "Tags": "Bonus Action",
+        "Name": "Divine Word",
+        "Component": "",
+        "Notes": "Any target that can hear me in 30ft range, effect based on HP. Regardless of its current hit points, a celestial, an elemental, a fey, or a fiend that fails its save is forced back to its plane of origin (if it isn't there already) and can't return to your current plane for 24 hours by any means short of a wish spell.",
+        "Preparation": "Vampire Fighting Toolkit (legacy)",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "etherealness-7-cleric",
+      "name": "Etherealness",
+      "level": 7,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Burn Cast",
+        "Rest Cast"
+      ],
+      "component": null,
+      "notes": "Duration: 8h. Upcast: More targets in 10ft",
+      "preparation": "Spying toolkit (legacy)",
+      "combos": "Quick Escape (https://www.notion.so/Quick-Escape-34d0db0f03f44b3a9b4bffbab79dba41?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "7",
+        "Source": "Cleric",
+        "Tags": "Burn Cast, Rest Cast",
+        "Name": "Etherealness",
+        "Component": "",
+        "Notes": "Duration: 8h. Upcast: More targets in 10ft",
+        "Preparation": "Spying toolkit (legacy)",
+        "Combos": "Quick Escape (https://www.notion.so/Quick-Escape-34d0db0f03f44b3a9b4bffbab79dba41?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "fire-storm-7-cleric",
+      "name": "Fire Storm",
+      "level": 7,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": "Range: 150ft. The fire damages objects in the area and ignites flammable objects that aren't being worn or carried. If you choose, plant life in the area is unaffected by this spell.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "7",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Fire Storm",
+        "Component": "",
+        "Notes": "Range: 150ft. The fire damages objects in the area and ignites flammable objects that aren't being worn or carried. If you choose, plant life in the area is unaffected by this spell.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "magnificient-mansion-7-unknown",
+      "name": "Magnificient Mansion",
+      "level": 7,
+      "prepared": false,
+      "source": [],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "7",
+        "Source": "",
+        "Tags": "",
+        "Name": "Magnificient Mansion",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "plane-shift-7-cleric",
+      "name": "Plane Shift",
+      "level": 7,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Preparation"
+      ],
+      "component": "a forked, metal rod worth at least 250 gp, attuned to a particular plane of existence",
+      "notes": "You and up to eight willing creatures who link hands in a circle are transported to a different plane of existence. You can use this spell to banish an unwilling creature to another plane. Choose a creature within your reach and make a melee spell attack against it.",
+      "preparation": null,
+      "combos": "Quick Escape (https://www.notion.so/Quick-Escape-34d0db0f03f44b3a9b4bffbab79dba41?pvs=21)",
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "7",
+        "Source": "Cleric",
+        "Tags": "Preparation",
+        "Name": "Plane Shift",
+        "Component": "a forked, metal rod worth at least 250 gp, attuned to a particular plane of existence",
+        "Notes": "You and up to eight willing creatures who link hands in a circle are transported to a different plane of existence. You can use this spell to banish an unwilling creature to another plane. Choose a creature within your reach and make a melee spell attack against it.",
+        "Preparation": "",
+        "Combos": "Quick Escape (https://www.notion.so/Quick-Escape-34d0db0f03f44b3a9b4bffbab79dba41?pvs=21)",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "regenerate-7-cleric",
+      "name": "Regenerate",
+      "level": 7,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": null,
+      "notes": null,
+      "preparation": "Regenerate Sedrul Hand Infirmary Long Rest day 65/66",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "7",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Regenerate",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "Regenerate Sedrul Hand Infirmary Long Rest day 65/66",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "ressurection-7-cleric",
+      "name": "Ressurection",
+      "level": 7,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": "a diamond worth at least 1,000 gp, which the spell consumes",
+      "notes": "You touch a dead creature that has been dead for no more than a century, that didn't die of old age, and that isn't undead.\nCasting this spell to restore life to a creature that has been dead for one year or longer taxes you greatly.",
+      "preparation": "Ressurect the Heroes of the DTX",
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "7",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Ressurection",
+        "Component": "a diamond worth at least 1,000 gp, which the spell consumes",
+        "Notes": "You touch a dead creature that has been dead for no more than a century, that didn't die of old age, and that isn't undead.\nCasting this spell to restore life to a creature that has been dead for one year or longer taxes you greatly.",
+        "Preparation": "Ressurect the Heroes of the DTX",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "simulacrum-7-ruby-weave-gem",
+      "name": "Simulacrum",
+      "level": 7,
+      "prepared": false,
+      "source": [
+        "Ruby Weave Gem"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "7",
+        "Source": "Ruby Weave Gem",
+        "Tags": "",
+        "Name": "Simulacrum",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)"
+      }
+    },
+    {
+      "id": "symbol-7-cleric",
+      "name": "Symbol",
+      "level": 7,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Long Cast"
+      ],
+      "component": "mercury, phosphorus, and powdered diamond and opal with a total value of at least 1,000 gp, which the spell consumes",
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "7",
+        "Source": "Cleric",
+        "Tags": "Long Cast",
+        "Name": "Symbol",
+        "Component": "mercury, phosphorus, and powdered diamond and opal with a total value of at least 1,000 gp, which the spell consumes",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "teleport-7-unknown",
+      "name": "Teleport",
+      "level": 7,
+      "prepared": false,
+      "source": [],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": "SS Stone Tree of death (https://www.notion.so/SS-Stone-Tree-of-death-2ee22332e4944daaa4523c357fe9a2c2?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "7",
+        "Source": "",
+        "Tags": "",
+        "Name": "Teleport",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": "SS Stone Tree of death (https://www.notion.so/SS-Stone-Tree-of-death-2ee22332e4944daaa4523c357fe9a2c2?pvs=21)"
+      }
+    },
+    {
+      "id": "temple-of-the-gods-7-cleric",
+      "name": "Temple of the Gods",
+      "level": 7,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Burn Cast",
+        "Long Cast",
+        "Rest Cast"
+      ],
+      "component": "a holy symbol worth at least 5 gp",
+      "notes": "The temple must fit within an unoccupied cube of space, up to 120 feet on each side. The temple remains until the spell ends.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "7",
+        "Source": "Cleric",
+        "Tags": "Burn Cast, Long Cast, Rest Cast",
+        "Name": "Temple of the Gods",
+        "Component": "a holy symbol worth at least 5 gp",
+        "Notes": "The temple must fit within an unoccupied cube of space, up to 120 feet on each side. The temple remains until the spell ends.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "antimagic-field-8-cleric",
+      "name": "Antimagic Field",
+      "level": 8,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "Spells and other magical effects, except those created by an artifact or a deity, are suppressed in the sphere and can't protrude into it.",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "8",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Antimagic Field",
+        "Component": "",
+        "Notes": "Spells and other magical effects, except those created by an artifact or a deity, are suppressed in the sphere and can't protrude into it.",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "control-weather-8-cleric",
+      "name": "Control Weather",
+      "level": 8,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "8",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Control Weather",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "demiplane-8-ruby-weave-gem",
+      "name": "Demiplane",
+      "level": 8,
+      "prepared": false,
+      "source": [
+        "Ruby Weave Gem"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "8",
+        "Source": "Ruby Weave Gem",
+        "Tags": "",
+        "Name": "Demiplane",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)"
+      }
+    },
+    {
+      "id": "earthquake-8-cleric",
+      "name": "Earthquake",
+      "level": 8,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "8",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Earthquake",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "holy-aura-8-cleric",
+      "name": "Holy Aura",
+      "level": 8,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [
+        "Concentration"
+      ],
+      "component": null,
+      "notes": "fiend or an undead",
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "8",
+        "Source": "Cleric",
+        "Tags": "Concentration",
+        "Name": "Holy Aura",
+        "Component": "",
+        "Notes": "fiend or an undead",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "mind-blank-8-ruby-weave-gem",
+      "name": "Mind Blank",
+      "level": 8,
+      "prepared": false,
+      "source": [
+        "Ruby Weave Gem"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "8",
+        "Source": "Ruby Weave Gem",
+        "Tags": "",
+        "Name": "Mind Blank",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "sunburst-8-cleric",
+      "name": "Sunburst",
+      "level": 8,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "8",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Sunburst",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "telepathy-8-unknown",
+      "name": "Telepathy",
+      "level": 8,
+      "prepared": false,
+      "source": [],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "8",
+        "Source": "",
+        "Tags": "",
+        "Name": "Telepathy",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "astral-projection-9-cleric",
+      "name": "Astral Projection",
+      "level": 9,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "9",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Astral Projection",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)"
+      }
+    },
+    {
+      "id": "gate-9-cleric",
+      "name": "Gate",
+      "level": 9,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": "Ryludont Brightlight Nagritan",
+      "combos": null,
+      "items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "9",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Gate",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "Ryludont Brightlight Nagritan",
+        "Combos": "",
+        "🎒 Items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)"
+      }
+    },
+    {
+      "id": "mass-heal-9-cleric",
+      "name": "Mass Heal",
+      "level": 9,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "9",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Mass Heal",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)"
+      }
+    },
+    {
+      "id": "power-word-heal-9-cleric",
+      "name": "Power Word Heal",
+      "level": 9,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "9",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "Power Word Heal",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)"
+      }
+    },
+    {
+      "id": "time-stop-9-ruby-weave-gem",
+      "name": "Time Stop",
+      "level": 9,
+      "prepared": false,
+      "source": [
+        "Ruby Weave Gem"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "9",
+        "Source": "Ruby Weave Gem",
+        "Tags": "",
+        "Name": "Time Stop",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "true-polymorph-9-unknown",
+      "name": "True polymorph",
+      "level": 9,
+      "prepared": false,
+      "source": [],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": null,
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "9",
+        "Source": "",
+        "Tags": "",
+        "Name": "True polymorph",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": ""
+      }
+    },
+    {
+      "id": "true-ressurection-9-cleric",
+      "name": "True Ressurection",
+      "level": 9,
+      "prepared": false,
+      "source": [
+        "Cleric"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": "Ryludont Brightlight Nagritan",
+      "combos": null,
+      "items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "9",
+        "Source": "Cleric",
+        "Tags": "",
+        "Name": "True Ressurection",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "Ryludont Brightlight Nagritan",
+        "Combos": "",
+        "🎒 Items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)"
+      }
+    },
+    {
+      "id": "wish-9-ruby-weave-gem",
+      "name": "Wish",
+      "level": 9,
+      "prepared": false,
+      "source": [
+        "Ruby Weave Gem"
+      ],
+      "tags": [],
+      "component": null,
+      "notes": null,
+      "preparation": null,
+      "combos": null,
+      "items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)",
+      "raw": {
+        "Prepared?": "No",
+        "Spell Level": "9",
+        "Source": "Ruby Weave Gem",
+        "Tags": "",
+        "Name": "Wish",
+        "Component": "",
+        "Notes": "",
+        "Preparation": "",
+        "Combos": "",
+        "🎒 Items": "Ruby Weave Gem (https://www.notion.so/Ruby-Weave-Gem-7d890055730d47608cd4e43efa28c4f4?pvs=21)"
+      }
+    }
+  ]
+}
