@@ -137,6 +137,48 @@ button:hover {
   overflow: hidden;
 }
 
+.table-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: #fff9ee;
+}
+
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.16rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.mode-badge.remote {
+  color: #2b4575;
+  border-color: #bfd2f6;
+  background: #edf3ff;
+}
+
+.mode-badge.local {
+  color: #7a4c14;
+  border-color: #f0c48c;
+  background: #fff0da;
+}
+
+.secondary-button {
+  min-height: 2rem;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  color: #6f2f1c;
+  border: 1px solid #dba690;
+  background: #fff3ec;
+}
+
 .status {
   margin: 0;
   padding: 0.8rem 1rem;

@@ -1,3 +1,5 @@
+const LOCAL_PATCH_KEY = 'spellbook.localPatches.v1';
+
 const elements = {
   nameFilter: document.getElementById('nameFilter'),
   levelFilter: document.getElementById('levelFilter'),
@@ -12,12 +14,16 @@ const elements = {
   sourceSuggestions: document.getElementById('sourceSuggestions'),
   tagSuggestions: document.getElementById('tagSuggestions'),
   sortButtons: Array.from(document.querySelectorAll('.sort-button')),
+  saveModeBadge: document.getElementById('saveModeBadge'),
+  resetLocalEdits: document.getElementById('resetLocalEdits'),
 };
 
-let allSpells = [];
+let baseSpells = [];
+let localPatches = {};
 let editingSpellId = null;
 let isSaving = false;
 let sortState = { key: 'name', direction: 'asc' };
+let saveMode = 'remote';
 
 function setStatus(message, isError = false) {
   elements.statusMessage.textContent = message;
@@ -40,18 +46,29 @@ function parseCsvList(value) {
     .filter(Boolean);
 }
 
-function buildLevelOptions(spells) {
-  const levels = [...new Set(spells.map((spell) => spell.level))].sort((a, b) => a - b);
+function hasOwn(object, key) {
+  return Object.prototype.hasOwnProperty.call(object, key);
+}
+
+function setDatalistOptions(element, values) {
+  element.innerHTML = values.map((value) => `<option value="${escapeHtml(value)}"></option>`).join('');
+}
+
+function setLevelOptions(spells) {
+  const selected = elements.levelFilter.value;
+  elements.levelFilter.innerHTML = '<option value="">All levels</option>';
+
+  const levels = [...new Set(spells.map((spell) => spell.level).filter(Number.isFinite))].sort((a, b) => a - b);
   for (const level of levels) {
     const option = document.createElement('option');
     option.value = String(level);
     option.textContent = level === 0 ? 'Cantrip (0)' : `Level ${level}`;
     elements.levelFilter.append(option);
   }
-}
 
-function setDatalistOptions(element, values) {
-  element.innerHTML = values.map((value) => `<option value="${escapeHtml(value)}"></option>`).join('');
+  if ([...elements.levelFilter.options].some((option) => option.value === selected)) {
+    elements.levelFilter.value = selected;
+  }
 }
 
 function buildAutocompleteOptions(spells) {
@@ -68,6 +85,126 @@ function buildAutocompleteOptions(spells) {
   setDatalistOptions(elements.nameSuggestions, names);
   setDatalistOptions(elements.sourceSuggestions, sources);
   setDatalistOptions(elements.tagSuggestions, tags);
+}
+
+function sanitizeSpellPatch(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return null;
+
+  const patch = {};
+
+  if (hasOwn(input, 'name')) {
+    const name = String(input.name || '').trim();
+    if (!name) return null;
+    patch.name = name;
+  }
+
+  if (hasOwn(input, 'level')) {
+    const level = Number.parseInt(String(input.level), 10);
+    if (!Number.isFinite(level) || level < 0) return null;
+    patch.level = level;
+  }
+
+  if (hasOwn(input, 'source')) {
+    const source = Array.isArray(input.source) ? input.source : parseCsvList(input.source);
+    patch.source = source.map((entry) => String(entry).trim()).filter(Boolean);
+  }
+
+  if (hasOwn(input, 'tags')) {
+    const tags = Array.isArray(input.tags) ? input.tags : parseCsvList(input.tags);
+    patch.tags = tags.map((entry) => String(entry).trim()).filter(Boolean);
+  }
+
+  if (hasOwn(input, 'prepared')) {
+    patch.prepared = Boolean(input.prepared);
+  }
+
+  if (Object.keys(patch).length === 0) return null;
+  return patch;
+}
+
+function mergePatch(previousPatch, nextPatch) {
+  return {
+    ...(previousPatch || {}),
+    ...nextPatch,
+  };
+}
+
+function applyPatchToSpell(spell, patch) {
+  if (!patch) return spell;
+
+  const sanitized = sanitizeSpellPatch(patch);
+  if (!sanitized) return spell;
+
+  return {
+    ...spell,
+    ...sanitized,
+  };
+}
+
+function loadLocalPatches() {
+  try {
+    const raw = localStorage.getItem(LOCAL_PATCH_KEY);
+    if (!raw) return {};
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+
+    const patches = {};
+    for (const [spellId, patch] of Object.entries(parsed)) {
+      const sanitized = sanitizeSpellPatch(patch);
+      if (!sanitized) continue;
+
+      patches[spellId] = {
+        ...sanitized,
+        updatedAt: String(patch?.updatedAt || ''),
+      };
+    }
+
+    return patches;
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalPatches() {
+  try {
+    localStorage.setItem(LOCAL_PATCH_KEY, JSON.stringify(localPatches));
+  } catch {
+    // Ignore quota/storage access errors; app still functions in memory for this session.
+  }
+}
+
+function clearLocalPatches() {
+  localPatches = {};
+  try {
+    localStorage.removeItem(LOCAL_PATCH_KEY);
+  } catch {
+    // Ignore local storage access errors.
+  }
+}
+
+function hasLocalPatches() {
+  return Object.keys(localPatches).length > 0;
+}
+
+function getEffectiveSpells() {
+  return baseSpells.map((spell) => applyPatchToSpell(spell, localPatches[spell.id]));
+}
+
+function refreshDerivedOptions() {
+  const spells = getEffectiveSpells();
+  setLevelOptions(spells);
+  buildAutocompleteOptions(spells);
+}
+
+function updateDraftUi() {
+  if (!elements.saveModeBadge || !elements.resetLocalEdits) return;
+
+  const isLocalDraft = saveMode === 'local-draft';
+  elements.saveModeBadge.textContent = isLocalDraft ? 'Local draft' : 'Remote';
+  elements.saveModeBadge.classList.toggle('local', isLocalDraft);
+  elements.saveModeBadge.classList.toggle('remote', !isLocalDraft);
+  elements.resetLocalEdits.hidden = !hasLocalPatches();
 }
 
 function getFilters() {
@@ -224,13 +361,20 @@ function renderSpells(spells) {
   elements.tableBody.innerHTML = rows;
 }
 
-function runFilters() {
+function runFilters(options = {}) {
+  const { announce = true } = options;
+  const spells = getEffectiveSpells();
   const filters = getFilters();
-  const filtered = allSpells.filter((spell) => matchesFilters(spell, filters));
+  const filtered = spells.filter((spell) => matchesFilters(spell, filters));
   const sorted = sortSpells(filtered);
+
   renderSpells(sorted);
   updateSortButtons();
-  setStatus(`Showing ${sorted.length} of ${allSpells.length} spells.`);
+  updateDraftUi();
+
+  if (announce) {
+    setStatus(`Showing ${sorted.length} of ${spells.length} spells.`);
+  }
 }
 
 function resetFilters() {
@@ -241,23 +385,31 @@ function resetFilters() {
   runFilters();
 }
 
-function setSpellInMemory(updatedSpell) {
-  allSpells = allSpells.map((spell) => (spell.id === updatedSpell.id ? updatedSpell : spell));
+function setBaseSpell(updatedSpell) {
+  baseSpells = baseSpells.map((spell) => (spell.id === updatedSpell.id ? updatedSpell : spell));
 }
 
 async function patchSpell(spellId, patch) {
-  const response = await fetch(`/api/spells/${encodeURIComponent(spellId)}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(patch),
-  });
+  let response;
+
+  try {
+    response = await fetch(`/api/spells/${encodeURIComponent(spellId)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    });
+  } catch (error) {
+    const wrapped = new Error(error.message || 'Network error while saving.');
+    wrapped.fallbackToLocal = true;
+    throw wrapped;
+  }
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    if (response.status === 405) {
-      throw new Error('Save endpoint is unavailable (405). Restart the local server and retry.');
-    }
-    throw new Error(payload.error || `HTTP ${response.status}`);
+    const message = payload.error || `HTTP ${response.status}`;
+    const wrapped = new Error(message);
+    wrapped.fallbackToLocal = response.status === 405;
+    throw wrapped;
   }
 
   return payload.spell;
@@ -289,18 +441,41 @@ function getEditingPatch(spellId) {
   };
 }
 
+function savePatchLocally(spellId, patch) {
+  const sanitized = sanitizeSpellPatch(patch);
+  if (!sanitized) throw new Error('Invalid patch payload.');
+
+  localPatches[spellId] = {
+    ...mergePatch(localPatches[spellId], sanitized),
+    updatedAt: new Date().toISOString(),
+  };
+  saveLocalPatches();
+}
+
 async function saveRow(spellId) {
   if (isSaving) return;
   isSaving = true;
 
   try {
     const patch = getEditingPatch(spellId);
-    const updatedSpell = await patchSpell(spellId, patch);
-    setSpellInMemory(updatedSpell);
-    buildAutocompleteOptions(allSpells);
+    try {
+      const updatedSpell = await patchSpell(spellId, patch);
+      setBaseSpell(updatedSpell);
+      delete localPatches[spellId];
+      saveLocalPatches();
+      saveMode = 'remote';
+      setStatus(`Saved changes for ${updatedSpell.name}.`);
+    } catch (error) {
+      if (!error.fallbackToLocal) throw error;
+
+      savePatchLocally(spellId, patch);
+      saveMode = 'local-draft';
+      setStatus('Saved locally (draft mode).');
+    }
+
     editingSpellId = null;
-    setStatus(`Saved changes for ${updatedSpell.name}.`);
-    runFilters();
+    refreshDerivedOptions();
+    runFilters({ announce: false });
   } catch (error) {
     setStatus(`Unable to save spell: ${error.message}`, true);
   } finally {
@@ -310,20 +485,44 @@ async function saveRow(spellId) {
 
 async function togglePrepared(spellId) {
   if (isSaving) return;
-  const spell = allSpells.find((entry) => entry.id === spellId);
+  const spell = getEffectiveSpells().find((entry) => entry.id === spellId);
   if (!spell) return;
 
+  const patch = { prepared: !spell.prepared };
   isSaving = true;
+
   try {
-    const updatedSpell = await patchSpell(spellId, { prepared: !spell.prepared });
-    setSpellInMemory(updatedSpell);
-    setStatus(`${updatedSpell.name} is now ${updatedSpell.prepared ? 'Prepared' : 'Not Prepared'}.`);
-    runFilters();
+    try {
+      const updatedSpell = await patchSpell(spellId, patch);
+      setBaseSpell(updatedSpell);
+      delete localPatches[spellId];
+      saveLocalPatches();
+      saveMode = 'remote';
+      setStatus(`${updatedSpell.name} is now ${updatedSpell.prepared ? 'Prepared' : 'Not Prepared'}.`);
+    } catch (error) {
+      if (!error.fallbackToLocal) throw error;
+
+      savePatchLocally(spellId, patch);
+      saveMode = 'local-draft';
+      setStatus('Saved locally (draft mode).');
+    }
+
+    refreshDerivedOptions();
+    runFilters({ announce: false });
   } catch (error) {
     setStatus(`Unable to update prepared status: ${error.message}`, true);
   } finally {
     isSaving = false;
   }
+}
+
+function resetLocalEdits() {
+  clearLocalPatches();
+  saveMode = 'remote';
+  editingSpellId = null;
+  refreshDerivedOptions();
+  runFilters({ announce: false });
+  setStatus('Local edits cleared.');
 }
 
 async function loadSpells() {
@@ -333,13 +532,16 @@ async function loadSpells() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const payload = await response.json();
-    allSpells = payload.spells || [];
-    buildLevelOptions(allSpells);
-    buildAutocompleteOptions(allSpells);
+    baseSpells = payload.spells || [];
+    localPatches = loadLocalPatches();
+
+    refreshDerivedOptions();
+    updateDraftUi();
     runFilters();
   } catch (error) {
     setStatus(`Unable to load spells: ${error.message}`, true);
     elements.tableBody.innerHTML = '';
+    updateDraftUi();
   }
 }
 
@@ -378,14 +580,14 @@ elements.tableBody.addEventListener('click', (event) => {
 
   if (action === 'edit') {
     editingSpellId = spellId;
-    runFilters();
+    runFilters({ announce: false });
     return;
   }
 
   if (action === 'cancel') {
     editingSpellId = null;
     setStatus('Edit canceled.');
-    runFilters();
+    runFilters({ announce: false });
     return;
   }
 
@@ -415,9 +617,14 @@ elements.tableBody.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && editingSpellId === spellId) {
     event.preventDefault();
     editingSpellId = null;
-    runFilters();
+    runFilters({ announce: false });
   }
 });
 
 elements.clearFilters.addEventListener('click', resetFilters);
+if (elements.resetLocalEdits) {
+  elements.resetLocalEdits.addEventListener('click', resetLocalEdits);
+}
+
+updateDraftUi();
 loadSpells();
