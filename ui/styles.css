@@ -129,8 +129,8 @@ button:hover {
 
 .stat p {
   margin: 0.4rem 0 0;
-  font-size: clamp(1.3rem, 2.4vw, 1.9rem);
-  font-weight: 700;
+  font-size: clamp(1rem, 1.7vw, 1.25rem);
+  font-weight: 600;
 }
 
 .table-panel {
@@ -178,6 +178,29 @@ th {
   top: 0;
 }
 
+th .sort-button {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+th .sort-button::after {
+  content: '↕';
+  opacity: 0.45;
+  font-size: 0.7rem;
+}
+
+th .sort-button.active::after {
+  opacity: 1;
+  content: '↑';
+}
+
+th .sort-button.active[data-direction='desc']::after {
+  content: '↓';
+}
+
 tbody tr:hover {
   background: #fff5e6;
 }
@@ -195,6 +218,91 @@ tbody tr:hover {
   color: var(--prepared);
   border-color: #9ec9ad;
   background: #edfaef;
+}
+
+.pill-toggle {
+  display: inline-block;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+}
+
+.pill-toggle.prepared {
+  color: var(--prepared);
+  border-color: #9ec9ad;
+  background: #edfaef;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  margin: 0.1rem 0.2rem 0.1rem 0;
+  padding: 0.12rem 0.42rem;
+  border-radius: 999px;
+  background: #fff2de;
+  border: 1px solid #edcf9e;
+  color: #724f21;
+  font-size: 0.74rem;
+  line-height: 1.2;
+}
+
+.tag-pill.source {
+  background: #edf3ff;
+  border-color: #bfd2f6;
+  color: #2b4575;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.editable-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.link-button {
+  background: transparent;
+  border: 0;
+  min-height: auto;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.1rem 0.2rem;
+}
+
+.link-button.save {
+  color: var(--prepared);
+}
+
+.editing-row {
+  background: #fff8ed;
+}
+
+.edit-stack {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.row-actions {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.edit-input {
+  width: 100%;
+  min-height: 2rem;
+}
+
+.edit-input.small {
+  max-width: 5rem;
 }
 
 @media (max-width: 740px) {

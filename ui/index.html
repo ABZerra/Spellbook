@@ -23,7 +23,7 @@
       <section class="panel controls" aria-label="Spell filters">
         <label>
           Search
-          <input id="nameFilter" type="search" placeholder="Spell name..." />
+          <input id="nameFilter" type="search" placeholder="Spell name..." list="nameSuggestions" />
         </label>
         <label>
           Level
@@ -33,14 +33,18 @@
         </label>
         <label>
           Source
-          <input id="sourceFilter" type="text" placeholder="e.g. Druid" />
+          <input id="sourceFilter" type="text" placeholder="e.g. Druid" list="sourceSuggestions" />
         </label>
         <label>
           Tags
-          <input id="tagsFilter" type="text" placeholder="comma, separated" />
+          <input id="tagsFilter" type="text" placeholder="comma, separated" list="tagSuggestions" />
         </label>
         <button id="clearFilters" type="button">Clear filters</button>
       </section>
+
+      <datalist id="nameSuggestions"></datalist>
+      <datalist id="sourceSuggestions"></datalist>
+      <datalist id="tagSuggestions"></datalist>
 
       <section class="stats" aria-live="polite">
         <article class="panel stat">
@@ -59,11 +63,11 @@
           <table>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Level</th>
-                <th>Prepared</th>
-                <th>Source</th>
-                <th>Tags</th>
+                <th><button type="button" class="sort-button" data-sort="source">Source</button></th>
+                <th><button type="button" class="sort-button" data-sort="level">Level</button></th>
+                <th><button type="button" class="sort-button" data-sort="name">Name</button></th>
+                <th><button type="button" class="sort-button" data-sort="tags">Tags</button></th>
+                <th><button type="button" class="sort-button" data-sort="prepared">Prepared</button></th>
               </tr>
             </thead>
             <tbody id="spellTableBody"></tbody>
