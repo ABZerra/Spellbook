@@ -1,0 +1,13 @@
+{
+  "name": "spellbook",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Spell preparation planner between long rests.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
