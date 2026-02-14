@@ -4,6 +4,17 @@ import { createReadStream, existsSync, readFileSync, writeFileSync } from 'node:
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ensureSchema } from '../src/adapters/schema.js';
+import { withTransaction } from '../src/adapters/pg.js';
+import { ensureCharacterOwnership } from '../src/adapters/character-repo.js';
+import { PendingPlanVersionConflictError } from '../src/adapters/pending-plan-repo.js';
+import {
+  appendPendingPlanChange,
+  applyPendingPlanState,
+  clearPendingPlanState,
+  getPendingPlanState,
+  updatePendingPlanState,
+} from '../src/services/pending-plan-service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,8 +25,15 @@ const dbPath = process.env.SPELLS_DB
   : path.join(rootDir, 'data', 'spells.json');
 const port = Number(process.env.PORT || 3000);
 
+const remotePendingPlanEnabled = process.env.PERSIST_PENDING_PLAN_REMOTE === 'true';
+const defaultCharacterId = process.env.DEFAULT_CHARACTER_ID || 'default-character';
+const defaultCharacterName = process.env.DEFAULT_CHARACTER_NAME || 'Default Character';
+const defaultUserId = process.env.DEFAULT_USER_ID || 'demo-user';
+
 const database = JSON.parse(readFileSync(dbPath, 'utf8'));
 const spells = Array.isArray(database.spells) ? database.spells : [];
+const knownSpellIds = new Set(spells.map((spell) => spell.id));
+const defaultPreparedSpellIds = spells.filter((spell) => spell.prepared).map((spell) => spell.id);
 
 function sendJson(res, code, payload) {
   res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -144,7 +162,145 @@ function querySpells(url) {
   });
 }
 
-const server = http.createServer((req, res) => {
+function parseCookies(req) {
+  const raw = String(req.headers.cookie || '');
+  const result = {};
+
+  for (const part of raw.split(';')) {
+    const [key, ...rest] = part.trim().split('=');
+    if (!key) continue;
+    result[key] = decodeURIComponent(rest.join('='));
+  }
+
+  return result;
+}
+
+function getAuthenticatedUserId(req) {
+  const userHeader = req.headers['x-user-id'];
+  if (typeof userHeader === 'string' && userHeader.trim()) return userHeader.trim();
+
+  const cookies = parseCookies(req);
+  if (cookies.spellbook_user_id) return String(cookies.spellbook_user_id).trim();
+
+  return defaultUserId;
+}
+
+async function withCharacterScope({ req, characterId }, run) {
+  if (!remotePendingPlanEnabled) {
+    const error = new Error('Remote pending plan persistence is disabled.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return withTransaction(async (client) => {
+    const userId = getAuthenticatedUserId(req);
+
+    const owned = await ensureCharacterOwnership(client, {
+      userId,
+      characterId,
+      defaultName: defaultCharacterName,
+      initialPreparedSpellIds: defaultPreparedSpellIds,
+    });
+
+    if (!owned) {
+      const error = new Error(`Character not found: ${characterId}`);
+      error.statusCode = 404;
+      throw error;
+    }
+
+    return run({ client, userId });
+  });
+}
+
+function parseJsonBody(bodyText) {
+  if (!bodyText.trim()) return {};
+  return JSON.parse(bodyText);
+}
+
+async function handleCharacterRoutes(req, res, url) {
+  const pendingPlanMatch = url.pathname.match(/^\/api\/characters\/([^/]+)\/pending-plan$/);
+  const pendingChangeMatch = url.pathname.match(/^\/api\/characters\/([^/]+)\/pending-plan\/changes$/);
+  const pendingApplyMatch = url.pathname.match(/^\/api\/characters\/([^/]+)\/pending-plan\/apply$/);
+
+  if (!pendingPlanMatch && !pendingChangeMatch && !pendingApplyMatch) return false;
+
+  try {
+    if (pendingPlanMatch && req.method === 'GET') {
+      const characterId = decodeURIComponent(pendingPlanMatch[1]);
+      const payload = await withCharacterScope({ req, characterId }, ({ client }) =>
+        getPendingPlanState(client, { characterId }),
+      );
+
+      return sendJson(res, 200, payload);
+    }
+
+    if (pendingPlanMatch && req.method === 'PUT') {
+      const characterId = decodeURIComponent(pendingPlanMatch[1]);
+      const body = parseJsonBody(await readRequestBody(req));
+      const payload = await withCharacterScope({ req, characterId }, ({ client }) =>
+        updatePendingPlanState(client, {
+          characterId,
+          expectedVersion: Number.parseInt(String(body.version), 10),
+          changes: body.changes,
+          knownSpellIds,
+        }),
+      );
+
+      return sendJson(res, 200, payload);
+    }
+
+    if (pendingPlanMatch && req.method === 'DELETE') {
+      const characterId = decodeURIComponent(pendingPlanMatch[1]);
+      const payload = await withCharacterScope({ req, characterId }, ({ client }) =>
+        clearPendingPlanState(client, { characterId }),
+      );
+
+      return sendJson(res, 200, payload);
+    }
+
+    if (pendingChangeMatch && req.method === 'POST') {
+      const characterId = decodeURIComponent(pendingChangeMatch[1]);
+      const body = parseJsonBody(await readRequestBody(req));
+      const payload = await withCharacterScope({ req, characterId }, ({ client }) =>
+        appendPendingPlanChange(client, {
+          characterId,
+          expectedVersion: Number.parseInt(String(body.version), 10),
+          change: body.change,
+          knownSpellIds,
+        }),
+      );
+
+      return sendJson(res, 200, payload);
+    }
+
+    if (pendingApplyMatch && req.method === 'POST') {
+      const characterId = decodeURIComponent(pendingApplyMatch[1]);
+      const payload = await withCharacterScope({ req, characterId }, ({ client }) =>
+        applyPendingPlanState(client, {
+          characterId,
+          knownSpellIds,
+        }),
+      );
+
+      return sendJson(res, 200, payload);
+    }
+
+    return sendJson(res, 405, { error: 'Method not allowed' });
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      return sendJson(res, 400, { error: 'Invalid JSON payload.' });
+    }
+
+    if (error instanceof PendingPlanVersionConflictError) {
+      return sendJson(res, 409, { error: error.message });
+    }
+
+    const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 400;
+    return sendJson(res, statusCode, { error: error.message });
+  }
+}
+
+const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host}`);
 
   if (req.method === 'GET' && url.pathname === '/domain/planner.js') {
@@ -156,6 +312,18 @@ const server = http.createServer((req, res) => {
 
   if (req.method === 'GET' && url.pathname === '/api/health') {
     return sendJson(res, 200, { ok: true, totalSpells: spells.length });
+  }
+
+  if (req.method === 'GET' && url.pathname === '/api/config') {
+    return sendJson(res, 200, {
+      remotePendingPlanEnabled,
+      defaultCharacterId,
+      userId: getAuthenticatedUserId(req),
+    });
+  }
+
+  if (await handleCharacterRoutes(req, res, url)) {
+    return undefined;
   }
 
   if (req.method === 'GET' && url.pathname === '/api/spells') {
@@ -218,7 +386,19 @@ const server = http.createServer((req, res) => {
   return createReadStream(staticPath).pipe(res);
 });
 
-server.listen(port, () => {
-  console.log(`Spellbook UI listening on http://localhost:${port}`);
-  console.log(`Loaded spell database: ${dbPath}`);
+async function startServer() {
+  if (remotePendingPlanEnabled) {
+    await ensureSchema();
+  }
+
+  server.listen(port, () => {
+    console.log(`Spellbook UI listening on http://localhost:${port}`);
+    console.log(`Loaded spell database: ${dbPath}`);
+    console.log(`Remote pending plans: ${remotePendingPlanEnabled ? 'enabled' : 'disabled'}`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error(error);
+  process.exit(1);
 });

@@ -34,6 +34,7 @@ Pages:
 The UI serves a local API under:
 
 - `GET /api/health`
+- `GET /api/config`
 - `GET /api/spells`
 
 `/api/spells` supports the same query params as the standalone API:
@@ -51,6 +52,31 @@ The UI now supports local draft persistence for edits when API writes are unavai
 - If `PATCH /api/spells/:id` fails due missing endpoint/network, edits are saved to browser `localStorage`.
 - Local drafts are per-browser/per-device and are not shared.
 - The table shows a mode badge (`Remote` or `Local draft`) and provides a `Reset local edits` action.
+
+### Remote Pending Plan Mode (cross-device drafts)
+
+Set `PERSIST_PENDING_PLAN_REMOTE=true` to store `/prepare` draft plans in Postgres per user+character.
+
+Required env vars:
+
+- `PERSIST_PENDING_PLAN_REMOTE=true`
+- `DATABASE_URL=postgres://...`
+
+Optional env vars:
+
+- `DEFAULT_USER_ID=demo-user`
+- `DEFAULT_CHARACTER_ID=default-character`
+- `DEFAULT_CHARACTER_NAME=Default Character`
+
+When enabled, `/prepare` auto-saves each queued change to:
+
+- `GET /api/characters/:characterId/pending-plan`
+- `PUT /api/characters/:characterId/pending-plan`
+- `POST /api/characters/:characterId/pending-plan/changes`
+- `DELETE /api/characters/:characterId/pending-plan`
+- `POST /api/characters/:characterId/pending-plan/apply`
+
+Schema bootstrap SQL is available at `db/pending-plan-schema.sql` and is auto-applied at server startup in remote mode.
 
 ## Spell data workflow
 

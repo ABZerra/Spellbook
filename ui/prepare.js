@@ -46,6 +46,12 @@ let pendingChanges = [];
 let isApplying = false;
 let activeSpellSidebarId = null;
 
+let remotePendingPlanEnabled = false;
+let pendingPlanVersion = 1;
+let currentCharacterId = 'default-character';
+let currentUserId = 'unknown-user';
+let remoteActivePreparedSet = new Set();
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -77,7 +83,19 @@ function getKnownSpellIds() {
   return new Set(spells.map((spell) => spell.id));
 }
 
+function applyRemotePreparedState() {
+  if (!remotePendingPlanEnabled) return;
+
+  for (const spell of spells) {
+    spell.prepared = remoteActivePreparedSet.has(spell.id);
+  }
+}
+
 function getActiveSpellIds() {
+  if (remotePendingPlanEnabled) {
+    return [...remoteActivePreparedSet];
+  }
+
   return spells.filter((spell) => spell.prepared).map((spell) => spell.id);
 }
 
@@ -101,30 +119,32 @@ function sanitizePendingChange(change) {
   };
 }
 
-function loadPendingPlan() {
+function parsePendingPlanChanges(rawChanges) {
+  if (!Array.isArray(rawChanges)) return [];
+  return rawChanges.map(sanitizePendingChange).filter(Boolean);
+}
+
+function loadPendingPlanFallback() {
   try {
     const raw = localStorage.getItem(PENDING_PLAN_KEY);
     if (!raw) return [];
 
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed.map(sanitizePendingChange).filter(Boolean);
+    return parsePendingPlanChanges(parsed);
   } catch {
     return [];
   }
 }
 
-function savePendingPlan() {
+function savePendingPlanFallback() {
   try {
     localStorage.setItem(PENDING_PLAN_KEY, JSON.stringify(pendingChanges));
   } catch {
-    // Ignore storage issues; session state still works.
+    // Ignore storage issues.
   }
 }
 
-function clearPendingPlan() {
-  pendingChanges = [];
+function clearPendingPlanFallback() {
   try {
     localStorage.removeItem(PENDING_PLAN_KEY);
   } catch {
@@ -345,6 +365,95 @@ function render() {
   }
 }
 
+function updateStateFromRemotePayload(payload) {
+  const plan = payload?.plan || {};
+
+  pendingPlanVersion = Number.isInteger(plan.version) ? plan.version : 1;
+  pendingChanges = parsePendingPlanChanges(plan.changes);
+
+  const activeSpellIds = Array.isArray(payload?.activeSpellIds) ? payload.activeSpellIds : [];
+  remoteActivePreparedSet = new Set(activeSpellIds.filter((spellId) => typeof spellId === 'string' && spellId));
+
+  applyRemotePreparedState();
+  savePendingPlanFallback();
+}
+
+async function fetchConfig() {
+  try {
+    const response = await fetch('/api/config');
+    if (!response.ok) return;
+
+    const payload = await response.json();
+    remotePendingPlanEnabled = Boolean(payload.remotePendingPlanEnabled);
+    currentUserId = String(payload.userId || currentUserId);
+
+    const fromQuery = new URLSearchParams(window.location.search).get('characterId');
+    const configCharacter = String(payload.defaultCharacterId || currentCharacterId);
+    currentCharacterId = fromQuery || configCharacter;
+  } catch {
+    // Keep defaults.
+  }
+}
+
+async function loadRemotePendingPlan() {
+  const response = await fetch(`/api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan`);
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(payload.error || `HTTP ${response.status}`);
+  }
+
+  updateStateFromRemotePayload(payload);
+}
+
+async function syncRemotePendingPlan(nextChanges, successMessage) {
+  const expectedVersion = pendingPlanVersion;
+
+  pendingChanges = nextChanges;
+  savePendingPlanFallback();
+  render();
+
+  const response = await fetch(`/api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ version: expectedVersion, changes: nextChanges }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+
+  if (response.status === 409) {
+    await loadRemotePendingPlan();
+    render();
+    setStatus('Pending plan changed in another session. Reloaded latest draft.', true);
+    return;
+  }
+
+  if (!response.ok) {
+    setStatus(`Unable to sync draft: ${payload.error || `HTTP ${response.status}`}. Changes kept locally.`, true);
+    return;
+  }
+
+  updateStateFromRemotePayload(payload);
+  render();
+  setStatus(successMessage);
+}
+
+async function persistPendingChanges(nextChanges, successMessage) {
+  if (!remotePendingPlanEnabled) {
+    pendingChanges = nextChanges;
+    savePendingPlanFallback();
+    render();
+    setStatus(successMessage);
+    return;
+  }
+
+  try {
+    await syncRemotePendingPlan(nextChanges, successMessage);
+  } catch (error) {
+    setStatus(`Unable to sync draft: ${error.message}. Changes kept locally.`, true);
+  }
+}
+
 function queueChange(change) {
   let planState;
   try {
@@ -390,10 +499,7 @@ function queueChange(change) {
     return;
   }
 
-  pendingChanges = nextPending;
-  savePendingPlan();
-  render();
-  setStatus('Pending plan updated.');
+  void persistPendingChanges(nextPending, 'Pending plan updated.');
 }
 
 async function patchPrepared(spellId, prepared) {
@@ -421,21 +527,37 @@ async function applyPendingPlan() {
     return;
   }
 
-  const currentSet = new Set(planState.activeSpellIds);
-  const nextSet = new Set(planState.preview.nextPreparedSpellIds);
-
-  const toPrepare = [...nextSet].filter((spellId) => !currentSet.has(spellId));
-  const toUnprepare = [...currentSet].filter((spellId) => !nextSet.has(spellId));
-
-  const patches = [
-    ...toPrepare.map((spellId) => ({ spellId, prepared: true })),
-    ...toUnprepare.map((spellId) => ({ spellId, prepared: false })),
-  ];
-
   isApplying = true;
   elements.applyPlanButton.disabled = true;
 
   try {
+    if (remotePendingPlanEnabled) {
+      const response = await fetch(`/api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan/apply`, {
+        method: 'POST',
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || `HTTP ${response.status}`);
+      }
+
+      updateStateFromRemotePayload(payload);
+      render();
+      setStatus('Plan applied successfully. Pending queue cleared.');
+      return;
+    }
+
+    const currentSet = new Set(planState.activeSpellIds);
+    const nextSet = new Set(planState.preview.nextPreparedSpellIds);
+
+    const toPrepare = [...nextSet].filter((spellId) => !currentSet.has(spellId));
+    const toUnprepare = [...currentSet].filter((spellId) => !nextSet.has(spellId));
+
+    const patches = [
+      ...toPrepare.map((spellId) => ({ spellId, prepared: true })),
+      ...toUnprepare.map((spellId) => ({ spellId, prepared: false })),
+    ];
+
     const failedSpellIds = [];
 
     for (const patch of patches) {
@@ -451,7 +573,8 @@ async function applyPendingPlan() {
       return;
     }
 
-    clearPendingPlan();
+    pendingChanges = [];
+    clearPendingPlanFallback();
     await loadSpells();
     setStatus('Plan applied successfully. Pending queue cleared.');
   } catch (error) {
@@ -473,18 +596,35 @@ async function loadSpells() {
     const payload = await response.json();
     spells = Array.isArray(payload.spells) ? payload.spells : [];
 
+    if (remotePendingPlanEnabled) {
+      await loadRemotePendingPlan();
+    } else {
+      pendingChanges = loadPendingPlanFallback();
+    }
+
+    applyRemotePreparedState();
+
     try {
       validatePlan(pendingChanges, getKnownSpellIds());
     } catch {
-      clearPendingPlan();
+      pendingChanges = [];
+      clearPendingPlanFallback();
       setStatus('Pending plan reset because some spell IDs no longer exist.', true);
     }
 
     render();
     if (!elements.prepareStatusMessage.classList.contains('error')) {
-      setStatus(`Loaded ${spells.length} spells.`);
+      const mode = remotePendingPlanEnabled ? `Remote draft (${currentUserId}/${currentCharacterId})` : 'Local draft';
+      setStatus(`Loaded ${spells.length} spells. ${mode}.`);
     }
   } catch (error) {
+    if (remotePendingPlanEnabled) {
+      pendingChanges = loadPendingPlanFallback();
+      render();
+      setStatus(`Unable to load remote draft: ${error.message}. Loaded local fallback only.`, true);
+      return;
+    }
+
     setStatus(`Unable to load spells: ${error.message}`, true);
   }
 }
@@ -547,10 +687,8 @@ document.addEventListener('click', (event) => {
   const index = Number.parseInt(String(target.dataset.index || ''), 10);
   if (!Number.isInteger(index) || index < 0 || index >= pendingChanges.length) return;
 
-  pendingChanges = pendingChanges.filter((_, entryIndex) => entryIndex !== index);
-  savePendingPlan();
-  render();
-  setStatus('Queued change removed.');
+  const nextPending = pendingChanges.filter((_, entryIndex) => entryIndex !== index);
+  void persistPendingChanges(nextPending, 'Queued change removed.');
 });
 
 elements.closeSpellSidebarButton.addEventListener('click', () => {
@@ -568,7 +706,43 @@ document.addEventListener('keydown', (event) => {
 });
 
 elements.clearPendingButton.addEventListener('click', () => {
-  clearPendingPlan();
+  if (remotePendingPlanEnabled) {
+    const expectedVersion = pendingPlanVersion;
+    pendingChanges = [];
+    render();
+
+    void fetch(`/api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ version: expectedVersion }),
+    })
+      .then((response) => response.json().then((payload) => ({ response, payload })))
+      .then(async ({ response, payload }) => {
+        if (response.status === 409) {
+          await loadRemotePendingPlan();
+          render();
+          setStatus('Pending plan changed in another session. Reloaded latest draft.', true);
+          return;
+        }
+
+        if (!response.ok) {
+          setStatus(`Unable to clear remote draft: ${payload.error || `HTTP ${response.status}`}.`, true);
+          return;
+        }
+
+        updateStateFromRemotePayload(payload);
+        render();
+        setStatus('Pending plan cleared.');
+      })
+      .catch((error) => {
+        setStatus(`Unable to clear remote draft: ${error.message}.`, true);
+      });
+
+    return;
+  }
+
+  pendingChanges = [];
+  clearPendingPlanFallback();
   render();
   setStatus('Pending plan cleared.');
 });
@@ -577,5 +751,5 @@ elements.applyPlanButton.addEventListener('click', () => {
   void applyPendingPlan();
 });
 
-pendingChanges = loadPendingPlan();
+await fetchConfig();
 void loadSpells();
