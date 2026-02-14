@@ -19,6 +19,26 @@ The domain core is intentionally framework-agnostic so we can plug it into a fut
 npm test
 ```
 
+## Run basic UI
+
+```bash
+npm run dev
+```
+
+Then open `http://localhost:3000`.
+
+The UI serves a local API under:
+
+- `GET /api/health`
+- `GET /api/spells`
+
+`/api/spells` supports the same query params as the standalone API:
+- `name`
+- `level`
+- `source`
+- `tags`
+- `prepared`
+
 ## Spell data workflow
 
 ### Rebuild database from CSV
