@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { ensureSchema } from '../src/adapters/schema.js';
 import { withTransaction } from '../src/adapters/pg.js';
 import { ensureCharacterOwnership } from '../src/adapters/character-repo.js';
+import { getPreparedList, replacePreparedList } from '../src/adapters/prepared-list-repo.js';
 import { PendingPlanVersionConflictError } from '../src/adapters/pending-plan-repo.js';
 import {
   appendPendingPlanChange,
@@ -133,7 +134,7 @@ function parseList(value) {
     .filter(Boolean);
 }
 
-function querySpells(url) {
+function querySpells(url, sourceSpells = spells) {
   const name = String(url.searchParams.get('name') || '').trim().toLowerCase();
   const levelRaw = url.searchParams.get('level');
   const source = parseList(url.searchParams.get('source'));
@@ -147,7 +148,7 @@ function querySpells(url) {
       ? null
       : String(preparedRaw).toLowerCase() === 'true';
 
-  return spells.filter((spell) => {
+  return sourceSpells.filter((spell) => {
     if (name && !String(spell.name || '').toLowerCase().includes(name)) return false;
     if (level !== null && spell.level !== level) return false;
     if (prepared !== null && spell.prepared !== prepared) return false;
@@ -175,12 +176,34 @@ function parseCookies(req) {
   return result;
 }
 
-function getAuthenticatedUserId(req) {
-  const userHeader = req.headers['x-user-id'];
-  if (typeof userHeader === 'string' && userHeader.trim()) return userHeader.trim();
+function normalizeIdentity(rawValue, fallback) {
+  const value = String(rawValue || '').trim();
+  if (!value) return fallback;
+  return /^[a-zA-Z0-9_.-]{2,64}$/.test(value) ? value : fallback;
+}
+
+function getCharacterIdFromRequest(req, url) {
+  const fromQuery = url?.searchParams?.get('characterId');
+  if (typeof fromQuery === 'string' && fromQuery.trim()) {
+    return normalizeIdentity(fromQuery.trim(), defaultCharacterId);
+  }
 
   const cookies = parseCookies(req);
-  if (cookies.spellbook_user_id) return String(cookies.spellbook_user_id).trim();
+  if (cookies.spellbook_character_id) {
+    return normalizeIdentity(cookies.spellbook_character_id, defaultCharacterId);
+  }
+
+  return defaultCharacterId;
+}
+
+function getAuthenticatedUserId(req) {
+  const userHeader = req.headers['x-user-id'];
+  if (typeof userHeader === 'string' && userHeader.trim()) {
+    return normalizeIdentity(userHeader.trim(), defaultUserId);
+  }
+
+  const cookies = parseCookies(req);
+  if (cookies.spellbook_user_id) return normalizeIdentity(cookies.spellbook_user_id, defaultUserId);
 
   return defaultUserId;
 }
@@ -210,6 +233,19 @@ async function withCharacterScope({ req, characterId }, run) {
 
     return run({ client, userId });
   });
+}
+
+function withUserCharacterScope({ req, url }, run) {
+  const userId = getAuthenticatedUserId(req);
+  const characterId = getCharacterIdFromRequest(req, url);
+
+  return withCharacterScope(
+    {
+      req,
+      characterId,
+    },
+    ({ client }) => run({ client, userId, characterId }),
+  );
 }
 
 function parseJsonBody(bodyText) {
@@ -315,11 +351,56 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && url.pathname === '/api/config') {
+    const currentCharacterId = getCharacterIdFromRequest(req, url);
     return sendJson(res, 200, {
       remotePendingPlanEnabled,
       defaultCharacterId,
+      characterId: currentCharacterId,
       userId: getAuthenticatedUserId(req),
     });
+  }
+
+  if (url.pathname === '/api/session' && req.method === 'GET') {
+    return sendJson(res, 200, {
+      userId: getAuthenticatedUserId(req),
+      characterId: getCharacterIdFromRequest(req, url),
+    });
+  }
+
+  if (url.pathname === '/api/session' && req.method === 'PUT') {
+    try {
+      const body = parseJsonBody(await readRequestBody(req));
+      const userId = normalizeIdentity(body.userId, defaultUserId);
+      const characterId = normalizeIdentity(body.characterId, defaultCharacterId);
+
+      if (remotePendingPlanEnabled) {
+        await withTransaction(async (client) =>
+          ensureCharacterOwnership(client, {
+            userId,
+            characterId,
+            defaultName: defaultCharacterName,
+            initialPreparedSpellIds: defaultPreparedSpellIds,
+          }),
+        );
+      }
+
+      const oneYear = 60 * 60 * 24 * 365;
+      res.setHeader('Set-Cookie', [
+        `spellbook_user_id=${encodeURIComponent(userId)}; Path=/; Max-Age=${oneYear}; SameSite=Lax`,
+        `spellbook_character_id=${encodeURIComponent(characterId)}; Path=/; Max-Age=${oneYear}; SameSite=Lax`,
+      ]);
+
+      return sendJson(res, 200, {
+        ok: true,
+        userId,
+        characterId,
+      });
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        return sendJson(res, 400, { error: 'Invalid JSON payload.' });
+      }
+      return sendJson(res, 400, { error: error.message });
+    }
   }
 
   if (await handleCharacterRoutes(req, res, url)) {
@@ -327,7 +408,22 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && url.pathname === '/api/spells') {
-    const filtered = querySpells(url);
+    let filtered;
+
+    if (remotePendingPlanEnabled) {
+      filtered = await withUserCharacterScope({ req, url }, async ({ client, characterId }) => {
+        const preparedList = await getPreparedList(client, characterId);
+        const preparedSet = new Set(preparedList.spellIds);
+        const scopedSpells = spells.map((spell) => ({
+          ...spell,
+          prepared: preparedSet.has(spell.id),
+        }));
+        return querySpells(url, scopedSpells);
+      });
+    } else {
+      filtered = querySpells(url);
+    }
+
     return sendJson(res, 200, {
       count: filtered.length,
       filters: {
@@ -361,11 +457,60 @@ const server = http.createServer(async (req, res) => {
         try {
           const patch = normalizeSpellPatch(payload);
           const current = spells[index];
-          const next = { ...current, ...patch };
-          updateRawFields(next);
-          spells[index] = next;
-          persistDatabase();
-          return sendJson(res, 200, { ok: true, spell: next });
+          const hasPreparedPatch = Object.prototype.hasOwnProperty.call(patch, 'prepared');
+          const sharedPatch = { ...patch };
+          delete sharedPatch.prepared;
+          const hasSharedFields = Object.keys(sharedPatch).length > 0;
+
+          return Promise.resolve()
+            .then(async () => {
+              if (hasSharedFields) {
+                const next = { ...current, ...sharedPatch };
+                updateRawFields(next);
+                spells[index] = next;
+                persistDatabase();
+              }
+
+              if (remotePendingPlanEnabled && hasPreparedPatch) {
+                const urlForRequest = new URL(req.url || '/', `http://${req.headers.host}`);
+                const nextPreparedValue = Boolean(patch.prepared);
+
+                return withUserCharacterScope({ req, url: urlForRequest }, async ({ client, characterId }) => {
+                  const preparedList = await getPreparedList(client, characterId);
+                  const nextPreparedSet = new Set(preparedList.spellIds);
+                  if (nextPreparedValue) {
+                    nextPreparedSet.add(spellId);
+                  } else {
+                    nextPreparedSet.delete(spellId);
+                  }
+
+                  const updatedPreparedList = await replacePreparedList(client, {
+                    characterId,
+                    spellIds: [...nextPreparedSet],
+                    knownSpellIds,
+                  });
+
+                  return updatedPreparedList.spellIds.includes(spellId);
+                });
+              }
+
+              if (hasPreparedPatch) {
+                const next = { ...spells[index], prepared: Boolean(patch.prepared) };
+                updateRawFields(next);
+                spells[index] = next;
+                persistDatabase();
+                return next.prepared;
+              }
+
+              return spells[index].prepared;
+            })
+            .then((preparedState) => {
+              const next = {
+                ...spells[index],
+                prepared: Boolean(preparedState),
+              };
+              return sendJson(res, 200, { ok: true, spell: next });
+            });
         } catch (error) {
           return sendJson(res, 400, { error: error.message });
         }
