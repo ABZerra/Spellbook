@@ -254,6 +254,9 @@ async function patchSpell(spellId, patch) {
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
+    if (response.status === 405) {
+      throw new Error('Save endpoint is unavailable (405). Restart the local server and retry.');
+    }
     throw new Error(payload.error || `HTTP ${response.status}`);
   }
 
@@ -261,7 +264,8 @@ async function patchSpell(spellId, patch) {
 }
 
 function getEditingPatch(spellId) {
-  const row = elements.tableBody.querySelector(`tr[data-spell-id="${CSS.escape(spellId)}"]`);
+  const rows = Array.from(elements.tableBody.querySelectorAll('tr[data-spell-id]'));
+  const row = rows.find((entry) => entry.getAttribute('data-spell-id') === spellId);
   if (!row) throw new Error('Edited row is missing.');
 
   const nameInput = row.querySelector('[data-edit-field="name"]');

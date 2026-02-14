@@ -44,31 +44,36 @@ function persistDatabase() {
 }
 
 function normalizeSpellPatch(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    throw new Error('Payload must be a JSON object.');
+  }
+
+  const hasOwn = (key) => Object.prototype.hasOwnProperty.call(input, key);
   const patch = {};
 
-  if (Object.hasOwn(input, 'name')) {
+  if (hasOwn('name')) {
     const name = String(input.name || '').trim();
     if (!name) throw new Error('`name` is required.');
     patch.name = name;
   }
 
-  if (Object.hasOwn(input, 'level')) {
+  if (hasOwn('level')) {
     const parsed = Number.parseInt(String(input.level), 10);
     if (!Number.isFinite(parsed) || parsed < 0) throw new Error('`level` must be a non-negative integer.');
     patch.level = parsed;
   }
 
-  if (Object.hasOwn(input, 'source')) {
+  if (hasOwn('source')) {
     const source = Array.isArray(input.source) ? input.source : parseCsvList(input.source);
     patch.source = source.map((entry) => String(entry).trim()).filter(Boolean);
   }
 
-  if (Object.hasOwn(input, 'tags')) {
+  if (hasOwn('tags')) {
     const tags = Array.isArray(input.tags) ? input.tags : parseCsvList(input.tags);
     patch.tags = tags.map((entry) => String(entry).trim()).filter(Boolean);
   }
 
-  if (Object.hasOwn(input, 'prepared')) {
+  if (hasOwn('prepared')) {
     patch.prepared = Boolean(input.prepared);
   }
 
