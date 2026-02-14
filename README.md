@@ -78,6 +78,15 @@ When enabled, `/prepare` auto-saves each queued change to:
 
 Schema bootstrap SQL is available at `db/pending-plan-schema.sql` and is auto-applied at server startup in remote mode.
 
+### Account Sessions (user + character scoped state)
+
+The app now supports lightweight account sessions from the UI on both `/` and `/prepare`:
+
+- `User ID` and `Character ID` can be switched with `Switch Session`.
+- Session values are stored in cookies (`spellbook_user_id`, `spellbook_character_id`).
+- In remote mode, prepared spell state is scoped by `user + character` and is available across devices when signing in with the same IDs.
+- Local browser fallback drafts remain device-local, but are now also scoped per `user + character` so different users do not overwrite each other on a shared machine.
+
 ## Spell data workflow
 
 ### Rebuild database from CSV

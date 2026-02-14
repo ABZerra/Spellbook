@@ -25,6 +25,21 @@
         <p class="subtitle">Queue additions, removals, and replacements, then preview and apply your next prepared list.</p>
       </header>
 
+      <section class="panel account-panel" aria-label="Account session">
+        <div class="account-grid">
+          <label>
+            User ID
+            <input id="userIdInput" type="text" minlength="2" maxlength="64" pattern="[A-Za-z0-9_.-]{2,64}" placeholder="demo-user" />
+          </label>
+          <label>
+            Character ID
+            <input id="characterIdInput" type="text" minlength="2" maxlength="64" pattern="[A-Za-z0-9_.-]{2,64}" placeholder="default-character" />
+          </label>
+          <button id="switchAccountButton" type="button">Switch Session</button>
+        </div>
+        <p id="accountSessionSummary" class="muted account-summary">Session not loaded.</p>
+      </section>
+
       <section class="stats" aria-live="polite">
         <article class="panel stat">
           <h2>Current active</h2>

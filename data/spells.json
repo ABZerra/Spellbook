@@ -1582,7 +1582,7 @@
       "id": "aid-2-cleric",
       "name": "Aid",
       "level": 2,
-      "prepared": true,
+      "prepared": false,
       "source": [
         "Cleric"
       ],
@@ -1595,7 +1595,7 @@
       "combos": null,
       "items": null,
       "raw": {
-        "Prepared?": "Yes",
+        "Prepared?": "No",
         "Spell Level": "2",
         "Source": "Cleric",
         "Tags": "Rest Cast",
@@ -2115,7 +2115,7 @@
       "id": "animate-dead-3-cleric",
       "name": "Animate Dead",
       "level": 3,
-      "prepared": false,
+      "prepared": true,
       "source": [
         "Cleric"
       ],
@@ -2128,7 +2128,7 @@
       "combos": "Companions (https://www.notion.so/Companions-7f044016dbd240b2a6c3f5bdd8dde4a4?pvs=21)",
       "items": null,
       "raw": {
-        "Prepared?": "No",
+        "Prepared?": "Yes",
         "Spell Level": "3",
         "Source": "Cleric",
         "Tags": "Long Cast",

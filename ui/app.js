@@ -1,4 +1,4 @@
-const LOCAL_PATCH_KEY = 'spellbook.localPatches.v1';
+const LOCAL_PATCH_KEY_PREFIX = 'spellbook.localPatches.v1';
 
 const elements = {
   nameFilter: document.getElementById('nameFilter'),
@@ -16,6 +16,11 @@ const elements = {
   sortButtons: Array.from(document.querySelectorAll('.sort-button')),
   saveModeBadge: document.getElementById('saveModeBadge'),
   resetLocalEdits: document.getElementById('resetLocalEdits'),
+  userIdInput: document.getElementById('userIdInput'),
+  characterIdInput: document.getElementById('characterIdInput'),
+  switchAccountButton: document.getElementById('switchAccountButton'),
+  accountSessionSummary: document.getElementById('accountSessionSummary'),
+  prepareNavLink: document.querySelector('a[href="/prepare"]'),
 };
 
 let baseSpells = [];
@@ -24,6 +29,30 @@ let editingSpellId = null;
 let isSaving = false;
 let sortState = { key: 'name', direction: 'asc' };
 let saveMode = 'remote';
+let currentUserId = 'demo-user';
+let currentCharacterId = 'default-character';
+let remotePendingPlanEnabled = false;
+
+function normalizeIdentity(value, fallback) {
+  const next = String(value || '').trim();
+  if (!next) return fallback;
+  return /^[A-Za-z0-9_.-]{2,64}$/.test(next) ? next : fallback;
+}
+
+function getLocalPatchKey() {
+  return `${LOCAL_PATCH_KEY_PREFIX}.${currentUserId}.${currentCharacterId}`;
+}
+
+function updateSessionSummary() {
+  if (!elements.accountSessionSummary) return;
+  const modeText = remotePendingPlanEnabled ? 'Synced' : 'Local only';
+  elements.accountSessionSummary.textContent = `Active session: ${currentUserId} / ${currentCharacterId} (${modeText})`;
+}
+
+function updatePrepareLink() {
+  if (!elements.prepareNavLink) return;
+  elements.prepareNavLink.href = `/prepare?characterId=${encodeURIComponent(currentCharacterId)}`;
+}
 
 function setStatus(message, isError = false) {
   elements.statusMessage.textContent = message;
@@ -143,7 +172,7 @@ function applyPatchToSpell(spell, patch) {
 
 function loadLocalPatches() {
   try {
-    const raw = localStorage.getItem(LOCAL_PATCH_KEY);
+    const raw = localStorage.getItem(getLocalPatchKey());
     if (!raw) return {};
 
     const parsed = JSON.parse(raw);
@@ -168,7 +197,7 @@ function loadLocalPatches() {
 
 function saveLocalPatches() {
   try {
-    localStorage.setItem(LOCAL_PATCH_KEY, JSON.stringify(localPatches));
+    localStorage.setItem(getLocalPatchKey(), JSON.stringify(localPatches));
   } catch {
     // Ignore quota/storage access errors; app still functions in memory for this session.
   }
@@ -177,9 +206,81 @@ function saveLocalPatches() {
 function clearLocalPatches() {
   localPatches = {};
   try {
-    localStorage.removeItem(LOCAL_PATCH_KEY);
+    localStorage.removeItem(getLocalPatchKey());
   } catch {
     // Ignore local storage access errors.
+  }
+}
+
+async function fetchConfig() {
+  try {
+    const response = await fetch('/api/config');
+    if (!response.ok) return;
+
+    const payload = await response.json();
+    remotePendingPlanEnabled = Boolean(payload.remotePendingPlanEnabled);
+    currentUserId = normalizeIdentity(payload.userId, currentUserId);
+
+    const fromQuery = new URLSearchParams(window.location.search).get('characterId');
+    const configCharacter = normalizeIdentity(payload.characterId || payload.defaultCharacterId, currentCharacterId);
+    currentCharacterId = normalizeIdentity(fromQuery, configCharacter);
+
+    if (elements.userIdInput) elements.userIdInput.value = currentUserId;
+    if (elements.characterIdInput) elements.characterIdInput.value = currentCharacterId;
+    updateSessionSummary();
+    updatePrepareLink();
+  } catch {
+    // Keep defaults.
+  }
+}
+
+async function switchSession() {
+  const nextUserId = normalizeIdentity(elements.userIdInput?.value, '');
+  const nextCharacterId = normalizeIdentity(elements.characterIdInput?.value, '');
+
+  if (!nextUserId || !nextCharacterId) {
+    setStatus('Use letters, numbers, dot, underscore, or hyphen (2-64 chars) for user and character IDs.', true);
+    return;
+  }
+
+  if (elements.switchAccountButton) elements.switchAccountButton.disabled = true;
+  setStatus('Switching session...');
+
+  try {
+    const response = await fetch('/api/session', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: nextUserId,
+        characterId: nextCharacterId,
+      }),
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || `HTTP ${response.status}`);
+    }
+
+    currentUserId = normalizeIdentity(payload.userId, currentUserId);
+    currentCharacterId = normalizeIdentity(payload.characterId, currentCharacterId);
+    if (elements.userIdInput) elements.userIdInput.value = currentUserId;
+    if (elements.characterIdInput) elements.characterIdInput.value = currentCharacterId;
+    updateSessionSummary();
+    updatePrepareLink();
+
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set('characterId', currentCharacterId);
+    window.history.replaceState({}, '', nextUrl);
+
+    clearLocalPatches();
+    saveMode = 'remote';
+    editingSpellId = null;
+    await loadSpells();
+    setStatus(`Session switched to ${currentUserId}/${currentCharacterId}.`);
+  } catch (error) {
+    setStatus(`Unable to switch session: ${error.message}`, true);
+  } finally {
+    if (elements.switchAccountButton) elements.switchAccountButton.disabled = false;
   }
 }
 
@@ -625,6 +726,12 @@ elements.clearFilters.addEventListener('click', resetFilters);
 if (elements.resetLocalEdits) {
   elements.resetLocalEdits.addEventListener('click', resetLocalEdits);
 }
+if (elements.switchAccountButton) {
+  elements.switchAccountButton.addEventListener('click', () => {
+    void switchSession();
+  });
+}
 
 updateDraftUi();
+await fetchConfig();
 loadSpells();

@@ -1,6 +1,6 @@
 import { applyPlan, validatePlan } from '/domain/planner.js';
 
-const PENDING_PLAN_KEY = 'spellbook.pendingPlan.v1';
+const PENDING_PLAN_KEY_PREFIX = 'spellbook.pendingPlan.v1';
 
 const elements = {
   currentCountValue: document.getElementById('currentCountValue'),
@@ -39,6 +39,10 @@ const elements = {
   spellDetailPreparation: document.getElementById('spellDetailPreparation'),
   spellDetailCombos: document.getElementById('spellDetailCombos'),
   spellDetailItems: document.getElementById('spellDetailItems'),
+  userIdInput: document.getElementById('userIdInput'),
+  characterIdInput: document.getElementById('characterIdInput'),
+  switchAccountButton: document.getElementById('switchAccountButton'),
+  accountSessionSummary: document.getElementById('accountSessionSummary'),
 };
 
 let spells = [];
@@ -49,8 +53,22 @@ let activeSpellSidebarId = null;
 let remotePendingPlanEnabled = false;
 let pendingPlanVersion = 1;
 let currentCharacterId = 'default-character';
-let currentUserId = 'unknown-user';
+let currentUserId = 'demo-user';
 let remoteActivePreparedSet = new Set();
+
+function normalizeIdentity(value, fallback) {
+  const next = String(value || '').trim();
+  if (!next) return fallback;
+  return /^[A-Za-z0-9_.-]{2,64}$/.test(next) ? next : fallback;
+}
+
+function getPendingPlanStorageKey() {
+  return `${PENDING_PLAN_KEY_PREFIX}.${currentUserId}.${currentCharacterId}`;
+}
+
+function updateSessionSummary() {
+  elements.accountSessionSummary.textContent = `Active session: ${currentUserId} / ${currentCharacterId}`;
+}
 
 function escapeHtml(value) {
   return String(value)
@@ -126,7 +144,7 @@ function parsePendingPlanChanges(rawChanges) {
 
 function loadPendingPlanFallback() {
   try {
-    const raw = localStorage.getItem(PENDING_PLAN_KEY);
+    const raw = localStorage.getItem(getPendingPlanStorageKey());
     if (!raw) return [];
 
     const parsed = JSON.parse(raw);
@@ -138,7 +156,7 @@ function loadPendingPlanFallback() {
 
 function savePendingPlanFallback() {
   try {
-    localStorage.setItem(PENDING_PLAN_KEY, JSON.stringify(pendingChanges));
+    localStorage.setItem(getPendingPlanStorageKey(), JSON.stringify(pendingChanges));
   } catch {
     // Ignore storage issues.
   }
@@ -146,7 +164,7 @@ function savePendingPlanFallback() {
 
 function clearPendingPlanFallback() {
   try {
-    localStorage.removeItem(PENDING_PLAN_KEY);
+    localStorage.removeItem(getPendingPlanStorageKey());
   } catch {
     // Ignore storage issues.
   }
@@ -385,13 +403,66 @@ async function fetchConfig() {
 
     const payload = await response.json();
     remotePendingPlanEnabled = Boolean(payload.remotePendingPlanEnabled);
-    currentUserId = String(payload.userId || currentUserId);
+    currentUserId = normalizeIdentity(payload.userId, currentUserId);
 
     const fromQuery = new URLSearchParams(window.location.search).get('characterId');
-    const configCharacter = String(payload.defaultCharacterId || currentCharacterId);
-    currentCharacterId = fromQuery || configCharacter;
+    const configCharacter = normalizeIdentity(payload.characterId || payload.defaultCharacterId, currentCharacterId);
+    currentCharacterId = normalizeIdentity(fromQuery, configCharacter);
+
+    elements.userIdInput.value = currentUserId;
+    elements.characterIdInput.value = currentCharacterId;
+    updateSessionSummary();
   } catch {
     // Keep defaults.
+  }
+}
+
+async function switchSession() {
+  const nextUserId = normalizeIdentity(elements.userIdInput.value, '');
+  const nextCharacterId = normalizeIdentity(elements.characterIdInput.value, '');
+
+  if (!nextUserId || !nextCharacterId) {
+    setStatus('Use letters, numbers, dot, underscore, or hyphen (2-64 chars) for user and character IDs.', true);
+    return;
+  }
+
+  elements.switchAccountButton.disabled = true;
+  setStatus('Switching session...');
+
+  try {
+    const response = await fetch('/api/session', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: nextUserId,
+        characterId: nextCharacterId,
+      }),
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || `HTTP ${response.status}`);
+    }
+
+    currentUserId = normalizeIdentity(payload.userId, currentUserId);
+    currentCharacterId = normalizeIdentity(payload.characterId, currentCharacterId);
+    elements.userIdInput.value = currentUserId;
+    elements.characterIdInput.value = currentCharacterId;
+    updateSessionSummary();
+
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set('characterId', currentCharacterId);
+    window.history.replaceState({}, '', nextUrl);
+
+    pendingChanges = [];
+    pendingPlanVersion = 1;
+    remoteActivePreparedSet = new Set();
+    await loadSpells();
+    setStatus(`Session switched to ${currentUserId}/${currentCharacterId}.`);
+  } catch (error) {
+    setStatus(`Unable to switch session: ${error.message}`, true);
+  } finally {
+    elements.switchAccountButton.disabled = false;
   }
 }
 
@@ -749,6 +820,10 @@ elements.clearPendingButton.addEventListener('click', () => {
 
 elements.applyPlanButton.addEventListener('click', () => {
   void applyPendingPlan();
+});
+
+elements.switchAccountButton.addEventListener('click', () => {
+  void switchSession();
 });
 
 await fetchConfig();

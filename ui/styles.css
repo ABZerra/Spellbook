@@ -108,6 +108,29 @@ h1 {
   gap: 0.35rem;
 }
 
+.account-panel {
+  padding: 0.8rem 1rem;
+}
+
+.account-grid {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: end;
+}
+
+.account-grid label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.account-summary {
+  margin: 0.55rem 0 0;
+  font-size: 0.84rem;
+}
+
 input,
 select,
 button {
@@ -638,7 +661,8 @@ tbody tr:hover {
   }
 
   .action-row,
-  .action-row:has(#replaceFromSelect) {
+  .action-row:has(#replaceFromSelect),
+  .account-grid {
     grid-template-columns: 1fr;
   }
 
