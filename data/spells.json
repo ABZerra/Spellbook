@@ -665,7 +665,7 @@
       "id": "absorb-elements-1-druid",
       "name": "Absorb Elements",
       "level": 1,
-      "prepared": true,
+      "prepared": false,
       "source": [
         "Druid"
       ],
@@ -678,7 +678,7 @@
       "combos": null,
       "items": null,
       "raw": {
-        "Prepared?": "Yes",
+        "Prepared?": "No",
         "Spell Level": "1",
         "Source": "Druid",
         "Tags": "Reaction",
@@ -694,7 +694,7 @@
       "id": "animal-friendship-1-druid",
       "name": "Animal Friendship",
       "level": 1,
-      "prepared": false,
+      "prepared": true,
       "source": [
         "Druid"
       ],
@@ -705,7 +705,7 @@
       "combos": null,
       "items": null,
       "raw": {
-        "Prepared?": "No",
+        "Prepared?": "Yes",
         "Spell Level": "1",
         "Source": "Druid",
         "Tags": "",

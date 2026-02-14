@@ -27,6 +27,10 @@ npm run dev
 
 Then open `http://localhost:3000`.
 
+Pages:
+- `http://localhost:3000/` (spell catalog/editor)
+- `http://localhost:3000/prepare` (pending spell preparation planner)
+
 The UI serves a local API under:
 
 - `GET /api/health`
@@ -38,6 +42,15 @@ The UI serves a local API under:
 - `source`
 - `tags`
 - `prepared`
+
+### Local Draft Mode (static preview safe)
+
+The UI now supports local draft persistence for edits when API writes are unavailable (for example, static hosting like GitHub Pages).
+
+- Reads still come from `GET /api/spells` when available.
+- If `PATCH /api/spells/:id` fails due missing endpoint/network, edits are saved to browser `localStorage`.
+- Local drafts are per-browser/per-device and are not shared.
+- The table shows a mode badge (`Remote` or `Local draft`) and provides a `Reset local edits` action.
 
 ## Spell data workflow
 
