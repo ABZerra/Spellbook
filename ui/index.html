@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spellbook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <p class="eyebrow">Spell Planner</p>
+        <h1>Spellbook</h1>
+        <p class="subtitle">Filter and browse your available spells before planning long-rest changes.</p>
+      </header>
+
+      <section class="panel controls" aria-label="Spell filters">
+        <label>
+          Search
+          <input id="nameFilter" type="search" placeholder="Spell name..." />
+        </label>
+        <label>
+          Level
+          <select id="levelFilter">
+            <option value="">All levels</option>
+          </select>
+        </label>
+        <label>
+          Source
+          <input id="sourceFilter" type="text" placeholder="e.g. Druid" />
+        </label>
+        <label>
+          Tags
+          <input id="tagsFilter" type="text" placeholder="comma, separated" />
+        </label>
+        <button id="clearFilters" type="button">Clear filters</button>
+      </section>
+
+      <section class="stats" aria-live="polite">
+        <article class="panel stat">
+          <h2>Total shown</h2>
+          <p id="countValue">0</p>
+        </article>
+        <article class="panel stat">
+          <h2>Prepared shown</h2>
+          <p id="preparedValue">0</p>
+        </article>
+      </section>
+
+      <section class="panel table-panel" aria-label="Spell list">
+        <div id="statusMessage" class="status">Loading spells...</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Level</th>
+                <th>Prepared</th>
+                <th>Source</th>
+                <th>Tags</th>
+              </tr>
+            </thead>
+            <tbody id="spellTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
