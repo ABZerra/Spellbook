@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spellbook Planner</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <h1>Spellbook Planner</h1>
+      <p>Create and preview a long-rest preparation plan.</p>
+
+      <section class="panel">
+        <h2>Active prepared spells</h2>
+        <ul id="activeSpells"></ul>
+      </section>
+
+      <section class="panel">
+        <h2>Add change</h2>
+        <form id="changeForm" class="change-form">
+          <label>
+            Change type
+            <select id="changeType" required>
+              <option value="add">Add</option>
+              <option value="remove">Remove</option>
+              <option value="replace">Replace</option>
+            </select>
+          </label>
+
+          <label>
+            Spell
+            <select id="spellId" required></select>
+          </label>
+
+          <label id="replacementGroup" class="hidden">
+            Replacement spell
+            <select id="replacementSpellId"></select>
+          </label>
+
+          <button type="submit">Queue change</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Pending plan</h2>
+        <ul id="changes"></ul>
+        <button id="previewBtn">Preview long rest</button>
+      </section>
+
+      <section class="panel">
+        <h2>Preview</h2>
+        <p id="status">No preview yet.</p>
+        <h3>Next prepared spells</h3>
+        <ul id="nextSpells"></ul>
+        <h3>Summary</h3>
+        <pre id="summary"></pre>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

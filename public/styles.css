@@ -1,0 +1,68 @@
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #e2e8f0;
+  background: #0f172a;
+}
+
+body {
+  margin: 0;
+  padding: 2rem;
+}
+
+.layout {
+  max-width: 920px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.panel {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.change-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+select,
+button {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #475569;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+button {
+  cursor: pointer;
+  width: fit-content;
+}
+
+ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.hidden {
+  display: none;
+}
+
+pre {
+  background: #0b1120;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  overflow-x: auto;
+}
+
+.error {
+  color: #fda4af;
+}

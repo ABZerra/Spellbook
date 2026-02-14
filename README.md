@@ -8,18 +8,20 @@ This repository currently provides:
 
 - Product docs (`docs/`)
 - A domain core for spell planning (`src/domain/`)
+- An interactive web app (`public/` + `src/server.js`)
 - Automated tests (`tests/`)
-
-The domain core is intentionally framework-agnostic so we can plug it into a future API/UI stack.
 
 ## Quick start
 
 ```bash
 npm test
+npm start
 ```
+
+Then open `http://localhost:4173`.
 
 ## Next implementation milestones
 
-1. Build an HTTP API around the domain service.
-2. Add persistence (characters, plans, snapshots).
-3. Build the web UI for current list, planned list, and diff preview.
+1. Add persistence (characters, plans, snapshots).
+2. Build API endpoints for character CRUD and history.
+3. Expand UI with reusable groups and per-character views.
