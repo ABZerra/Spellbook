@@ -43,20 +43,6 @@
       <section class="panel prep-actions" aria-label="Queue actions">
         <div class="action-row">
           <label>
-            Add spell
-            <select id="addSpellSelect"></select>
-          </label>
-          <button id="addSpellButton" type="button">Queue add</button>
-        </div>
-        <div class="action-row">
-          <label>
-            Remove spell
-            <select id="removeSpellSelect"></select>
-          </label>
-          <button id="removeSpellButton" type="button">Queue remove</button>
-        </div>
-        <div class="action-row">
-          <label>
             Replace from
             <select id="replaceFromSelect"></select>
           </label>
@@ -66,15 +52,70 @@
           </label>
           <button id="replaceSpellButton" type="button">Queue replace</button>
         </div>
+        <details class="situational-actions">
+          <summary>Situational actions</summary>
+          <div class="situational-grid">
+            <div class="action-row compact">
+              <label>
+                Add spell
+                <select id="addSpellSelect"></select>
+              </label>
+              <button id="addSpellButton" type="button">Queue add</button>
+            </div>
+            <div class="action-row compact">
+              <label>
+                Remove spell
+                <select id="removeSpellSelect"></select>
+              </label>
+              <button id="removeSpellButton" type="button">Queue remove</button>
+            </div>
+          </div>
+        </details>
       </section>
 
       <section class="panel status-panel">
         <div id="prepareStatusMessage" class="status">Loading spells...</div>
       </section>
 
+      <section class="panel prep-middle-strip">
+        <div class="prep-middle-content">
+          <div class="prep-middle-diff">
+            <h2>Preview Diff</h2>
+            <div class="pending-groups inline">
+              <div>
+                <h3>Added</h3>
+                <ul id="previewAddedList" class="spell-list"></ul>
+              </div>
+              <div>
+                <h3>Removed</h3>
+                <ul id="previewRemovedList" class="spell-list"></ul>
+              </div>
+              <div>
+                <h3>Replaced</h3>
+                <ul id="previewReplacedList" class="spell-list"></ul>
+              </div>
+            </div>
+          </div>
+          <section class="prep-footer-actions">
+            <button id="applyPlanButton" type="button">Apply Plan</button>
+            <button id="clearPendingButton" type="button" class="secondary-button">Clear Pending Plan</button>
+          </section>
+        </div>
+      </section>
+
       <section class="prep-grid">
         <article class="panel prep-panel">
-          <h2>Current Active Spells</h2>
+          <div class="panel-head">
+            <h2>Current Active Spells</h2>
+            <label class="sort-control">
+              Sort
+              <select id="currentSortSelect">
+                <option value="name">Name</option>
+                <option value="level">Level</option>
+                <option value="source">Source</option>
+              </select>
+            </label>
+          </div>
           <ul id="currentActiveList" class="spell-list"></ul>
         </article>
 
@@ -97,34 +138,54 @@
         </article>
 
         <article class="panel prep-panel">
-          <h2>Preview Spell List</h2>
+          <div class="panel-head">
+            <h2>Preview Spell List</h2>
+            <label class="sort-control">
+              Sort
+              <select id="previewSortSelect">
+                <option value="name">Name</option>
+                <option value="level">Level</option>
+                <option value="source">Source</option>
+              </select>
+            </label>
+          </div>
           <ul id="previewList" class="spell-list"></ul>
         </article>
-
-        <article class="panel prep-panel">
-          <h2>Preview Diff</h2>
-          <div class="pending-groups">
-            <div>
-              <h3>Added</h3>
-              <ul id="previewAddedList" class="spell-list"></ul>
-            </div>
-            <div>
-              <h3>Removed</h3>
-              <ul id="previewRemovedList" class="spell-list"></ul>
-            </div>
-            <div>
-              <h3>Replaced</h3>
-              <ul id="previewReplacedList" class="spell-list"></ul>
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <section class="prep-footer-actions">
-        <button id="applyPlanButton" type="button">Apply Plan</button>
-        <button id="clearPendingButton" type="button" class="secondary-button">Clear Pending Plan</button>
       </section>
     </main>
+
+    <div id="spellSidebarBackdrop" class="sidebar-backdrop" hidden></div>
+    <aside id="spellSidebar" class="spell-sidebar" aria-hidden="true" aria-label="Spell details">
+      <div class="spell-sidebar-head">
+        <h2 id="spellDetailName">Spell details</h2>
+        <button id="closeSpellSidebarButton" type="button" class="secondary-button">Close</button>
+      </div>
+      <div class="spell-sidebar-meta">
+        <p><strong>Level:</strong> <span id="spellDetailLevel">-</span></p>
+        <p><strong>Source:</strong> <span id="spellDetailSource">-</span></p>
+        <p><strong>Tags:</strong> <span id="spellDetailTags">-</span></p>
+        <p><strong>Component:</strong> <span id="spellDetailComponent">-</span></p>
+        <p><strong>Prepared:</strong> <span id="spellDetailPrepared">-</span></p>
+      </div>
+      <div class="spell-sidebar-sections">
+        <section>
+          <h3>Notes</h3>
+          <p id="spellDetailNotes" class="muted">No notes.</p>
+        </section>
+        <section>
+          <h3>Preparation</h3>
+          <p id="spellDetailPreparation" class="muted">No preparation details.</p>
+        </section>
+        <section>
+          <h3>Combos</h3>
+          <p id="spellDetailCombos" class="muted">No combo details.</p>
+        </section>
+        <section>
+          <h3>Items</h3>
+          <p id="spellDetailItems" class="muted">No item notes.</p>
+        </section>
+      </div>
+    </aside>
 
     <script type="module" src="/prepare.js"></script>
   </body>
