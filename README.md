@@ -27,6 +27,10 @@ npm run dev
 
 Then open `http://localhost:3000`.
 
+Pages:
+- `http://localhost:3000/` (spell catalog/editor)
+- `http://localhost:3000/prepare` (pending spell preparation planner)
+
 The UI serves a local API under:
 
 - `GET /api/health`

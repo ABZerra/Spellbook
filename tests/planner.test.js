@@ -42,3 +42,26 @@ test('validatePlan throws on unknown replacement spell', () => {
     /Unknown replacementSpellId/,
   );
 });
+
+test('applyPlan replace does not duplicate when replacement is already active', () => {
+  const result = applyPlan(['shield', 'sleep'], [
+    { type: 'replace', spellId: 'shield', replacementSpellId: 'sleep' },
+  ]);
+
+  assert.deepEqual(new Set(result.nextPreparedSpellIds), new Set(['sleep']));
+  assert.deepEqual(result.summary.added, []);
+  assert.deepEqual(result.summary.removed, ['shield']);
+  assert.deepEqual(result.summary.replaced, [{ from: 'shield', to: 'sleep' }]);
+});
+
+test('applyPlan handles add and remove sequence for same spell id', () => {
+  const result = applyPlan(['mage-armor'], [
+    { type: 'add', spellId: 'sleep' },
+    { type: 'remove', spellId: 'sleep' },
+  ]);
+
+  assert.deepEqual(new Set(result.nextPreparedSpellIds), new Set(['mage-armor']));
+  assert.deepEqual(result.summary.added, ['sleep']);
+  assert.deepEqual(result.summary.removed, ['sleep']);
+  assert.deepEqual(result.summary.replaced, []);
+});

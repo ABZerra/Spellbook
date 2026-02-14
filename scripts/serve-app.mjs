@@ -90,7 +90,9 @@ function updateRawFields(spell) {
 }
 
 function getStaticFilePath(urlPath) {
-  const filePath = urlPath === '/' ? '/index.html' : urlPath;
+  let filePath = urlPath;
+  if (urlPath === '/') filePath = '/index.html';
+  if (urlPath === '/prepare') filePath = '/prepare.html';
   const resolved = path.normalize(path.join(uiDir, filePath));
   if (!resolved.startsWith(uiDir)) return null;
   return resolved;
@@ -144,6 +146,13 @@ function querySpells(url) {
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host}`);
+
+  if (req.method === 'GET' && url.pathname === '/domain/planner.js') {
+    const plannerPath = path.join(rootDir, 'src', 'domain', 'planner.js');
+    if (!existsSync(plannerPath)) return sendJson(res, 404, { error: 'Not found' });
+    res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8' });
+    return createReadStream(plannerPath).pipe(res);
+  }
 
   if (req.method === 'GET' && url.pathname === '/api/health') {
     return sendJson(res, 200, { ok: true, totalSpells: spells.length });

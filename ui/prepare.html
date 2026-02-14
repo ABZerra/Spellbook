@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spellbook - Prepare</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <nav class="top-nav" aria-label="Primary">
+        <a class="nav-link" href="/">Catalog</a>
+        <a class="nav-link active" href="/prepare">Prepare</a>
+      </nav>
+
+      <header class="hero">
+        <p class="eyebrow">Spell Planner</p>
+        <h1>Prepare Spell List</h1>
+        <p class="subtitle">Queue additions, removals, and replacements, then preview and apply your next prepared list.</p>
+      </header>
+
+      <section class="stats" aria-live="polite">
+        <article class="panel stat">
+          <h2>Current active</h2>
+          <p id="currentCountValue">0</p>
+        </article>
+        <article class="panel stat">
+          <h2>Pending changes</h2>
+          <p id="pendingCountValue">0</p>
+        </article>
+        <article class="panel stat">
+          <h2>Preview active</h2>
+          <p id="previewCountValue">0</p>
+        </article>
+      </section>
+
+      <section class="panel prep-actions" aria-label="Queue actions">
+        <div class="action-row">
+          <label>
+            Add spell
+            <select id="addSpellSelect"></select>
+          </label>
+          <button id="addSpellButton" type="button">Queue add</button>
+        </div>
+        <div class="action-row">
+          <label>
+            Remove spell
+            <select id="removeSpellSelect"></select>
+          </label>
+          <button id="removeSpellButton" type="button">Queue remove</button>
+        </div>
+        <div class="action-row">
+          <label>
+            Replace from
+            <select id="replaceFromSelect"></select>
+          </label>
+          <label>
+            Replace to
+            <select id="replaceToSelect"></select>
+          </label>
+          <button id="replaceSpellButton" type="button">Queue replace</button>
+        </div>
+      </section>
+
+      <section class="panel status-panel">
+        <div id="prepareStatusMessage" class="status">Loading spells...</div>
+      </section>
+
+      <section class="prep-grid">
+        <article class="panel prep-panel">
+          <h2>Current Active Spells</h2>
+          <ul id="currentActiveList" class="spell-list"></ul>
+        </article>
+
+        <article class="panel prep-panel">
+          <h2>Pending Changes</h2>
+          <div class="pending-groups">
+            <div>
+              <h3>Added</h3>
+              <ul id="pendingAddedList" class="spell-list"></ul>
+            </div>
+            <div>
+              <h3>Removed</h3>
+              <ul id="pendingRemovedList" class="spell-list"></ul>
+            </div>
+            <div>
+              <h3>Replaced</h3>
+              <ul id="pendingReplacedList" class="spell-list"></ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel prep-panel">
+          <h2>Preview Spell List</h2>
+          <ul id="previewList" class="spell-list"></ul>
+        </article>
+
+        <article class="panel prep-panel">
+          <h2>Preview Diff</h2>
+          <div class="pending-groups">
+            <div>
+              <h3>Added</h3>
+              <ul id="previewAddedList" class="spell-list"></ul>
+            </div>
+            <div>
+              <h3>Removed</h3>
+              <ul id="previewRemovedList" class="spell-list"></ul>
+            </div>
+            <div>
+              <h3>Replaced</h3>
+              <ul id="previewReplacedList" class="spell-list"></ul>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="prep-footer-actions">
+        <button id="applyPlanButton" type="button">Apply Plan</button>
+        <button id="clearPendingButton" type="button" class="secondary-button">Clear Pending Plan</button>
+      </section>
+    </main>
+
+    <script type="module" src="/prepare.js"></script>
+  </body>
+</html>

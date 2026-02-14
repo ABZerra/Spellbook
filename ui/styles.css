@@ -31,6 +31,32 @@ body {
   gap: 1rem;
 }
 
+.top-nav {
+  display: inline-flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  color: #784126;
+  border: 1px solid #d6b894;
+  background: #fff5e8;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.nav-link.active {
+  color: #fffaf3;
+  border-color: #9e3520;
+  background: var(--accent);
+}
+
 .hero h1,
 .hero .eyebrow {
   font-family: "Space Grotesk", sans-serif;
@@ -347,9 +373,108 @@ tbody tr:hover {
   max-width: 5rem;
 }
 
+.prep-actions {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.action-row:has(#replaceFromSelect) {
+  grid-template-columns: 1fr 1fr auto;
+}
+
+.action-row label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.status-panel .status {
+  border-bottom: 0;
+}
+
+.prep-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 0.85rem;
+}
+
+.prep-panel {
+  padding: 0.9rem 1rem;
+}
+
+.prep-panel h2 {
+  margin: 0 0 0.55rem;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.05rem;
+}
+
+.prep-panel h3 {
+  margin: 0.4rem 0;
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.pending-groups {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.spell-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.spell-list li {
+  line-height: 1.35;
+}
+
+.spell-list li.empty {
+  color: var(--muted);
+  list-style: none;
+  margin-left: -1.1rem;
+}
+
+.spell-list li:has([data-action='remove-pending']) {
+  list-style: none;
+  margin-left: -1.1rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.2rem 0.35rem;
+  border-radius: 8px;
+  border: 1px solid #f0e2cc;
+  background: #fffaf2;
+}
+
+.prep-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
 @media (max-width: 740px) {
   .page {
     width: min(96vw, 1100px);
     margin-top: 1rem;
+  }
+
+  .action-row,
+  .action-row:has(#replaceFromSelect) {
+    grid-template-columns: 1fr;
   }
 }
