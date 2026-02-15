@@ -1,4 +1,5 @@
 const LOCAL_PATCH_KEY_PREFIX = 'spellbook.localPatches.v1';
+const LOCAL_PREPARED_KEY_PREFIX = 'spellbook.localPrepared.v1';
 const STATIC_SPELLS_PATH = 'spells.json';
 let defaultCharacterId = 'default-character';
 
@@ -51,6 +52,7 @@ let currentCharacterId = 'default-character';
 let remotePendingPlanEnabled = false;
 let allowLocalDraftEdits = true;
 let spellsBackend = 'json';
+let localPreparedSpellIds = new Set();
 
 function normalizeIdentity(value, fallback) {
   const next = String(value || '').trim();
@@ -61,6 +63,11 @@ function normalizeIdentity(value, fallback) {
 function getLocalPatchKey() {
   const userKey = currentUserId || 'anonymous';
   return `${LOCAL_PATCH_KEY_PREFIX}.${userKey}.${currentCharacterId}`;
+}
+
+function getLocalPreparedKey() {
+  const userKey = currentUserId || 'anonymous';
+  return `${LOCAL_PREPARED_KEY_PREFIX}.${userKey}.${currentCharacterId}`;
 }
 
 function withCharacterApiPath(pathname) {
@@ -257,6 +264,45 @@ function clearLocalPatches() {
   }
 }
 
+function loadLocalPreparedSpellIds(defaultSpellIds) {
+  try {
+    const raw = localStorage.getItem(getLocalPreparedKey());
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return new Set(parsed.filter((spellId) => typeof spellId === 'string' && spellId));
+      }
+    }
+  } catch {
+    // Ignore parse/storage errors and fall back to defaults.
+  }
+
+  const seeded = new Set(defaultSpellIds.filter((spellId) => typeof spellId === 'string' && spellId));
+  try {
+    localStorage.setItem(getLocalPreparedKey(), JSON.stringify([...seeded]));
+  } catch {
+    // Ignore storage errors.
+  }
+  return seeded;
+}
+
+function saveLocalPreparedSpellIds() {
+  try {
+    localStorage.setItem(getLocalPreparedKey(), JSON.stringify([...localPreparedSpellIds]));
+  } catch {
+    // Ignore storage errors.
+  }
+}
+
+function setLocalPreparedSpell(spellId, prepared) {
+  if (prepared) {
+    localPreparedSpellIds.add(spellId);
+  } else {
+    localPreparedSpellIds.delete(spellId);
+  }
+  saveLocalPreparedSpellIds();
+}
+
 async function fetchConfig() {
   try {
     const response = await fetch('api/config');
@@ -329,7 +375,16 @@ function hasLocalPatches() {
 }
 
 function getEffectiveSpells() {
-  return baseSpells.map((spell) => applyPatchToSpell(spell, localPatches[spell.id]));
+  return baseSpells.map((spell) => {
+    const patched = applyPatchToSpell(spell, localPatches[spell.id]);
+    if (!remotePendingPlanEnabled) {
+      return {
+        ...patched,
+        prepared: localPreparedSpellIds.has(spell.id),
+      };
+    }
+    return patched;
+  });
 }
 
 function refreshDerivedOptions() {
@@ -547,12 +602,18 @@ function removeBaseSpell(spellId) {
 
 async function patchSpell(spellId, patch) {
   let response;
+  const payloadPatch = (!remotePendingPlanEnabled && hasOwn(patch, 'prepared'))
+    ? { ...patch, prepared: undefined }
+    : patch;
+  if (!remotePendingPlanEnabled && hasOwn(payloadPatch, 'prepared')) {
+    delete payloadPatch.prepared;
+  }
 
   try {
     response = await fetch(withCharacterApiPath(`api/spells/${encodeURIComponent(spellId)}`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patch),
+      body: JSON.stringify(payloadPatch),
     });
   } catch (error) {
     const wrapped = new Error(error.message || 'Network error while saving.');
@@ -573,10 +634,16 @@ async function patchSpell(spellId, patch) {
 }
 
 async function createSpell(patch) {
+  const payloadPatch = (!remotePendingPlanEnabled && hasOwn(patch, 'prepared'))
+    ? { ...patch, prepared: undefined }
+    : patch;
+  if (!remotePendingPlanEnabled && hasOwn(payloadPatch, 'prepared')) {
+    delete payloadPatch.prepared;
+  }
   const response = await fetch(withCharacterApiPath('api/spells'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(patch),
+    body: JSON.stringify(payloadPatch),
   });
 
   const payload = await response.json().catch(() => ({}));
@@ -655,6 +722,9 @@ async function saveRow(spellId) {
     try {
       const updatedSpell = await patchSpell(spellId, patch);
       setBaseSpell(updatedSpell);
+      if (!remotePendingPlanEnabled && hasOwn(patch, 'prepared')) {
+        setLocalPreparedSpell(spellId, Boolean(patch.prepared));
+      }
       delete localPatches[spellId];
       saveLocalPatches();
       saveMode = 'remote';
@@ -663,6 +733,9 @@ async function saveRow(spellId) {
       if (!error.fallbackToLocal) throw error;
 
       savePatchLocally(spellId, patch);
+      if (!remotePendingPlanEnabled && hasOwn(patch, 'prepared')) {
+        setLocalPreparedSpell(spellId, Boolean(patch.prepared));
+      }
       saveMode = 'local-draft';
       setStatus('Saved locally (draft mode).');
     }
@@ -693,6 +766,9 @@ async function togglePrepared(spellId) {
     try {
       const updatedSpell = await patchSpell(spellId, patch);
       setBaseSpell(updatedSpell);
+      if (!remotePendingPlanEnabled) {
+        setLocalPreparedSpell(spellId, Boolean(patch.prepared));
+      }
       delete localPatches[spellId];
       saveLocalPatches();
       saveMode = 'remote';
@@ -701,6 +777,9 @@ async function togglePrepared(spellId) {
       if (!error.fallbackToLocal) throw error;
 
       savePatchLocally(spellId, patch);
+      if (!remotePendingPlanEnabled) {
+        setLocalPreparedSpell(spellId, Boolean(patch.prepared));
+      }
       saveMode = 'local-draft';
       setStatus('Saved locally (draft mode).');
     }
@@ -740,6 +819,9 @@ async function handleCreateSpell() {
 
     const created = await createSpell(payload);
     addBaseSpell(created);
+    if (!remotePendingPlanEnabled) {
+      setLocalPreparedSpell(created.id, Boolean(payload.prepared));
+    }
     refreshDerivedOptions();
     runFilters({ announce: false });
     if (elements.createSpellIdInput) elements.createSpellIdInput.value = '';
@@ -763,6 +845,10 @@ async function handleDeleteSpell(spellId) {
   try {
     await deleteSpell(spellId);
     removeBaseSpell(spellId);
+    if (!remotePendingPlanEnabled) {
+      localPreparedSpellIds.delete(spellId);
+      saveLocalPreparedSpellIds();
+    }
     delete localPatches[spellId];
     saveLocalPatches();
     editingSpellId = null;
@@ -814,6 +900,9 @@ async function loadSpells() {
     }
 
     baseSpells = loadedSpells;
+    if (!remotePendingPlanEnabled) {
+      localPreparedSpellIds = loadLocalPreparedSpellIds(baseSpells.filter((spell) => spell.prepared).map((spell) => spell.id));
+    }
     localPatches = allowLocalDraftEdits ? loadLocalPatches() : {};
     if (loadedFromStaticFile && allowLocalDraftEdits) saveMode = 'local-draft';
     if (!allowLocalDraftEdits) saveMode = 'remote';

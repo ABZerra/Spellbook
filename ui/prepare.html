@@ -52,48 +52,44 @@
         </article>
       </section>
 
-      <section class="panel prep-actions" aria-label="Queue actions">
-        <div class="action-row">
-          <label>
-            Replace from
-            <select id="replaceFromSelect"></select>
-          </label>
-          <label>
-            Replace to
-            <select id="replaceToSelect"></select>
-          </label>
-          <button id="replaceSpellButton" type="button">Queue replace</button>
-        </div>
-        <details class="situational-actions">
-          <summary>Situational actions</summary>
-          <div class="situational-grid">
-            <div class="action-row compact">
+      <section class="panel prep-actions" aria-label="Queue actions and preview diff">
+        <div class="prep-actions-layout">
+          <div class="prep-controls">
+            <h2>Queue Changes</h2>
+            <div class="action-row">
+              <label>
+                Replace from
+                <select id="replaceFromSelect"></select>
+              </label>
+              <label>
+                Replace to
+                <select id="replaceToSelect"></select>
+              </label>
+            </div>
+            <div class="action-row">
               <label>
                 Add spell
                 <select id="addSpellSelect"></select>
               </label>
-              <button id="addSpellButton" type="button">Queue add</button>
             </div>
-            <div class="action-row compact">
+            <div class="action-row">
               <label>
                 Remove spell
                 <select id="removeSpellSelect"></select>
               </label>
-              <button id="removeSpellButton" type="button">Queue remove</button>
             </div>
+            <p class="muted">Selecting from a dropdown queues the change immediately.</p>
           </div>
-        </details>
-      </section>
 
-      <section class="panel status-panel">
-        <div id="prepareStatusMessage" class="status">Loading spells...</div>
-      </section>
-
-      <section class="panel prep-middle-strip">
-        <div class="prep-middle-content">
-          <div class="prep-middle-diff">
-            <h2>Preview Diff</h2>
-            <div class="pending-groups inline">
+          <div class="prep-diff-pane">
+            <div class="prep-middle-head">
+              <h2>Preview Diff</h2>
+            </div>
+            <div class="pending-groups inline diff-columns">
+              <div>
+                <h3>Replaced</h3>
+                <ul id="previewReplacedList" class="spell-list"></ul>
+              </div>
               <div>
                 <h3>Added</h3>
                 <ul id="previewAddedList" class="spell-list"></ul>
@@ -102,17 +98,13 @@
                 <h3>Removed</h3>
                 <ul id="previewRemovedList" class="spell-list"></ul>
               </div>
-              <div>
-                <h3>Replaced</h3>
-                <ul id="previewReplacedList" class="spell-list"></ul>
-              </div>
             </div>
           </div>
-          <section class="prep-footer-actions">
-            <button id="applyPlanButton" type="button">Apply Plan</button>
-            <button id="clearPendingButton" type="button" class="secondary-button">Clear Pending Plan</button>
-          </section>
         </div>
+      </section>
+
+      <section class="panel status-panel">
+        <div id="prepareStatusMessage" class="status">Loading spells...</div>
       </section>
 
       <section class="prep-grid">
@@ -124,7 +116,7 @@
               <select id="currentSortSelect">
                 <option value="name">Name</option>
                 <option value="level">Level</option>
-                <option value="source">Source</option>
+                <option value="spellList">Spell List</option>
               </select>
             </label>
           </div>
@@ -147,6 +139,10 @@
               <ul id="pendingReplacedList" class="spell-list"></ul>
             </div>
           </div>
+          <section class="prep-footer-actions pending-panel-actions">
+            <button id="applyPlanButton" type="button">Apply Plan</button>
+            <button id="clearPendingButton" type="button" class="secondary-button">Clear Pending Plan</button>
+          </section>
         </article>
 
         <article class="panel prep-panel">
@@ -157,7 +153,7 @@
               <select id="previewSortSelect">
                 <option value="name">Name</option>
                 <option value="level">Level</option>
-                <option value="source">Source</option>
+                <option value="spellList">Spell List</option>
               </select>
             </label>
           </div>
