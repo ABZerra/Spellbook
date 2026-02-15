@@ -18,6 +18,14 @@ const elements = {
   sortButtons: Array.from(document.querySelectorAll('.sort-button')),
   saveModeBadge: document.getElementById('saveModeBadge'),
   resetLocalEdits: document.getElementById('resetLocalEdits'),
+  refreshNowButton: document.getElementById('refreshNowButton'),
+  createSpellIdInput: document.getElementById('createSpellIdInput'),
+  createSpellNameInput: document.getElementById('createSpellNameInput'),
+  createSpellLevelInput: document.getElementById('createSpellLevelInput'),
+  createSpellSourceInput: document.getElementById('createSpellSourceInput'),
+  createSpellTagsInput: document.getElementById('createSpellTagsInput'),
+  createSpellPreparedInput: document.getElementById('createSpellPreparedInput'),
+  createSpellButton: document.getElementById('createSpellButton'),
   signupUserIdInput: document.getElementById('signupUserIdInput'),
   signupDisplayNameInput: document.getElementById('signupDisplayNameInput'),
   signupButton: document.getElementById('signupButton'),
@@ -41,6 +49,8 @@ let currentUserId = null;
 let currentDisplayName = null;
 let currentCharacterId = 'default-character';
 let remotePendingPlanEnabled = false;
+let allowLocalDraftEdits = true;
+let spellsBackend = 'json';
 
 function normalizeIdentity(value, fallback) {
   const next = String(value || '').trim();
@@ -259,6 +269,8 @@ async function fetchConfig() {
 
     const payload = await response.json();
     remotePendingPlanEnabled = Boolean(payload.remotePendingPlanEnabled);
+    allowLocalDraftEdits = payload.allowLocalDraftEdits !== false;
+    spellsBackend = String(payload.spellsBackend || spellsBackend);
     defaultCharacterId = normalizeIdentity(payload.defaultCharacterId, defaultCharacterId);
     authenticated = Boolean(payload.authenticated);
     currentUserId = payload.userId ? normalizeIdentity(payload.userId, null) : null;
@@ -408,10 +420,14 @@ function updateDraftUi() {
   if (!elements.saveModeBadge || !elements.resetLocalEdits) return;
 
   const isLocalDraft = saveMode === 'local-draft';
-  elements.saveModeBadge.textContent = isLocalDraft ? 'Local draft' : 'Remote';
+  if (spellsBackend === 'notion' && !isLocalDraft) {
+    elements.saveModeBadge.textContent = 'Notion';
+  } else {
+    elements.saveModeBadge.textContent = isLocalDraft ? 'Local draft' : 'Remote';
+  }
   elements.saveModeBadge.classList.toggle('local', isLocalDraft);
   elements.saveModeBadge.classList.toggle('remote', !isLocalDraft);
-  elements.resetLocalEdits.hidden = !hasLocalPatches();
+  elements.resetLocalEdits.hidden = !allowLocalDraftEdits || !hasLocalPatches();
 }
 
 function getFilters() {
@@ -507,7 +523,10 @@ function renderReadOnlyRow(spell) {
       <td>
         <div class="editable-cell">
           <span>${escapeHtml(spell.name)}</span>
-          <button type="button" class="link-button" data-action="edit" data-id="${escapeHtml(spell.id)}">Edit</button>
+          <div class="row-actions">
+            <button type="button" class="link-button" data-action="edit" data-id="${escapeHtml(spell.id)}">Edit</button>
+            <button type="button" class="link-button danger" data-action="delete" data-id="${escapeHtml(spell.id)}">Delete</button>
+          </div>
         </div>
       </td>
       <td>${renderTags(spell.tags)}</td>
@@ -596,6 +615,14 @@ function setBaseSpell(updatedSpell) {
   baseSpells = baseSpells.map((spell) => (spell.id === updatedSpell.id ? updatedSpell : spell));
 }
 
+function addBaseSpell(spell) {
+  baseSpells = [...baseSpells, spell];
+}
+
+function removeBaseSpell(spellId) {
+  baseSpells = baseSpells.filter((spell) => spell.id !== spellId);
+}
+
 async function patchSpell(spellId, patch) {
   let response;
 
@@ -607,7 +634,7 @@ async function patchSpell(spellId, patch) {
     });
   } catch (error) {
     const wrapped = new Error(error.message || 'Network error while saving.');
-    wrapped.fallbackToLocal = true;
+    wrapped.fallbackToLocal = allowLocalDraftEdits;
     throw wrapped;
   }
 
@@ -615,11 +642,49 @@ async function patchSpell(spellId, patch) {
   if (!response.ok) {
     const message = payload.error || `HTTP ${response.status}`;
     const wrapped = new Error(message);
-    wrapped.fallbackToLocal = response.status === 404 || response.status === 405 || response.status === 501;
+    wrapped.fallbackToLocal = allowLocalDraftEdits
+      && (response.status === 404 || response.status === 405 || response.status === 501);
     throw wrapped;
   }
 
   return payload.spell;
+}
+
+async function createSpell(patch) {
+  const response = await fetch('api/spells', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || `HTTP ${response.status}`);
+  }
+
+  return payload.spell;
+}
+
+async function deleteSpell(spellId) {
+  const response = await fetch(`api/spells/${encodeURIComponent(spellId)}`, {
+    method: 'DELETE',
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || `HTTP ${response.status}`);
+  }
+}
+
+async function refreshSpellsNow() {
+  const response = await fetch('api/spells/sync', {
+    method: 'POST',
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || `HTTP ${response.status}`);
+  }
 }
 
 function getEditingPatch(spellId) {
@@ -684,7 +749,11 @@ async function saveRow(spellId) {
     refreshDerivedOptions();
     runFilters({ announce: false });
   } catch (error) {
-    setStatus(`Unable to save spell: ${error.message}`, true);
+    if (!allowLocalDraftEdits) {
+      setStatus(`Notion sync failed, no write applied: ${error.message}`, true);
+    } else {
+      setStatus(`Unable to save spell: ${error.message}`, true);
+    }
   } finally {
     isSaving = false;
   }
@@ -717,13 +786,76 @@ async function togglePrepared(spellId) {
     refreshDerivedOptions();
     runFilters({ announce: false });
   } catch (error) {
-    setStatus(`Unable to update prepared status: ${error.message}`, true);
+    if (!allowLocalDraftEdits) {
+      setStatus(`Notion sync failed, no write applied: ${error.message}`, true);
+    } else {
+      setStatus(`Unable to update prepared status: ${error.message}`, true);
+    }
+  } finally {
+    isSaving = false;
+  }
+}
+
+async function handleCreateSpell() {
+  if (isSaving) return;
+  isSaving = true;
+  try {
+    const id = String(elements.createSpellIdInput?.value || '').trim();
+    const name = String(elements.createSpellNameInput?.value || '').trim();
+    const level = Number.parseInt(String(elements.createSpellLevelInput?.value || ''), 10);
+    if (!id) throw new Error('Spell ID is required.');
+    if (!name) throw new Error('Spell name is required.');
+    if (!Number.isFinite(level) || level < 0) throw new Error('Level must be a non-negative integer.');
+
+    const payload = {
+      id,
+      name,
+      level,
+      source: parseCsvList(elements.createSpellSourceInput?.value),
+      tags: parseCsvList(elements.createSpellTagsInput?.value),
+      prepared: Boolean(elements.createSpellPreparedInput?.checked),
+    };
+
+    const created = await createSpell(payload);
+    addBaseSpell(created);
+    refreshDerivedOptions();
+    runFilters({ announce: false });
+    if (elements.createSpellIdInput) elements.createSpellIdInput.value = '';
+    if (elements.createSpellNameInput) elements.createSpellNameInput.value = '';
+    if (elements.createSpellLevelInput) elements.createSpellLevelInput.value = '0';
+    if (elements.createSpellSourceInput) elements.createSpellSourceInput.value = '';
+    if (elements.createSpellTagsInput) elements.createSpellTagsInput.value = '';
+    if (elements.createSpellPreparedInput) elements.createSpellPreparedInput.checked = false;
+    saveMode = 'remote';
+    setStatus(`Created spell ${created.name}.`);
+  } catch (error) {
+    setStatus(`Unable to create spell: ${error.message}`, true);
+  } finally {
+    isSaving = false;
+  }
+}
+
+async function handleDeleteSpell(spellId) {
+  if (isSaving) return;
+  isSaving = true;
+  try {
+    await deleteSpell(spellId);
+    removeBaseSpell(spellId);
+    delete localPatches[spellId];
+    saveLocalPatches();
+    editingSpellId = null;
+    refreshDerivedOptions();
+    runFilters({ announce: false });
+    setStatus(`Deleted spell ${spellId}.`);
+  } catch (error) {
+    setStatus(`Unable to delete spell: ${error.message}`, true);
   } finally {
     isSaving = false;
   }
 }
 
 function resetLocalEdits() {
+  if (!allowLocalDraftEdits) return;
   clearLocalPatches();
   saveMode = 'remote';
   editingSpellId = null;
@@ -760,8 +892,9 @@ async function loadSpells() {
     }
 
     baseSpells = loadedSpells;
-    localPatches = loadLocalPatches();
-    if (loadedFromStaticFile) saveMode = 'local-draft';
+    localPatches = allowLocalDraftEdits ? loadLocalPatches() : {};
+    if (loadedFromStaticFile && allowLocalDraftEdits) saveMode = 'local-draft';
+    if (!allowLocalDraftEdits) saveMode = 'remote';
 
     refreshDerivedOptions();
     updateDraftUi();
@@ -831,6 +964,11 @@ elements.tableBody.addEventListener('click', (event) => {
     return;
   }
 
+  if (action === 'delete') {
+    void handleDeleteSpell(spellId);
+    return;
+  }
+
   if (action === 'toggle-prepared') {
     void togglePrepared(spellId);
   }
@@ -878,6 +1016,19 @@ if (elements.logoutButton) {
 if (elements.switchCharacterButton) {
   elements.switchCharacterButton.addEventListener('click', () => {
     void switchCharacter().catch((error) => setStatus(`Unable to switch character: ${error.message}`, true));
+  });
+}
+if (elements.createSpellButton) {
+  elements.createSpellButton.addEventListener('click', () => {
+    void handleCreateSpell();
+  });
+}
+if (elements.refreshNowButton) {
+  elements.refreshNowButton.addEventListener('click', () => {
+    void refreshSpellsNow()
+      .then(() => loadSpells())
+      .then(() => setStatus('Refreshed spells from sync source.'))
+      .catch((error) => setStatus(`Unable to refresh spells: ${error.message}`, true));
   });
 }
 

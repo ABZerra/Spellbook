@@ -108,6 +108,16 @@ h1 {
   gap: 0.35rem;
 }
 
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-label input[type='checkbox'] {
+  min-height: auto;
+}
+
 .account-panel {
   padding: 0.8rem 1rem;
 }
@@ -212,6 +222,12 @@ button:hover {
   padding: 0.6rem 1rem;
   border-bottom: 1px solid var(--border);
   background: #fff9ee;
+}
+
+.table-tools-actions {
+  display: inline-flex;
+  gap: 0.45rem;
+  align-items: center;
 }
 
 .mode-badge {
@@ -389,6 +405,10 @@ tbody tr:hover {
 
 .link-button.save {
   color: var(--prepared);
+}
+
+.link-button.danger {
+  color: #9d2a2a;
 }
 
 .editing-row {

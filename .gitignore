@@ -1,3 +1,6 @@
 .DS_Store
 dist/
 data/local-state.json
+data/spells-cache.json
+.env
+.env.*

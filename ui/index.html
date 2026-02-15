@@ -81,6 +81,34 @@
         <button id="clearFilters" type="button">Clear filters</button>
       </section>
 
+      <section class="panel controls" aria-label="Create spell">
+        <label>
+          Spell ID
+          <input id="createSpellIdInput" type="text" placeholder="e.g. moonbeam" />
+        </label>
+        <label>
+          Name
+          <input id="createSpellNameInput" type="text" placeholder="Spell name" />
+        </label>
+        <label>
+          Level
+          <input id="createSpellLevelInput" type="number" min="0" step="1" value="0" />
+        </label>
+        <label>
+          Source
+          <input id="createSpellSourceInput" type="text" placeholder="comma, separated" list="sourceSuggestions" />
+        </label>
+        <label>
+          Tags
+          <input id="createSpellTagsInput" type="text" placeholder="comma, separated" list="tagSuggestions" />
+        </label>
+        <label class="checkbox-label">
+          <input id="createSpellPreparedInput" type="checkbox" />
+          Prepared
+        </label>
+        <button id="createSpellButton" type="button">Create spell</button>
+      </section>
+
       <datalist id="nameSuggestions"></datalist>
       <datalist id="sourceSuggestions"></datalist>
       <datalist id="tagSuggestions"></datalist>
@@ -99,7 +127,10 @@
       <section class="panel table-panel" aria-label="Spell list">
         <div class="table-tools">
           <span id="saveModeBadge" class="mode-badge remote">Remote</span>
-          <button id="resetLocalEdits" type="button" class="secondary-button" hidden>Reset local edits</button>
+          <div class="table-tools-actions">
+            <button id="refreshNowButton" type="button" class="secondary-button">Refresh now</button>
+            <button id="resetLocalEdits" type="button" class="secondary-button" hidden>Reset local edits</button>
+          </div>
         </div>
         <div id="statusMessage" class="status">Loading spells...</div>
         <div class="table-wrap">

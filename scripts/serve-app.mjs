@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
-import { createReadStream, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { createReadStream, existsSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createJsonSpellRepo } from '../src/adapters/json-spell-repo.js';
+import { createNotionSpellRepo } from '../src/adapters/notion-spell-repo.js';
 import { ensureSchema } from '../src/adapters/schema.js';
 import { withTransaction } from '../src/adapters/pg.js';
 import { ensureCharacterOwnership } from '../src/adapters/character-repo.js';
@@ -25,6 +27,7 @@ import {
   getPendingPlanState,
   updatePendingPlanState,
 } from '../src/services/pending-plan-service.js';
+import { createSpellCacheService } from '../src/services/spell-cache-service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,6 +36,13 @@ const uiDir = path.join(rootDir, 'ui');
 const dbPath = process.env.SPELLS_DB
   ? path.resolve(process.cwd(), process.env.SPELLS_DB)
   : path.join(rootDir, 'data', 'spells.json');
+const spellsBackend = process.env.SPELLS_BACKEND === 'notion' ? 'notion' : 'json';
+const notionApiToken = process.env.NOTION_API_TOKEN || '';
+const notionDatabaseId = process.env.NOTION_DATABASE_ID || '';
+const spellsSyncIntervalSeconds = Number.parseInt(process.env.SPELLS_SYNC_INTERVAL_SECONDS || '30', 10) || 30;
+const spellsCachePath = process.env.SPELLS_CACHE_PATH
+  ? path.resolve(process.cwd(), process.env.SPELLS_CACHE_PATH)
+  : path.join(rootDir, 'data', 'spells-cache.json');
 const port = Number(process.env.PORT || 3000);
 
 const remotePendingPlanEnabled = process.env.PERSIST_PENDING_PLAN_REMOTE === 'true';
@@ -42,10 +52,17 @@ const sessionMaxAgeSeconds = Number.parseInt(process.env.AUTH_SESSION_TTL_SECOND
 const sessionCookieName = 'spellbook_session_token';
 const characterCookieName = 'spellbook_character_id';
 
-const database = JSON.parse(readFileSync(dbPath, 'utf8'));
-const spells = Array.isArray(database.spells) ? database.spells : [];
-const knownSpellIds = new Set(spells.map((spell) => spell.id));
-const defaultPreparedSpellIds = spells.filter((spell) => spell.prepared).map((spell) => spell.id);
+const spellRepo = spellsBackend === 'notion'
+  ? createNotionSpellRepo({
+      apiToken: notionApiToken,
+      databaseId: notionDatabaseId,
+    })
+  : createJsonSpellRepo({ dbPath });
+const spellCache = createSpellCacheService({
+  repo: spellRepo,
+  refreshIntervalMs: spellsSyncIntervalSeconds * 1000,
+  cachePath: spellsBackend === 'notion' ? spellsCachePath : null,
+});
 
 function sendJson(res, code, payload) {
   res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -66,11 +83,6 @@ function parseCsvList(value) {
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
-}
-
-function persistDatabase() {
-  database.totalSpells = spells.length;
-  writeFileSync(dbPath, `${JSON.stringify(database, null, 2)}\n`, 'utf8');
 }
 
 function normalizeSpellPatch(input) {
@@ -110,15 +122,6 @@ function normalizeSpellPatch(input) {
   return patch;
 }
 
-function updateRawFields(spell) {
-  spell.raw = spell.raw || {};
-  spell.raw['Prepared?'] = spell.prepared ? 'Yes' : 'No';
-  spell.raw['Spell Level'] = String(spell.level);
-  spell.raw.Source = (spell.source || []).join(', ');
-  spell.raw.Tags = (spell.tags || []).join(', ');
-  spell.raw.Name = spell.name;
-}
-
 function getStaticFilePath(urlPath) {
   let filePath = urlPath;
   if (urlPath === '/') filePath = '/index.html';
@@ -145,7 +148,7 @@ function parseList(value) {
     .filter(Boolean);
 }
 
-function querySpells(url, sourceSpells = spells) {
+function querySpells(url, sourceSpells = []) {
   const name = String(url.searchParams.get('name') || '').trim().toLowerCase();
   const levelRaw = url.searchParams.get('level');
   const source = parseList(url.searchParams.get('source'));
@@ -172,6 +175,21 @@ function querySpells(url, sourceSpells = spells) {
 
     return true;
   });
+}
+
+function getSharedSpellSnapshot() {
+  return spellCache.getSnapshot();
+}
+
+function getKnownSpellIds() {
+  return new Set(getSharedSpellSnapshot().spells.map((spell) => spell.id));
+}
+
+function getDefaultPreparedSpellIds() {
+  return getSharedSpellSnapshot()
+    .spells
+    .filter((spell) => spell.prepared)
+    .map((spell) => spell.id);
 }
 
 function parseCookies(req) {
@@ -269,7 +287,7 @@ async function withCharacterScope({ req, characterId }, run) {
       userId,
       characterId,
       defaultName: defaultCharacterName,
-      initialPreparedSpellIds: defaultPreparedSpellIds,
+      initialPreparedSpellIds: getDefaultPreparedSpellIds(),
     });
 
     if (!owned) {
@@ -319,6 +337,7 @@ async function handleCharacterRoutes(req, res, url) {
     if (pendingPlanMatch && req.method === 'PUT') {
       const characterId = decodeURIComponent(pendingPlanMatch[1]);
       const body = parseJsonBody(await readRequestBody(req));
+      const knownSpellIds = getKnownSpellIds();
       const payload = await withCharacterScope({ req, characterId }, ({ client }) =>
         updatePendingPlanState(client, {
           characterId,
@@ -343,6 +362,7 @@ async function handleCharacterRoutes(req, res, url) {
     if (pendingChangeMatch && req.method === 'POST') {
       const characterId = decodeURIComponent(pendingChangeMatch[1]);
       const body = parseJsonBody(await readRequestBody(req));
+      const knownSpellIds = getKnownSpellIds();
       const payload = await withCharacterScope({ req, characterId }, ({ client }) =>
         appendPendingPlanChange(client, {
           characterId,
@@ -357,6 +377,7 @@ async function handleCharacterRoutes(req, res, url) {
 
     if (pendingApplyMatch && req.method === 'POST') {
       const characterId = decodeURIComponent(pendingApplyMatch[1]);
+      const knownSpellIds = getKnownSpellIds();
       const payload = await withCharacterScope({ req, characterId }, ({ client }) =>
         applyPendingPlanState(client, {
           characterId,
@@ -387,6 +408,54 @@ async function handleCharacterRoutes(req, res, url) {
   }
 }
 
+async function requireAuthenticatedSessionIfNeeded(req) {
+  if (!remotePendingPlanEnabled) return null;
+  const session = await withTransaction(async (client) => getAuthenticatedSession(client, req));
+  if (!session) {
+    const error = new Error('Authentication required.');
+    error.statusCode = 401;
+    throw error;
+  }
+  return session;
+}
+
+async function applyPreparedOverlay({ req, url, sharedSpells }) {
+  if (!remotePendingPlanEnabled) {
+    return sharedSpells;
+  }
+
+  return withUserCharacterScope({ req, url }, async ({ client, characterId }) => {
+    const preparedList = await getPreparedList(client, characterId);
+    const preparedSet = new Set(preparedList.spellIds);
+    return sharedSpells.map((spell) => ({
+      ...spell,
+      prepared: preparedSet.has(spell.id),
+    }));
+  });
+}
+
+async function setPreparedForCharacterSpell({ req, url, spellId, prepared }) {
+  if (!remotePendingPlanEnabled) return Boolean(prepared);
+
+  return withUserCharacterScope({ req, url }, async ({ client, characterId }) => {
+    const preparedList = await getPreparedList(client, characterId);
+    const nextPreparedSet = new Set(preparedList.spellIds);
+    if (prepared) {
+      nextPreparedSet.add(spellId);
+    } else {
+      nextPreparedSet.delete(spellId);
+    }
+
+    const updatedPreparedList = await replacePreparedList(client, {
+      characterId,
+      spellIds: [...nextPreparedSet],
+      knownSpellIds: getKnownSpellIds(),
+    });
+
+    return updatedPreparedList.spellIds.includes(spellId);
+  });
+}
+
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host}`);
 
@@ -398,7 +467,13 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && url.pathname === '/api/health') {
-    return sendJson(res, 200, { ok: true, totalSpells: spells.length });
+    const snapshot = getSharedSpellSnapshot();
+    return sendJson(res, 200, {
+      ok: true,
+      totalSpells: snapshot.spells.length,
+      syncMeta: snapshot.syncMeta,
+      spellsBackend,
+    });
   }
 
   if (req.method === 'GET' && url.pathname === '/api/config') {
@@ -410,6 +485,8 @@ const server = http.createServer(async (req, res) => {
         authenticated: false,
         userId: null,
         displayName: null,
+        spellsBackend,
+        allowLocalDraftEdits: spellsBackend === 'json',
       });
     }
 
@@ -422,6 +499,8 @@ const server = http.createServer(async (req, res) => {
         authenticated: Boolean(session),
         userId: session?.userId || null,
         displayName: session?.displayName || null,
+        spellsBackend,
+        allowLocalDraftEdits: spellsBackend === 'json',
       };
     });
 
@@ -483,7 +562,7 @@ const server = http.createServer(async (req, res) => {
           userId,
           characterId,
           defaultName: defaultCharacterName,
-          initialPreparedSpellIds: defaultPreparedSpellIds,
+          initialPreparedSpellIds: getDefaultPreparedSpellIds(),
         });
         if (!owned) {
           const error = new Error('Character ID belongs to another account.');
@@ -545,7 +624,7 @@ const server = http.createServer(async (req, res) => {
           userId,
           characterId,
           defaultName: defaultCharacterName,
-          initialPreparedSpellIds: defaultPreparedSpellIds,
+          initialPreparedSpellIds: getDefaultPreparedSpellIds(),
         });
         if (!owned) {
           const error = new Error('Character ID belongs to another account.');
@@ -634,7 +713,7 @@ const server = http.createServer(async (req, res) => {
           userId: session.userId,
           characterId,
           defaultName: defaultCharacterName,
-          initialPreparedSpellIds: defaultPreparedSpellIds,
+          initialPreparedSpellIds: getDefaultPreparedSpellIds(),
         });
         if (!owned) {
           const error = new Error('Character ID belongs to another account.');
@@ -681,21 +760,16 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && url.pathname === '/api/spells') {
     try {
-      let filtered;
-
-      if (remotePendingPlanEnabled) {
-        filtered = await withUserCharacterScope({ req, url }, async ({ client, characterId }) => {
-          const preparedList = await getPreparedList(client, characterId);
-          const preparedSet = new Set(preparedList.spellIds);
-          const scopedSpells = spells.map((spell) => ({
-            ...spell,
-            prepared: preparedSet.has(spell.id),
-          }));
-          return querySpells(url, scopedSpells);
+      const snapshot = getSharedSpellSnapshot();
+      if (snapshot.spells.length === 0 && snapshot.syncMeta.stale) {
+        return sendJson(res, 503, {
+          error: 'Spells are unavailable. Initial sync has not completed.',
+          syncMeta: snapshot.syncMeta,
         });
-      } else {
-        filtered = querySpells(url);
       }
+
+      const scopedSpells = await applyPreparedOverlay({ req, url, sharedSpells: snapshot.spells });
+      const filtered = querySpells(url, scopedSpells);
 
       return sendJson(res, 200, {
         count: filtered.length,
@@ -707,6 +781,7 @@ const server = http.createServer(async (req, res) => {
           prepared: url.searchParams.get('prepared'),
         },
         spells: filtered,
+        syncMeta: snapshot.syncMeta,
       });
     } catch (error) {
       const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 400;
@@ -714,95 +789,132 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  if (req.method === 'PATCH' && url.pathname.startsWith('/api/spells/')) {
-    if (remotePendingPlanEnabled) {
-      const session = await withTransaction(async (client) => getAuthenticatedSession(client, req));
-      if (!session) {
-        return sendJson(res, 401, { error: 'Authentication required.' });
-      }
+  if (req.method === 'POST' && url.pathname === '/api/spells/sync') {
+    try {
+      await requireAuthenticatedSessionIfNeeded(req);
+      const snapshot = await spellCache.refreshNow();
+      return sendJson(res, 200, { ok: true, syncMeta: snapshot.syncMeta, count: snapshot.spells.length });
+    } catch (error) {
+      const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 503;
+      return sendJson(res, statusCode, { error: error.message });
     }
+  }
 
-    const encodedId = url.pathname.slice('/api/spells/'.length);
-    const spellId = decodeURIComponent(encodedId);
-    const index = spells.findIndex((spell) => spell.id === spellId);
-    if (index === -1) return sendJson(res, 404, { error: `Spell not found: ${spellId}` });
+  if (req.method === 'POST' && url.pathname === '/api/spells') {
+    try {
+      await requireAuthenticatedSessionIfNeeded(req);
+      const payload = parseJsonBody(await readRequestBody(req));
+      const patch = normalizeSpellPatch(payload);
+      const spellId = String(patch.id || '').trim();
+      if (!spellId) return sendJson(res, 400, { error: '`id` is required.' });
 
-    return readRequestBody(req)
-      .then((bodyText) => {
-        let payload = {};
-        if (bodyText.trim()) {
-          try {
-            payload = JSON.parse(bodyText);
-          } catch {
-            return sendJson(res, 400, { error: 'Invalid JSON payload.' });
-          }
-        }
+      const hasSharedFields = ['id', 'name', 'level', 'source', 'tags'].some((field) =>
+        Object.prototype.hasOwnProperty.call(patch, field),
+      );
+      if (!hasSharedFields) {
+        return sendJson(res, 400, { error: 'Payload must include shared spell fields.' });
+      }
 
-        try {
-          const patch = normalizeSpellPatch(payload);
-          const current = spells[index];
-          const hasPreparedPatch = Object.prototype.hasOwnProperty.call(patch, 'prepared');
-          const sharedPatch = { ...patch };
-          delete sharedPatch.prepared;
-          const hasSharedFields = Object.keys(sharedPatch).length > 0;
+      const sharedPayload = {
+        id: spellId,
+        name: patch.name,
+        level: patch.level,
+        source: patch.source,
+        tags: patch.tags,
+      };
+      if (!remotePendingPlanEnabled && spellsBackend === 'json' && Object.prototype.hasOwnProperty.call(patch, 'prepared')) {
+        sharedPayload.prepared = Boolean(patch.prepared);
+      }
+      const createdShared = await spellRepo.createSpell(sharedPayload);
+      await spellCache.refreshNow();
 
-          return Promise.resolve()
-            .then(async () => {
-              if (hasSharedFields) {
-                const next = { ...current, ...sharedPatch };
-                updateRawFields(next);
-                spells[index] = next;
-                persistDatabase();
-              }
+      const prepared = Object.prototype.hasOwnProperty.call(patch, 'prepared')
+        ? await setPreparedForCharacterSpell({ req, url, spellId, prepared: Boolean(patch.prepared) })
+        : Boolean(createdShared.prepared);
 
-              if (remotePendingPlanEnabled && hasPreparedPatch) {
-                const urlForRequest = new URL(req.url || '/', `http://${req.headers.host}`);
-                const nextPreparedValue = Boolean(patch.prepared);
-
-                return withUserCharacterScope({ req, url: urlForRequest }, async ({ client, characterId }) => {
-                  const preparedList = await getPreparedList(client, characterId);
-                  const nextPreparedSet = new Set(preparedList.spellIds);
-                  if (nextPreparedValue) {
-                    nextPreparedSet.add(spellId);
-                  } else {
-                    nextPreparedSet.delete(spellId);
-                  }
-
-                  const updatedPreparedList = await replacePreparedList(client, {
-                    characterId,
-                    spellIds: [...nextPreparedSet],
-                    knownSpellIds,
-                  });
-
-                  return updatedPreparedList.spellIds.includes(spellId);
-                });
-              }
-
-              if (hasPreparedPatch) {
-                const next = { ...spells[index], prepared: Boolean(patch.prepared) };
-                updateRawFields(next);
-                spells[index] = next;
-                persistDatabase();
-                return next.prepared;
-              }
-
-              return spells[index].prepared;
-            })
-            .then((preparedState) => {
-              const next = {
-                ...spells[index],
-                prepared: Boolean(preparedState),
-              };
-              return sendJson(res, 200, { ok: true, spell: next });
-            });
-        } catch (error) {
-          return sendJson(res, 400, { error: error.message });
-        }
-      })
-      .catch((error) => {
-        const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 500;
-        return sendJson(res, statusCode, { error: error.message });
+      return sendJson(res, 201, {
+        ok: true,
+        spell: { ...createdShared, prepared },
+        syncMeta: getSharedSpellSnapshot().syncMeta,
       });
+    } catch (error) {
+      const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 500;
+      return sendJson(res, statusCode, { error: error.message });
+    }
+  }
+
+  if (req.method === 'PATCH' && url.pathname.startsWith('/api/spells/')) {
+    try {
+      await requireAuthenticatedSessionIfNeeded(req);
+      const encodedId = url.pathname.slice('/api/spells/'.length);
+      const spellId = decodeURIComponent(encodedId);
+      const payload = parseJsonBody(await readRequestBody(req));
+      const patch = normalizeSpellPatch(payload);
+      if (Object.prototype.hasOwnProperty.call(patch, 'id') && String(patch.id) !== spellId) {
+        return sendJson(res, 400, { error: '`id` cannot be changed via PATCH.' });
+      }
+      const hasPreparedPatch = Object.prototype.hasOwnProperty.call(patch, 'prepared');
+      const sharedPatch = { ...patch };
+      delete sharedPatch.id;
+      delete sharedPatch.prepared;
+
+      let updatedSharedSpell = null;
+      if (Object.keys(sharedPatch).length > 0) {
+        updatedSharedSpell = await spellRepo.updateSpell(spellId, sharedPatch);
+        await spellCache.refreshNow();
+      }
+
+      let preparedState = Boolean(updatedSharedSpell?.prepared);
+      if (hasPreparedPatch) {
+        if (!remotePendingPlanEnabled && spellsBackend === 'json') {
+          updatedSharedSpell = await spellRepo.updateSpell(spellId, { prepared: Boolean(patch.prepared) });
+          await spellCache.refreshNow();
+          preparedState = Boolean(updatedSharedSpell.prepared);
+        } else {
+          preparedState = await setPreparedForCharacterSpell({
+            req,
+            url,
+            spellId,
+            prepared: Boolean(patch.prepared),
+          });
+        }
+      } else if (!updatedSharedSpell) {
+        const snapshot = getSharedSpellSnapshot();
+        const current = snapshot.spells.find((spell) => spell.id === spellId);
+        if (!current) return sendJson(res, 404, { error: `Spell not found: ${spellId}` });
+        preparedState = Boolean(current.prepared);
+        updatedSharedSpell = current;
+      }
+
+      const finalSharedSpell = updatedSharedSpell || getSharedSpellSnapshot().spells.find((spell) => spell.id === spellId);
+      if (!finalSharedSpell) return sendJson(res, 404, { error: `Spell not found: ${spellId}` });
+      return sendJson(res, 200, {
+        ok: true,
+        spell: { ...finalSharedSpell, prepared: preparedState },
+        syncMeta: getSharedSpellSnapshot().syncMeta,
+      });
+    } catch (error) {
+      const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 500;
+      return sendJson(res, statusCode, { error: error.message });
+    }
+  }
+
+  if (req.method === 'DELETE' && url.pathname.startsWith('/api/spells/')) {
+    try {
+      await requireAuthenticatedSessionIfNeeded(req);
+      const encodedId = url.pathname.slice('/api/spells/'.length);
+      const spellId = decodeURIComponent(encodedId);
+      await spellRepo.softDeleteSpell(spellId);
+      await spellCache.refreshNow();
+      return sendJson(res, 200, {
+        ok: true,
+        deletedSpellId: spellId,
+        syncMeta: getSharedSpellSnapshot().syncMeta,
+      });
+    } catch (error) {
+      const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 500;
+      return sendJson(res, statusCode, { error: error.message });
+    }
   }
 
   if (req.method !== 'GET' && req.method !== 'HEAD') {
@@ -824,13 +936,22 @@ const server = http.createServer(async (req, res) => {
 });
 
 async function startServer() {
+  await spellRepo.verifySchema();
+  await spellCache.start();
+
   if (remotePendingPlanEnabled) {
     await ensureSchema();
   }
 
   server.listen(port, () => {
     console.log(`Spellbook UI listening on http://localhost:${port}`);
-    console.log(`Loaded spell database: ${dbPath}`);
+    if (spellsBackend === 'notion') {
+      console.log(`Loaded spell database backend: notion (${notionDatabaseId})`);
+      console.log(`Notion cache path: ${spellsCachePath}`);
+      console.log(`Notion sync interval: ${spellsSyncIntervalSeconds}s`);
+    } else {
+      console.log(`Loaded spell database backend: json (${dbPath})`);
+    }
     console.log(`Remote pending plans: ${remotePendingPlanEnabled ? 'enabled' : 'disabled'}`);
   });
 }
