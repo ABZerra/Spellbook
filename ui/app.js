@@ -18,12 +18,6 @@ const elements = {
   sortButtons: Array.from(document.querySelectorAll('.sort-button')),
   saveModeBadge: document.getElementById('saveModeBadge'),
   resetLocalEdits: document.getElementById('resetLocalEdits'),
-  signupUserIdInput: document.getElementById('signupUserIdInput'),
-  signupDisplayNameInput: document.getElementById('signupDisplayNameInput'),
-  signupButton: document.getElementById('signupButton'),
-  signinUserIdInput: document.getElementById('signinUserIdInput'),
-  signinButton: document.getElementById('signinButton'),
-  logoutButton: document.getElementById('logoutButton'),
   characterIdInput: document.getElementById('characterIdInput'),
   switchCharacterButton: document.getElementById('switchCharacterButton'),
   accountSessionSummary: document.getElementById('accountSessionSummary'),
@@ -53,23 +47,10 @@ function getLocalPatchKey() {
   return `${LOCAL_PATCH_KEY_PREFIX}.${userKey}.${currentCharacterId}`;
 }
 
-function parseRequiredIdentity(value, fieldName) {
-  const next = String(value || '').trim();
-  if (!/^[A-Za-z0-9_.-]{2,64}$/.test(next)) {
-    throw new Error(`${fieldName} must use 2-64 chars: letters, numbers, dot, underscore, hyphen.`);
-  }
-  return next;
-}
-
 function updateSessionSummary() {
   if (!elements.accountSessionSummary) return;
-  if (elements.signupButton) elements.signupButton.disabled = !remotePendingPlanEnabled;
-  if (elements.signinButton) elements.signinButton.disabled = !remotePendingPlanEnabled;
   if (elements.switchCharacterButton) {
     elements.switchCharacterButton.disabled = remotePendingPlanEnabled && !authenticated;
-  }
-  if (elements.logoutButton) {
-    elements.logoutButton.disabled = remotePendingPlanEnabled && !authenticated;
   }
 
   if (!remotePendingPlanEnabled) {
@@ -269,84 +250,11 @@ async function fetchConfig() {
     currentCharacterId = normalizeIdentity(fromQuery, configCharacter);
 
     if (elements.characterIdInput) elements.characterIdInput.value = currentCharacterId;
-    if (elements.signinUserIdInput && currentUserId) elements.signinUserIdInput.value = currentUserId;
     updateSessionSummary();
     updatePrepareLink();
   } catch {
     // Keep defaults.
   }
-}
-
-async function submitAuth(path, payload) {
-  const response = await fetch(path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(body.error || `HTTP ${response.status}`);
-  }
-
-  authenticated = true;
-  currentUserId = normalizeIdentity(body.userId, currentUserId);
-  currentDisplayName = body.displayName ? String(body.displayName) : currentUserId;
-  currentCharacterId = normalizeIdentity(body.characterId, currentCharacterId);
-  if (elements.characterIdInput) elements.characterIdInput.value = currentCharacterId;
-  if (elements.signinUserIdInput && currentUserId) elements.signinUserIdInput.value = currentUserId;
-  updateSessionSummary();
-  updatePrepareLink();
-
-  const nextUrl = new URL(window.location.href);
-  nextUrl.searchParams.set('characterId', currentCharacterId);
-  window.history.replaceState({}, '', nextUrl);
-}
-
-async function signup() {
-  const userId = parseRequiredIdentity(elements.signupUserIdInput?.value, 'Sign up User ID');
-  const displayName = String(elements.signupDisplayNameInput?.value || '').trim();
-  const characterId = normalizeIdentity(elements.characterIdInput?.value, currentCharacterId);
-
-  await submitAuth('api/auth/signup', { userId, displayName, characterId });
-  clearLocalPatches();
-  saveMode = 'remote';
-  editingSpellId = null;
-  await loadSpells();
-  setStatus(`Signed up and signed in as ${currentUserId}.`);
-}
-
-async function signin() {
-  const userId = parseRequiredIdentity(elements.signinUserIdInput?.value, 'Sign in User ID');
-  const characterId = normalizeIdentity(elements.characterIdInput?.value, currentCharacterId);
-
-  await submitAuth('api/auth/signin', { userId, characterId });
-  clearLocalPatches();
-  saveMode = 'remote';
-  editingSpellId = null;
-  await loadSpells();
-  setStatus(`Signed in as ${currentUserId}.`);
-}
-
-async function logout() {
-  const response = await fetch('api/auth/logout', { method: 'POST' });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(payload.error || `HTTP ${response.status}`);
-  }
-
-  authenticated = false;
-  currentUserId = null;
-  currentDisplayName = null;
-  currentCharacterId = defaultCharacterId;
-  if (elements.characterIdInput) elements.characterIdInput.value = currentCharacterId;
-  updateSessionSummary();
-  updatePrepareLink();
-  clearLocalPatches();
-  saveMode = 'remote';
-  editingSpellId = null;
-  await loadSpells();
-  setStatus('Signed out.');
 }
 
 async function switchCharacter() {
@@ -859,21 +767,6 @@ elements.tableBody.addEventListener('keydown', (event) => {
 elements.clearFilters.addEventListener('click', resetFilters);
 if (elements.resetLocalEdits) {
   elements.resetLocalEdits.addEventListener('click', resetLocalEdits);
-}
-if (elements.signupButton) {
-  elements.signupButton.addEventListener('click', () => {
-    void signup().catch((error) => setStatus(`Unable to sign up: ${error.message}`, true));
-  });
-}
-if (elements.signinButton) {
-  elements.signinButton.addEventListener('click', () => {
-    void signin().catch((error) => setStatus(`Unable to sign in: ${error.message}`, true));
-  });
-}
-if (elements.logoutButton) {
-  elements.logoutButton.addEventListener('click', () => {
-    void logout().catch((error) => setStatus(`Unable to sign out: ${error.message}`, true));
-  });
 }
 if (elements.switchCharacterButton) {
   elements.switchCharacterButton.addEventListener('click', () => {
