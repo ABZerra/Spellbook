@@ -74,6 +74,17 @@ For GitHub Pages, the app runs in static mode:
 - edit/save falls back to local browser draft storage
 - remote auth/session/pending-plan API features are unavailable
 
+## Render deployment (web service)
+
+Render must build the React frontend during deploy so `frontend/dist` exists. If it does not, the server falls back to the legacy `ui/` files.
+
+- Recommended: use `render.yaml` (Blueprint) in this repo.
+- Build command: `npm ci && npm run build:render`
+- Start command: `npm start`
+- Health check path: `/api/health`
+
+If you configure Render manually in the dashboard, use the same build/start commands above.
+
 ### Local Draft Mode (static preview safe)
 
 The UI now supports local draft persistence for edits when API writes are unavailable (for example, static hosting like GitHub Pages).

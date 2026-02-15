@@ -7,7 +7,9 @@
   "scripts": {
     "test": "node --test tests/*.test.js",
     "dev": "node scripts/serve-app.mjs",
+    "start": "node scripts/serve-app.mjs",
     "build:pages": "node scripts/build-gh-pages.mjs",
+    "build:render": "npm ci --prefix frontend --include=dev && npm run build:frontend",
     "dev:api": "node scripts/serve-app.mjs",
     "dev:frontend": "npm run dev --prefix frontend",
     "build:frontend": "npm run build --prefix frontend"
