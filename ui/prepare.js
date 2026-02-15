@@ -12,9 +12,6 @@ const elements = {
   removeSpellSelect: document.getElementById('removeSpellSelect'),
   replaceFromSelect: document.getElementById('replaceFromSelect'),
   replaceToSelect: document.getElementById('replaceToSelect'),
-  addSpellButton: document.getElementById('addSpellButton'),
-  removeSpellButton: document.getElementById('removeSpellButton'),
-  replaceSpellButton: document.getElementById('replaceSpellButton'),
   currentActiveList: document.getElementById('currentActiveList'),
   pendingAddedList: document.getElementById('pendingAddedList'),
   pendingRemovedList: document.getElementById('pendingRemovedList'),
@@ -287,6 +284,24 @@ function renderSimpleList(element, spellIds, emptyText) {
   element.innerHTML = sorted.map((spellId) => spellListItemMarkup(spellId)).join('');
 }
 
+function renderCompactPreviewList(element, spellIds, emptyText) {
+  if (spellIds.length === 0) {
+    element.innerHTML = `<li class="empty">${escapeHtml(emptyText)}</li>`;
+    return;
+  }
+
+  const sorted = sortSpellIds(spellIds, 'name');
+  element.innerHTML = sorted
+    .map((spellId) => {
+      const spell = findSpellById(spellId);
+      if (!spell) return `<li>${escapeHtml(spellId)}</li>`;
+      return `<li class="diff-chip">
+        <button type="button" class="link-button spell-link diff-chip-link" data-spell-id="${escapeHtml(spell.id)}">${escapeHtml(spellDisplay(spell))}</button>
+      </li>`;
+    })
+    .join('');
+}
+
 function renderPendingTypeList(element, type) {
   const entries = pendingChanges
     .map((change, index) => ({ change, index }))
@@ -303,10 +318,10 @@ function renderPendingTypeList(element, type) {
         const sourceSpell = findSpellById(change.spellId);
         const targetSpell = findSpellById(change.replacementSpellId);
         return `<li>
-          <span>
-            <button type="button" class="link-button spell-link" data-spell-id="${escapeHtml(change.spellId)}">${escapeHtml(spellDisplay(sourceSpell))}</button>
-            <span aria-hidden="true">-></span>
-            <button type="button" class="link-button spell-link" data-spell-id="${escapeHtml(change.replacementSpellId)}">${escapeHtml(spellDisplay(targetSpell))}</button>
+          <span class="swap-item">
+            <button type="button" class="link-button spell-link swap-link" data-spell-id="${escapeHtml(change.spellId)}">${escapeHtml(spellDisplay(sourceSpell))}</button>
+            <span class="swap-arrow" aria-hidden="true">→</span>
+            <button type="button" class="link-button spell-link swap-link" data-spell-id="${escapeHtml(change.replacementSpellId)}">${escapeHtml(spellDisplay(targetSpell))}</button>
           </span>
           <button type="button" class="link-button" data-action="remove-pending" data-index="${index}">Remove</button>
         </li>`;
@@ -406,10 +421,15 @@ function render() {
   renderPendingTypeList(elements.pendingReplacedList, 'replace');
 
   renderSimpleList(elements.previewList, planState.preview.nextPreparedSpellIds, 'No prepared spells in preview.');
-  renderSimpleList(elements.previewAddedList, planState.preview.summary.added, 'No added spells.');
-  renderSimpleList(elements.previewRemovedList, planState.preview.summary.removed, 'No removed spells.');
-
   const previewReplaced = planState.preview.summary.replaced;
+  const replacedFrom = new Set(previewReplaced.map((entry) => entry.from));
+  const replacedTo = new Set(previewReplaced.map((entry) => entry.to));
+  const standaloneAdded = planState.preview.summary.added.filter((spellId) => !replacedTo.has(spellId));
+  const standaloneRemoved = planState.preview.summary.removed.filter((spellId) => !replacedFrom.has(spellId));
+
+  renderCompactPreviewList(elements.previewAddedList, standaloneAdded, 'No standalone added spells.');
+  renderCompactPreviewList(elements.previewRemovedList, standaloneRemoved, 'No standalone removed spells.');
+
   if (previewReplaced.length === 0) {
     elements.previewReplacedList.innerHTML = '<li class="empty">No replaced spells.</li>';
   } else {
@@ -417,10 +437,10 @@ function render() {
       .map((entry) => {
         const fromSpell = findSpellById(entry.from);
         const toSpell = findSpellById(entry.to);
-        return `<li>
-          <button type="button" class="link-button spell-link" data-spell-id="${escapeHtml(entry.from)}">${escapeHtml(spellDisplay(fromSpell))}</button>
-          <span aria-hidden="true">-></span>
-          <button type="button" class="link-button spell-link" data-spell-id="${escapeHtml(entry.to)}">${escapeHtml(spellDisplay(toSpell))}</button>
+        return `<li class="swap-item">
+          <button type="button" class="link-button spell-link swap-link" data-spell-id="${escapeHtml(entry.from)}">${escapeHtml(spellDisplay(fromSpell))}</button>
+          <span class="swap-arrow" aria-hidden="true">→</span>
+          <button type="button" class="link-button spell-link swap-link" data-spell-id="${escapeHtml(entry.to)}">${escapeHtml(spellDisplay(toSpell))}</button>
         </li>`;
       })
       .join('');
@@ -801,37 +821,27 @@ async function loadSpells() {
   }
 }
 
-elements.addSpellButton.addEventListener('click', () => {
+elements.addSpellSelect.addEventListener('change', () => {
   const spellId = elements.addSpellSelect.value;
-  if (!spellId) {
-    setStatus('Choose a spell to add.', true);
-    return;
-  }
-
+  if (!spellId) return;
   queueChange({ type: 'add', spellId });
 });
 
-elements.removeSpellButton.addEventListener('click', () => {
+elements.removeSpellSelect.addEventListener('change', () => {
   const spellId = elements.removeSpellSelect.value;
-  if (!spellId) {
-    setStatus('Choose a spell to remove.', true);
-    return;
-  }
-
+  if (!spellId) return;
   queueChange({ type: 'remove', spellId });
 });
 
-elements.replaceSpellButton.addEventListener('click', () => {
+function queueReplaceIfComplete() {
   const spellId = elements.replaceFromSelect.value;
   const replacementSpellId = elements.replaceToSelect.value;
-
-  if (!spellId || !replacementSpellId) {
-    setStatus('Choose both source and replacement spells.', true);
-    return;
-  }
-
+  if (!spellId || !replacementSpellId) return;
   queueChange({ type: 'replace', spellId, replacementSpellId });
-});
+}
+
+elements.replaceFromSelect.addEventListener('change', queueReplaceIfComplete);
+elements.replaceToSelect.addEventListener('change', queueReplaceIfComplete);
 
 elements.currentSortSelect.addEventListener('change', () => {
   render();
