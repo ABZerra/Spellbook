@@ -16,6 +16,7 @@ rmSync(distDir, { recursive: true, force: true });
 mkdirSync(distDir, { recursive: true });
 
 try {
+  execSync('npm ci', { cwd: frontendDir, stdio: 'inherit' });
   execSync('npm run build', { cwd: frontendDir, stdio: 'inherit' });
 } catch (error) {
   console.error('Frontend build failed.');
