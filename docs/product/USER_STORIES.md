@@ -1,45 +1,31 @@
 # User Stories
 
-## Core Stories
+## Catalog Stories
+1. As a player, I want to filter spells by name/level/source/tags so I can quickly find relevant options.
+2. As a player, I want to sort spells by different keys so I can inspect my list from different perspectives.
+3. As a player, I want to edit spell metadata inline so I can keep the catalog accurate.
+4. As a player, I want to create and delete custom spells so my catalog matches my table rules.
 
-1. As a player, I want to filter spells by name/level/source/tags so I can quickly find relevant spells.
+## Preparation Stories
+5. As a player, I want to queue add/remove/replace changes so I can plan before committing.
+6. As a player, I want a preview list and diff so I can confirm outcomes before apply.
+7. As a player, I want to apply one pending change immediately so I can partially commit my queue.
+8. As a player, I want to apply the full plan in one action at long rest.
 
-2. As a player, I want to mark spells prepared/not prepared so my active list matches my intended loadout.
+## Identity and Multi-Device Stories
+9. As a returning player, I want to sign in and recover my prepared state on another device.
+10. As a player with multiple characters, I want to switch character context without data leakage.
+11. As a player, I want plan conflict handling so concurrent edits do not silently overwrite each other.
 
-3. As a player, I want to queue multiple prep changes before committing so I can plan safely.
-
-4. As a player, I want to see a preview of the resulting prepared list so I can verify outcomes before applying.
-
-5. As a player, I want to replace one spell with another in one action so long-rest changes are fast.
-
-6. As a player, I want to clear queued changes so I can restart planning without side effects.
-
-## Multi-Device and Team Stories
-
-7. As a returning user, I want to sign in and access my character state from another device.
-
-8. As a user with multiple characters, I want to switch character context and keep each character's prepared state isolated.
-
-9. As a group organizer, I want spell data sourced from Notion so catalog updates are shared.
+## Catalog Source Stories
+12. As a maintainer, I want to use Notion as the shared spell source of truth.
+13. As a maintainer, I want manual sync refresh so I can pull latest Notion updates on demand.
 
 ## Resilience Stories
+14. As a static-hosted user, I want local draft fallback when API writes are unavailable.
+15. As a user, I want pending draft persistence in browser storage when remote mode is disabled.
 
-10. As a user on static hosting, I want the app to stay usable without write APIs by saving drafts locally.
-
-11. As a user, I want conflicts handled when another session updated my pending plan so I do not overwrite newer data accidentally.
-
-## Admin/Operator Stories
-
-12. As a maintainer, I want to import spells from CSV so I can regenerate the JSON catalog.
-
-13. As a maintainer, I want a local dev command that serves UI + API together so testing flows is simple.
-
-14. As a maintainer, I want a static build pipeline for GitHub Pages so read-only distribution is easy.
-
-## Story Status (Current)
-
-- Implemented in code: 1-14
-- Partial:
-  - Story 9 is implemented with strict Notion schema expectations.
-- Missing UI surface:
-  - No explicit history browser for long-rest snapshots in remote mode.
+## Maintainer Stories
+16. As a maintainer, I want CSV import tooling to regenerate spell JSON.
+17. As a maintainer, I want a simple command to run UI+API locally.
+18. As a maintainer, I want automated tests for planner and adapters to prevent regressions.

@@ -1,45 +1,38 @@
 # Non-Functional Requirements
 
 ## Performance
-- Catalog filtering and sorting should feel immediate for the current spell set size.
-- Spell sync refresh should not block UI responsiveness.
-- Prepare page recalculations should complete on each queue change without noticeable lag.
+- Catalog filtering and sorting should remain responsive for current spell dataset sizes.
+- Prepare page queue/preview recalculation should complete quickly per interaction.
+- Notion sync refresh should not block normal read access when stale cache is available.
 
-**Assumption:** Current dataset is small enough for in-memory filtering/sorting in browser and server.
+**Assumption:** Current in-memory operations are sufficient for expected dataset size.
 
 ## Reliability
-- Pending plan validation must reject invalid/unknown spell changes.
-- Apply behavior must be deterministic: same active list + same change list => same result.
-- In remote mode, pending plan writes must use version checks to avoid silent overwrite.
+- Invalid planned changes must be rejected by validation.
+- Apply logic must be deterministic and consistent with preview output.
+- Remote pending-plan writes must use version checking to prevent blind overwrites.
 
 ## Data Integrity
-- Character-scoped remote state separation (`userId + characterId`) must be enforced.
-- Prepared spell IDs saved remotely must be constrained to known spell IDs.
-- Local JSON persistence writes should be atomic (temp file rename pattern).
+- Remote prepared spell IDs must be constrained to known spell IDs.
+- Character ownership must be enforced on remote reads/writes.
+- Local state and cache file writes should use atomic temp-file replacement patterns.
 
-## Availability
-- `GET /api/health` should report service and sync status.
-- If backend writes fail in static/unavailable modes, app should degrade to local draft behavior where enabled.
+## Availability and Resilience
+- Health endpoint should expose service and sync health metadata.
+- In Notion mode, stale cache should continue serving if refresh fails after initial success.
+- In static/unavailable API scenarios, browser local draft behavior should preserve edits and pending plans.
 
-## Security and Privacy
-- Session token cookie should be HTTP-only and scoped to app path.
-- Session expiration should be enforced server-side.
-- No password or MFA in current implementation.
+## Security
+- Session token cookie should be HTTP-only.
+- Sessions should expire based on TTL and be purged server-side.
+- Auth flow currently has no password/MFA.
 
-**Assumption:** Security model is acceptable for MVP/trusted environment, not hardened for public internet threat models.
+**Assumption:** Current auth model is acceptable for MVP/trusted usage, not for high-security production.
 
 ## Maintainability
-- Domain planner logic should remain framework-agnostic and test-covered.
-- Adapters (JSON/Notion/Postgres) should stay isolated from domain rules.
-- Environment variables should gate optional modes cleanly.
+- Domain planning logic should remain adapter-agnostic.
+- Storage/integration concerns should remain in adapters/services.
+- Mode-specific behavior should be feature-flagged via environment variables.
 
 ## Testability
-- Automated tests should continue covering:
-  - Planner logic
-  - Spell cache behavior
-  - Notion adapter mapping
-  - API behavior and state persistence
-
-## Portability
-- App should run on Node.js 20+.
-- Static bundle should run on GitHub Pages without server-side runtime.
+- Automated tests should continue covering planner validation/apply, spell cache behavior, Notion mapping, local state, and API flows.

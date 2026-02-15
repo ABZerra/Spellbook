@@ -1,58 +1,57 @@
 # Architecture
 
-## High-Level Overview
-Spellbook is a Node.js app with:
+## Overview
+Spellbook is a browser + Node.js application with a shared domain planner and pluggable persistence adapters.
+
+Primary runtime:
 - Browser UI (`ui/`)
-- HTTP app server (`scripts/serve-app.mjs`)
-- Pure planning domain (`src/domain/planner.js`)
-- Adapter layer for persistence and integrations (`src/adapters/`, `src/services/`)
+- HTTP server (`scripts/serve-app.mjs`)
+- Domain planner (`src/domain/planner.js`)
+- Adapter/services layer (`src/adapters/`, `src/services/`)
 
-A separate standalone API (`scripts/serve-spells-api.js`) exists for local file-based state workflows.
+Secondary runtime:
+- Standalone local file-state API (`scripts/serve-spells-api.js`)
 
-## Runtime Components
-- UI pages:
-  - Catalog: `ui/index.html` + `ui/app.js`
-  - Prepare: `ui/prepare.html` + `ui/prepare.js`
-- Main server:
-  - Serves static UI files
-  - Exposes `/api/*` for config, auth, spells, session, and pending plans
-- Spell repositories:
-  - JSON file repo
-  - Notion database repo
-- Cache service:
-  - In-memory spell snapshot
-  - Optional persisted cache file for Notion mode
-- Optional Postgres-backed remote state:
-  - users, sessions, characters, prepared lists, pending plans, snapshots
+## Layers
+1. Transport/UI Layer
+- Static page serving and `/api/*` routes
+- Browser interactions and state rendering
 
-## Layering
-- Domain layer:
-  - `applyPlan`, `validatePlan` (framework/storage agnostic)
-- Service layer:
-  - Pending plan workflows orchestrating repos
-  - Spell cache sync lifecycle
-- Adapter layer:
-  - JSON/Notion spell storage
-  - Postgres repos for auth, characters, plans, prepared lists, snapshots
-- Transport/UI layer:
-  - HTTP routes + browser rendering and interactions
+2. Domain Layer
+- `applyPlan`
+- `validatePlan`
 
-## Modes
-1. Local JSON mode (default)
-- Shared spell data from `data/spells.json`
-- No remote auth requirement
-- Browser local fallback drafts available
+3. Service Layer
+- Pending plan orchestration
+- Spell cache lifecycle
+
+4. Adapter Layer
+- JSON spell repository
+- Notion spell repository
+- Postgres repositories for auth, characters, prepared lists, pending plans, snapshots
+
+## Data Stores
+- JSON files:
+  - `data/spells.json`
+  - `data/local-state.json` (standalone API)
+  - optional `data/spells-cache.json` (Notion mode cache)
+- Postgres (optional remote mode)
+- Notion database (optional catalog backend)
+- Browser `localStorage` (draft fallback)
+
+## Runtime Modes
+1. Local JSON mode
+- Default backend uses local JSON spell file.
+- No remote auth required.
 
 2. Remote persistence mode
-- Enabled by `PERSIST_PENDING_PLAN_REMOTE=true`
-- Requires Postgres and authentication for protected operations
-- Prepared and pending state scoped by user + character
+- Enabled via `PERSIST_PENDING_PLAN_REMOTE=true`.
+- Uses Postgres schema and auth/session flow.
 
 3. Notion catalog mode
-- Enabled by `SPELLS_BACKEND=notion`
-- Spell catalog backed by Notion with periodic cache refresh
+- Enabled via `SPELLS_BACKEND=notion`.
+- Uses Notion as shared spell catalog source.
 
-4. Static GitHub Pages mode
-- Built assets in `dist/`
-- Read-only shared data from static `spells.json`
-- Browser local draft behavior for writes
+4. Static pages mode
+- Built artifacts in `dist/`.
+- Read-only shared data with local draft fallback.

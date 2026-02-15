@@ -9,37 +9,34 @@
 npm install
 ```
 
-## Run Tests
+## Test
 ```bash
 npm test
 ```
 
-## Run Main App (UI + API)
+## Run Integrated App (UI + API)
 ```bash
 npm run dev
 ```
 
-Default URL:
-- `http://localhost:3000`
+Default:
+- `http://localhost:3000/`
+- `http://localhost:3000/prepare`
 
-Pages:
-- `http://localhost:3000/` (Catalog)
-- `http://localhost:3000/prepare` (Prepare)
-
-## Run Standalone Spells API (Local File State)
+## Run Standalone Local API
 ```bash
 node scripts/serve-spells-api.js
 ```
 
-Default URL:
+Default:
 - `http://localhost:8787`
 
-## Rebuild Spell JSON from CSV
+## Rebuild Spell Catalog JSON from CSV
 ```bash
 node scripts/import-spells-csv.js Spells.csv data/spells.json
 ```
 
-## Build Static GitHub Pages Bundle
+## Build Static Bundle
 ```bash
 npm run build:pages
 ```

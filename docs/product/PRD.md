@@ -1,128 +1,105 @@
 # Product Requirements Document (PRD)
 
-## Product Name
+## Product
 Spellbook
 
 ## Product Summary
-Spellbook is a local-first spell preparation planner for tabletop RPG players. It helps users browse a spell catalog, manage prepared state, queue long-rest changes (add/remove/replace), preview outcomes, and apply plan changes.
+Spellbook is a spell preparation planner for long-rest workflows. It provides:
+- A spell catalog for browsing, filtering, editing, and prepared-state toggling.
+- A preparation planner for queuing `add`, `remove`, and `replace` actions.
+- A deterministic preview before apply.
+- Multiple runtime modes: local JSON, remote Postgres-backed persistence, Notion-backed spell catalog, and static GitHub Pages fallback.
 
-The product runs in multiple modes:
-- Local JSON mode (default)
-- Remote collaborative mode with auth + Postgres persistence
-- Notion-backed shared spell catalog mode
-- Static GitHub Pages mode with local browser drafts
-
-## Problem Statement
-Players and game sessions need a low-friction way to:
-- Track prepared spells
-- Plan changes before a long rest
-- Apply changes safely and predictably
-- Keep draft work when offline or when APIs are unavailable
-
-Without this tooling, prepared state and draft plans are tracked manually and are easy to lose or misapply.
+## Problem
+Players need a reliable way to plan and apply prepared spell changes without losing draft work across sessions/devices.
 
 ## Goals
-- Provide a fast spell catalog UI for filtering, sorting, and lightweight editing.
-- Provide a preparation workflow that separates draft planning from apply.
-- Preserve deterministic plan behavior between preview and apply.
-- Support local-only use and remote multi-device use with the same UI.
-- Support a shared spell source (Notion) for cross-user catalog updates.
+- Let users manage spell catalog state with low friction.
+- Let users stage prep changes safely before applying.
+- Keep plan outcomes deterministic between preview and apply.
+- Support both local-only and remote multi-device usage.
+- Support shared spell catalog updates through Notion.
 
 ## Non-Goals
-- Character sheets or full campaign management.
-- Rule enforcement beyond spell preparation transitions.
-- OAuth/social login or password-based auth.
-- Multi-tenant org administration.
+- Full character-sheet management.
+- Rule engine for all game mechanics.
+- Enterprise-grade identity and authorization.
+- Realtime collaborative editing UI.
 
 ## Personas
-1. Solo Player (Local)
-- Uses a single device.
-- Wants quick filtering and a reliable prep queue.
-- Accepts local browser/file persistence.
+1. Solo Local Player
+- Runs app locally.
+- Needs fast filtering and draft planning.
+- Accepts local persistence.
 
-2. Returning Player (Remote)
-- Uses multiple devices.
-- Wants sign-in and character-scoped prepared/draft state.
-- Needs safe conflict handling for concurrent draft changes.
+2. Multi-Device Player
+- Signs in and switches characters.
+- Needs persistent prepared state and pending plans across devices.
 
-3. Table Organizer / DM Ops
-- Maintains a shared spell catalog in Notion.
-- Wants changes reflected in the app with periodic sync and manual refresh.
+3. Catalog Maintainer
+- Uses Notion as shared spell source.
+- Needs sync + manual refresh for updates.
 
-## Key User Flows
-1. Browse and filter catalog
-- Open `/`.
-- Filter by name, level, source, tags.
-- Toggle prepared state or edit core fields.
+## Key Flows
+1. Catalog flow (`/`)
+- Load spells via `/api/spells`.
+- Filter and sort.
+- Edit spell fields inline.
+- Create or delete spells.
+- Toggle prepared state.
 
-2. Queue prep changes
-- Open `/prepare`.
-- Queue add/remove/replace from dropdowns.
-- Inspect current, pending, preview, and diff panels.
+2. Prepare flow (`/prepare`)
+- Queue changes via dropdowns.
+- See current active list, pending queue, and preview list.
+- See preview diff split into replaced/added/removed.
+- Apply full plan or apply/remove individual queued change.
 
-3. Apply long-rest plan
-- Click `Apply Plan`.
-- Preview result becomes active prepared state.
-- Pending queue clears.
-- In remote mode, snapshot is persisted in Postgres.
+3. Remote identity flow
+- Sign up/sign in (user ID based).
+- Character switching via session endpoint.
+- Prepared/pending state scoped by `user + character`.
 
-4. Remote identity and character switching
-- Sign up / sign in using `userId`.
-- Switch character using `characterId`.
-- Prepared list + pending plan scope updates to `user + character`.
+4. Fallback flow
+- If API unavailable, load static `spells.json`.
+- Persist draft changes locally in browser storage.
 
-5. Static fallback flow
-- If API unavailable (e.g., GitHub Pages), load `spells.json`.
-- Save edits and pending plans to browser `localStorage`.
-
-## Scope (Current, Code-Backed)
+## Current Scope
 ### In Scope
-- Two UI pages:
-  - Catalog (`/` -> `ui/index.html`)
-  - Prepare (`/prepare` -> `ui/prepare.html`)
-- Spell CRUD against `/api/spells` when writable backend is available
-- Plan queue and apply semantics via shared planner domain
-- Local draft fallback for catalog edits and pending plans
-- Optional remote mode with:
-  - Auth sessions via cookies
-  - Character ownership + scoped state
-  - Postgres-backed prepared lists and pending plans
-- Optional Notion spell repository with sync cache service
+- UI pages:
+  - Catalog: `ui/index.html`
+  - Prepare: `ui/prepare.html`
+- Planner domain logic in `src/domain/planner.js`
+- Main app server in `scripts/serve-app.mjs`
+- Optional remote pending-plan persistence and auth
+- Optional Notion spell backend and cache refresh
+- Standalone local API in `scripts/serve-spells-api.js`
 
-### Out of Scope (Current)
-- Passwords and account recovery
-- RBAC/permissions beyond character ownership checks
-- Historical timeline UI for remote snapshots
-- Realtime collaboration UI (polling/cache only)
+### Out of Scope
+- Password-based auth and account recovery
+- Remote snapshot/history UI
+- Rich role/permission model
 
 ## Success Metrics
-### Product Metrics
-- Plan completion rate: `% of sessions where queued plan is applied`.
-- Draft resilience rate: `% of failed writes that successfully fall back to local draft`.
-- Error-free apply rate: `% of apply operations without validation/runtime errors`.
+- Apply success rate (successful plan applies / apply attempts)
+- Draft durability rate (write failures that still preserve local draft)
+- Conflict recovery rate (409 conflicts resolved by reload/retry)
+- Catalog freshness in Notion mode (`syncMeta.stale=false` ratio)
 
-### Technical Proxy Metrics
-- `GET /api/health` availability
-- Spell sync freshness (`syncMeta.cacheUpdatedAt`, `syncMeta.stale`)
-- Pending plan conflict rate (`409` version conflict responses)
-
-**Assumption:** Metrics collection is not yet instrumented in code; these are recommended KPIs for future telemetry.
+**Assumption:** These metrics are defined as product targets; telemetry collection is not yet implemented.
 
 ## Risks
-- Mode complexity risk: behavior differs across local, remote, and static modes.
-- Data divergence risk: local draft patches can drift from remote source-of-truth.
-- Auth simplicity risk: user-id-only auth is low friction but weak security.
-- Notion schema drift risk: backend fails if required property types change.
-- Conflict UX risk: concurrent remote edits can cause frequent version conflicts.
+- Mode fragmentation: local, remote, Notion, and static behaviors differ.
+- Draft divergence: local patches can diverge from shared source.
+- Auth simplicity: user-ID-only auth has limited security guarantees.
+- Notion schema coupling: property-type drift breaks operations.
+- Concurrency friction: optimistic version conflicts in pending-plan writes.
 
 ## Open Questions
-- Should local draft patches be mergeable into remote after reconnect?
-- Should remote long-rest snapshots be exposed in UI?
-- Should auth move from user-id-only to email/OAuth/passwordless link?
-- Should prepared-state writes be batched for lower API roundtrips?
-- Should Notion sync support webhook-triggered refresh instead of interval polling?
+- Should remote long-rest snapshots be surfaced in UI?
+- Should local drafts support explicit reconcile/merge with remote data?
+- Should authentication be upgraded beyond user-id-only?
+- Should Notion sync move to event-based refresh?
 
 ## Assumptions
-- Spellbook targets DnD-style spell preparation workflows.
-- Default user journey is browser-first, not API-first.
-- GitHub Pages deployment is read-only for shared data by design.
+- Current priority is workflow reliability over enterprise security features.
+- Spellbook is intended for tabletop spell-preparation use cases similar to DnD-style preparation cycles.

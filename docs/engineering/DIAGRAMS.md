@@ -1,56 +1,62 @@
 # Diagrams
 
-## System Context
+## System View
 
 ```mermaid
 flowchart LR
-  U["User (Browser)"] --> UI["Spellbook UI\n(index + prepare)"]
-  UI --> APP["Node App Server\n/scripts/serve-app.mjs"]
-  APP --> DOMAIN["Planner Domain\nsrc/domain/planner.js"]
-  APP --> SPELLS["Spell Repo\nJSON or Notion"]
-  APP --> CACHE["Spell Cache Service"]
-  APP --> PG["Postgres (optional)"]
-  SPELLS --> JSON["data/spells.json"]
-  SPELLS --> NOTION["Notion API"]
+  U["User Browser"] --> UI["UI Pages\nindex + prepare"]
+  UI --> API["App Server\nscripts/serve-app.mjs"]
+  API --> DOMAIN["Planner Domain\nsrc/domain/planner.js"]
+  API --> REPO["Spell Repo\nJSON or Notion"]
+  API --> CACHE["Spell Cache Service"]
+  API --> PG["Postgres (optional)"]
+  REPO --> JSON["data/spells.json"]
+  REPO --> NOTION["Notion API"]
 ```
 
-## Main API Route Groups
+## Main App API Surface
 
 ```mermaid
 flowchart TB
-  A["/api/config + /api/health"] --> B["Mode + health metadata"]
-  C["/api/auth/*"] --> D["Session lifecycle"]
-  E["/api/session"] --> F["Character switching"]
-  G["/api/spells*"] --> H["Catalog read/write + sync"]
-  I["/api/characters/:id/pending-plan*"] --> J["Draft queue + apply"]
+  H["GET /api/health"]
+  C["GET /api/config"]
+  AUTH["/api/auth/*"]
+  SES["/api/session"]
+  SPELLS["/api/spells*"]
+  PLAN["/api/characters/:id/pending-plan*"]
 ```
 
-## Pending Plan Apply Flow (Remote)
+## Remote Pending Plan Lifecycle
 
 ```mermaid
 sequenceDiagram
   participant UI as Prepare UI
   participant API as App Server
-  participant SRV as Pending Plan Service
+  participant SVC as Pending Plan Service
   participant DB as Postgres
   participant DOM as Planner Domain
 
+  UI->>API: PUT /api/characters/{id}/pending-plan (version, changes)
+  API->>SVC: updatePendingPlanState(...)
+  SVC->>DB: replacePendingPlan (optimistic version)
+  SVC->>DB: getPreparedList
+  API-->>UI: plan + activeSpellIds
+
   UI->>API: POST /api/characters/{id}/pending-plan/apply
-  API->>SRV: applyPendingPlanState(characterId, knownSpellIds)
-  SRV->>DB: getPendingPlan + getPreparedList
-  SRV->>DOM: applyPlan(activeSpellIds, changes)
-  SRV->>DB: createLongRestSnapshot
-  SRV->>DB: replacePreparedList(nextActive)
-  SRV->>DB: clearPendingPlan
-  SRV-->>API: snapshot + cleared plan + active ids
-  API-->>UI: 200 response
+  API->>SVC: applyPendingPlanState(...)
+  SVC->>DB: getPendingPlan + getPreparedList
+  SVC->>DOM: applyPlan(active, changes)
+  SVC->>DB: createLongRestSnapshot
+  SVC->>DB: replacePreparedList
+  SVC->>DB: clearPendingPlan
+  API-->>UI: snapshot + cleared plan + activeSpellIds
 ```
 
-## Static Fallback Flow
+## Static Fallback Behavior
 
 ```mermaid
 flowchart LR
-  UI["Browser UI"] --> TRYAPI["Try /api/spells"]
-  TRYAPI -->|"fails"| STATIC["Load spells.json"]
-  STATIC --> LOCAL["Save drafts in localStorage"]
+  UI["UI"] --> TRY["Fetch /api/spells"]
+  TRY -->|"failure"| STATIC["Load spells.json"]
+  STATIC --> DRAFT["Persist edits/plans in localStorage"]
 ```

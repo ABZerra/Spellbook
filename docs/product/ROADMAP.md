@@ -1,31 +1,38 @@
 # Roadmap
 
-## Current State (Implemented)
-- Catalog + prepare workflows across local, remote, and static modes.
-- JSON and Notion spell backends.
-- Remote auth/session and character-scoped persistence.
-- Long-rest apply with remote snapshot persistence.
+## Current (Implemented)
+- End-to-end catalog and preparation workflows.
+- Local and remote persistence modes.
+- Notion-backed catalog mode with cache refresh.
+- Static deployment with local draft fallback.
 
-## Phase 1: Product Hardening
-- Add instrumentation for key success metrics (apply rate, conflict rate, fallback rate).
-- Improve error messaging consistency across modes.
-- Add richer loading and stale-cache indicators in UI.
+## Near Term
+1. Product telemetry
+- Add event instrumentation for apply, conflict, fallback, and sync health.
 
-## Phase 2: Collaboration and History
-- Add UI for viewing long-rest snapshot history.
-- Add explicit merge/reconcile flow for local drafts vs remote changes.
-- Add change attribution (who/when) in shared modes.
+2. UX hardening
+- Improve mode/state visibility in UI (remote vs local vs static).
+- Standardize error messages and recovery actions.
 
-## Phase 3: Security and Identity
-- Upgrade authentication beyond user-id-only sign-in.
-- Add account recovery/session management UX.
-- Add stronger cookie/session hardening settings and auditing.
+3. History visibility
+- Add UI for long-rest snapshot history persisted in remote mode.
 
-## Phase 4: Operational Maturity
-- Add deployment profiles for managed hosting (beyond local + GitHub Pages).
-- Add structured logs and health/alerting hooks.
-- Add migration and backup guidance for Postgres + Notion-backed operations.
+## Mid Term
+1. Sync and reconciliation
+- Add explicit reconciliation flow for local drafts against refreshed shared data.
+- Improve concurrent editing experience beyond simple conflict reload.
+
+2. Identity and security
+- Introduce stronger auth model (beyond user-id-only sign-in).
+- Add account/session management UX.
+
+## Longer Term
+1. Operational maturity
+- Add production deployment profile guidance beyond local/static modes.
+- Add observability conventions (logs, alerts, SLOs).
+
+2. Extensibility
+- Expand domain capabilities while preserving domain/adapter separation.
 
 ## Assumptions
-- Near-term roadmap prioritizes reliability and collaboration UX over feature breadth.
-- No mobile-native client is planned in the immediate phases.
+- Reliability and clarity improvements are prioritized over major feature expansion.

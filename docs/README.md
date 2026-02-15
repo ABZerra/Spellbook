@@ -1,8 +1,8 @@
 # Spellbook Documentation
 
-This documentation set describes the current product and engineering state of the Spellbook repository based on the implemented code.
+This documentation reflects the current behavior implemented in the repository.
 
-## Documentation Structure
+## Structure
 
 ### Product
 - [PRD](./product/PRD.md)
@@ -19,12 +19,12 @@ This documentation set describes the current product and engineering state of th
 - [Configuration](./engineering/CONFIGURATION.md)
 - [Deployment](./engineering/DEPLOYMENT.md)
 
-## Source-of-Truth Note
+## Scope Note
 
-These docs are derived from:
-- Runtime entrypoints in `scripts/`
-- UI pages in `ui/`
-- Domain and adapters in `src/`
-- Tests in `tests/`
+This set is grounded in code under:
+- `scripts/`
+- `src/`
+- `ui/`
+- `tests/`
 
-Where behavior is not explicitly enforced in code, it is labeled as **Assumption**.
+Any item not directly enforced by code is explicitly labeled as an **Assumption**.
