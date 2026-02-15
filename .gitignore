@@ -4,3 +4,4 @@ data/local-state.json
 data/spells-cache.json
 .env
 .env.*
+node_modules/

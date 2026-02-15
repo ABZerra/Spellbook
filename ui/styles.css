@@ -631,6 +631,23 @@ tbody tr:hover {
   background: #fffaf2;
 }
 
+.preview-diff-item {
+  align-items: center !important;
+}
+
+.preview-diff-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.preview-diff-actions {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
 .prep-footer-actions {
   display: flex;
   flex-wrap: wrap;
