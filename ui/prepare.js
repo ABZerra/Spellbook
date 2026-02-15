@@ -20,6 +20,7 @@ const elements = {
   previewList: document.getElementById('previewList'),
   previewAddedList: document.getElementById('previewAddedList'),
   previewRemovedList: document.getElementById('previewRemovedList'),
+  previewReplacedList: document.getElementById('previewReplacedList'),
   applyPlanButton: document.getElementById('applyPlanButton'),
   clearPendingButton: document.getElementById('clearPendingButton'),
   prepareStatusMessage: document.getElementById('prepareStatusMessage'),
