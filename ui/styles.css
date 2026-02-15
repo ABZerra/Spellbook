@@ -451,29 +451,13 @@ tbody tr:hover {
   grid-template-columns: 1fr 1fr auto;
 }
 
-.situational-actions {
-  border: 1px dashed #dfcfb1;
-  border-radius: 10px;
-  padding: 0.25rem 0.55rem 0.55rem;
-  background: #fffbf3;
-}
-
-.situational-actions summary {
-  cursor: pointer;
-  color: #74472a;
-  font-weight: 600;
-  font-size: 0.88rem;
-  padding: 0.2rem 0;
-}
-
 .situational-grid {
   display: grid;
   gap: 0.5rem;
-  margin-top: 0.35rem;
 }
 
 .action-row.compact {
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
 }
 
 .action-row label {
@@ -611,6 +595,23 @@ tbody tr:hover {
   border-radius: 8px;
   border: 1px solid #f0e2cc;
   background: #fffaf2;
+}
+
+.preview-diff-item {
+  align-items: center !important;
+}
+
+.preview-diff-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.preview-diff-actions {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
 }
 
 .prep-footer-actions {
