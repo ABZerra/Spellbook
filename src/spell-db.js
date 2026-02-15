@@ -1,7 +1,7 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
 
-const DEFAULT_DB_PATH = path.resolve(process.cwd(), 'data/spells.json');
+export const DEFAULT_DB_PATH = path.resolve(process.cwd(), 'data/spells.json');
 
 function normalizeText(value) {
   return String(value || '').trim().toLowerCase();
@@ -15,7 +15,7 @@ function parseListParam(value) {
     .filter(Boolean);
 }
 
-function loadDatabase(dbPath = DEFAULT_DB_PATH) {
+export function loadDatabase(dbPath = DEFAULT_DB_PATH) {
   const raw = fs.readFileSync(dbPath, 'utf8');
   const parsed = JSON.parse(raw);
 
@@ -26,7 +26,7 @@ function loadDatabase(dbPath = DEFAULT_DB_PATH) {
   return parsed;
 }
 
-function querySpells(spells, filters = {}) {
+export function querySpells(spells, filters = {}) {
   const name = normalizeText(filters.name);
   const source = parseListParam(filters.source).map(normalizeText);
   const tags = parseListParam(filters.tags).map(normalizeText);
@@ -67,9 +67,3 @@ function querySpells(spells, filters = {}) {
     return true;
   });
 }
-
-module.exports = {
-  DEFAULT_DB_PATH,
-  loadDatabase,
-  querySpells,
-};

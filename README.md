@@ -1,6 +1,6 @@
 # Spellbook
 
-Spellbook is a web-app project for planning and managing prepared spells between long rests.
+Spellbook is a local-first app for planning and managing prepared spells between long rests.
 
 ## Current setup
 
@@ -9,9 +9,10 @@ This repository currently provides:
 - Product docs (`docs/`)
 - A domain core for spell planning (`src/domain/`)
 - Automated tests (`tests/`)
-- Spell import tooling and a local JSON-backed query API
+- Spell import tooling
+- A local HTTP API for spell queries and single-character state management
 
-The domain core is intentionally framework-agnostic so we can plug it into a future API/UI stack.
+The domain core is intentionally framework-agnostic so it can be reused by other interfaces later.
 
 ## Quick start
 
@@ -133,11 +134,17 @@ node scripts/serve-spells-api.js
 Defaults:
 - `PORT=8787`
 - `SPELLS_DB=data/spells.json`
+- `SPELLBOOK_STATE=data/local-state.json`
 
 ### Endpoints
 
 - `GET /health`
 - `GET /spells`
+- `GET /state`
+- `PUT /plan`
+- `POST /plan/preview`
+- `POST /long-rest/apply`
+- `POST /state/reset`
 
 `/spells` query params:
 - `name` (substring, case-insensitive)
@@ -152,8 +159,24 @@ Example:
 curl "http://localhost:8787/spells?level=1&source=Druid&tags=Concentration"
 ```
 
-## Next implementation milestones
+`PUT /plan` JSON body:
 
-1. Build an HTTP API around the domain service.
-2. Add persistence (characters, plans, snapshots).
-3. Build the web UI for current list, planned list, and diff preview.
+```json
+{
+  "changes": [
+    { "type": "replace", "spellId": "sleep", "replacementSpellId": "shield" }
+  ]
+}
+```
+
+`POST /plan/preview` previews the current pending plan without mutating state.
+
+`POST /long-rest/apply` applies the current pending plan, clears it, and appends an immutable history snapshot.
+
+`POST /state/reset` resets local state to the default seed (all spells in the DB with `prepared: true`).
+
+## Data model constraints (MVP)
+
+- Single character only (`local-character`)
+- Single device local state file (`data/local-state.json`)
+- No auth/account/session/sync support
