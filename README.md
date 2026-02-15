@@ -11,6 +11,7 @@ This repository currently provides:
 - Automated tests (`tests/`)
 - Spell import tooling
 - A local HTTP API for spell queries and single-character state management
+- A local design artifact of the first frontend version at `docs/artifacts/frontend-v1-figma-export/` (gitignored)
 
 The domain core is intentionally framework-agnostic so it can be reused by other interfaces later.
 

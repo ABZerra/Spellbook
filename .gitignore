@@ -7,3 +7,4 @@ data/spells-cache.json
 node_modules/
 frontend/node_modules/
 frontend/dist/
+docs/artifacts/frontend-v1-figma-export/
