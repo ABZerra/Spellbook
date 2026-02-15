@@ -11,4 +11,6 @@ export const router = createBrowserRouter([
     path: '/prepare',
     Component: PreparePage,
   },
-]);
+], {
+  basename: import.meta.env.BASE_URL,
+});

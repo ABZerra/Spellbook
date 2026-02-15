@@ -3,7 +3,12 @@ import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 
+const base =
+  process.env.SPELLBOOK_BASE_PATH ||
+  (process.env.GITHUB_ACTIONS ? '/Spellbook/' : '/');
+
 export default defineConfig({
+  base,
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

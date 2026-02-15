@@ -34,5 +34,8 @@ cpSync(path.join(rootDir, 'src', 'domain', 'planner.js'), path.join(distDir, 'do
 
 cpSync(path.join(rootDir, 'data', 'spells.json'), path.join(distDir, 'spells.json'));
 writeFileSync(path.join(distDir, '.nojekyll'), '', 'utf8');
+if (existsSync(path.join(distDir, 'index.html'))) {
+  cpSync(path.join(distDir, 'index.html'), path.join(distDir, '404.html'));
+}
 
 console.log(`Built GitHub Pages bundle at ${distDir}`);
