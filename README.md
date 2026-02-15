@@ -37,6 +37,10 @@ The UI serves a local API under:
 - `GET /api/health`
 - `GET /api/config`
 - `GET /api/spells`
+- `POST /api/spells`
+- `PATCH /api/spells/:id`
+- `DELETE /api/spells/:id`
+- `POST /api/spells/sync`
 
 `/api/spells` supports the same query params as the standalone API:
 - `name`
@@ -91,6 +95,30 @@ When enabled, `/prepare` auto-saves each queued change to:
 - `POST /api/characters/:characterId/pending-plan/apply`
 
 Schema bootstrap SQL is available at `db/pending-plan-schema.sql` and is auto-applied at server startup in remote mode.
+
+### Notion spell backend (source of truth)
+
+Set `SPELLS_BACKEND=notion` to use a Notion database as the shared spell catalog.
+
+Required env vars:
+
+- `SPELLS_BACKEND=notion`
+- `NOTION_API_TOKEN=secret_...`
+- `NOTION_DATABASE_ID=...`
+
+Optional env vars:
+
+- `SPELLS_SYNC_INTERVAL_SECONDS=30`
+- `SPELLS_CACHE_PATH=data/spells-cache.json`
+
+Required Notion properties:
+
+- `Spell ID` (`rich_text` or `title`)
+- `Name` (`title` or `rich_text`)
+- `Level` (`number`)
+- `Source` (`multi_select` or `rich_text`)
+- `Tags` (`multi_select` or `rich_text`)
+- `Archived` (`checkbox`, optional but recommended for soft delete)
 
 ### Auth: Signup / Signin / Logout (no password)
 
