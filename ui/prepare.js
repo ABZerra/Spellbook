@@ -288,6 +288,27 @@ function setSelectOptions(select, spellOptions, placeholder, selectedValue = '')
   }
 }
 
+function getSummarySpellIds(summary, key) {
+  const values = summary && Array.isArray(summary[key]) ? summary[key] : [];
+  return values.filter((spellId) => typeof spellId === 'string' && spellId.length > 0);
+}
+
+function getSummaryReplacements(previewSummary) {
+  const summaryReplaced = previewSummary && Array.isArray(previewSummary.replaced) ? previewSummary.replaced : null;
+  if (summaryReplaced) {
+    return summaryReplaced.filter(
+      (entry) => entry && typeof entry.from === 'string' && entry.from && typeof entry.to === 'string' && entry.to,
+    );
+  }
+
+  // Backward-compatible fallback for older planner payloads that omit `summary.replaced`.
+  return pendingChanges
+    .filter(
+      (change) => change.type === 'replace' && typeof change.spellId === 'string' && typeof change.replacementSpellId === 'string',
+    )
+    .map((change) => ({ from: change.spellId, to: change.replacementSpellId }));
+}
+
 function getSortSelectForListElement(element) {
   if (element === elements.currentActiveList) return elements.currentSortSelect;
   if (element === elements.previewList) return elements.previewSortSelect;
@@ -544,11 +565,13 @@ function render() {
   renderPendingTypeList(elements.pendingReplacedList, 'replace');
 
   renderSimpleList(elements.previewList, planState.preview.nextPreparedSpellIds, 'No prepared spells in preview.');
-  const previewReplaced = planState.preview.summary.replaced;
+
+  const previewSummary = planState.preview.summary;
+  const previewReplaced = getSummaryReplacements(previewSummary);
   const replacedFrom = new Set(previewReplaced.map((entry) => entry.from));
   const replacedTo = new Set(previewReplaced.map((entry) => entry.to));
-  const standaloneAdded = planState.preview.summary.added.filter((spellId) => !replacedTo.has(spellId));
-  const standaloneRemoved = planState.preview.summary.removed.filter((spellId) => !replacedFrom.has(spellId));
+  const standaloneAdded = getSummarySpellIds(previewSummary, 'added').filter((spellId) => !replacedTo.has(spellId));
+  const standaloneRemoved = getSummarySpellIds(previewSummary, 'removed').filter((spellId) => !replacedFrom.has(spellId));
 
   renderCompactPreviewList(elements.previewAddedList, standaloneAdded, 'No standalone added spells.');
   renderCompactPreviewList(elements.previewRemovedList, standaloneRemoved, 'No standalone removed spells.');
