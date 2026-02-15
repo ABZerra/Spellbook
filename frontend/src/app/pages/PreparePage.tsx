@@ -8,13 +8,7 @@ import { SpellCard } from '../components/SpellCard';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
 export function PreparePage() {
   const {
@@ -39,7 +33,10 @@ export function PreparePage() {
 
   const currentPreparedIds = currentCharacter?.preparedSpellIds || [];
   const pendingActions = currentCharacter?.pendingActions || [];
-  const previewIds = useMemo(() => computePreview(currentPreparedIds, pendingActions), [currentPreparedIds, pendingActions]);
+  const previewIds = useMemo(
+    () => computePreview(currentPreparedIds, pendingActions),
+    [currentPreparedIds, pendingActions],
+  );
 
   const currentSpells = useMemo(
     () => spells.filter((spell) => currentPreparedIds.includes(spell.id)),
@@ -96,42 +93,33 @@ export function PreparePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      <header className="border-b border-gray-800 bg-gray-900 shadow-sm">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <Wand2 className="h-8 w-8 text-purple-400" />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-100">Preparation Planner</h1>
-                <p className="text-sm text-gray-400">Queue and apply long-rest changes</p>
-              </div>
+    <div className="min-h-screen bg-[#030814] text-gray-100">
+      <header className="border-b border-[#1b2a46] bg-[#07142d]">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <Wand2 className="h-8 w-8 text-violet-400" />
+            <div>
+              <h1 className="text-3xl font-bold">Preparation Planner</h1>
+              <p className="text-sm text-[#90a2c0]">Queue and apply long-rest changes</p>
             </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <CharacterSwitcher />
             <Link to="/">
-              <Button variant="outline">
+              <Button variant="outline" className="h-10 border-[#2c3f62] bg-[#101b31] text-gray-100 hover:bg-[#182743]">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Catalog
+                Catalog
               </Button>
             </Link>
           </div>
-          <CharacterSwitcher />
         </div>
       </header>
 
-      <div className="border-b border-gray-800 bg-gray-900">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-300">Current:</span>
-            <Badge variant="secondary">{currentSpells.length}</Badge>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-300">Pending:</span>
-            <Badge variant="outline">{pendingActions.length}</Badge>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-300">Preview:</span>
-            <Badge className="bg-green-600">{previewSpells.length}</Badge>
-          </div>
+      <section className="border-b border-[#1b2a46] bg-[#081734]">
+        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-4 px-6 py-3 text-sm">
+          <div className="flex items-center gap-2"><span>Current:</span><Badge className="bg-[#1b2740] text-gray-100">{currentSpells.length}</Badge></div>
+          <div className="flex items-center gap-2"><span>Pending:</span><Badge className="bg-[#1b2740] text-gray-100">{pendingActions.length}</Badge></div>
+          <div className="flex items-center gap-2"><span>Preview:</span><Badge className="bg-green-600 text-white">{previewSpells.length}</Badge></div>
           <div className="ml-auto flex items-center gap-2">
             <Badge variant={saveMode === 'remote' ? 'secondary' : 'outline'}>{saveMode === 'remote' ? 'Remote' : 'Local draft'}</Badge>
             <Button variant="outline" size="sm" onClick={() => void refreshNow()}>
@@ -140,134 +128,111 @@ export function PreparePage() {
             </Button>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="border-b border-gray-800 bg-gray-900">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:px-6 lg:px-8">
-          <h2 className="text-lg font-semibold text-gray-100">Queue Change</h2>
-          <div className="grid gap-3 md:grid-cols-4">
-            <div>
-              <Select value={actionType} onValueChange={(value) => setActionType(value as 'add' | 'remove' | 'replace')}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="add">Add spell</SelectItem>
-                  <SelectItem value="remove">Remove spell</SelectItem>
-                  <SelectItem value="replace">Replace spell</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <section className="border-b border-[#1b2a46] bg-[#081734]">
+        <div className="mx-auto grid max-w-[1500px] gap-3 px-6 py-4 md:grid-cols-4">
+          <Select value={actionType} onValueChange={(value) => setActionType(value as 'add' | 'remove' | 'replace')}>
+            <SelectTrigger className="h-10 border-[#2c3f62] bg-[#101b31]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="add">Add spell</SelectItem>
+              <SelectItem value="remove">Remove spell</SelectItem>
+              <SelectItem value="replace">Replace spell</SelectItem>
+            </SelectContent>
+          </Select>
 
-            <div>
-              <Select value={spellId} onValueChange={setSpellId}>
-                <SelectTrigger><SelectValue placeholder={actionType === 'remove' ? 'Spell to remove' : 'Spell'} /></SelectTrigger>
-                <SelectContent>
-                  {(actionType === 'remove' ? currentSpells : availableSpells).map((spell) => (
-                    <SelectItem key={spell.id} value={spell.id}>{spell.name} (Lvl {spell.level})</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <Select value={spellId} onValueChange={setSpellId}>
+            <SelectTrigger className="h-10 border-[#2c3f62] bg-[#101b31]"><SelectValue placeholder={actionType === 'remove' ? 'Spell to remove' : 'Spell'} /></SelectTrigger>
+            <SelectContent>
+              {(actionType === 'remove' ? currentSpells : availableSpells).map((spell) => (
+                <SelectItem key={spell.id} value={spell.id}>{spell.name} (Lvl {spell.level})</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-            <div>
-              {actionType === 'replace' ? (
-                <Select value={replacementSpellId} onValueChange={setReplacementSpellId}>
-                  <SelectTrigger><SelectValue placeholder="Replace prepared spell" /></SelectTrigger>
-                  <SelectContent>
-                    {currentSpells.map((spell) => (
-                      <SelectItem key={spell.id} value={spell.id}>{spell.name} (Lvl {spell.level})</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="h-10" />
-              )}
-            </div>
+          {actionType === 'replace' ? (
+            <Select value={replacementSpellId} onValueChange={setReplacementSpellId}>
+              <SelectTrigger className="h-10 border-[#2c3f62] bg-[#101b31]"><SelectValue placeholder="Replace prepared spell" /></SelectTrigger>
+              <SelectContent>
+                {currentSpells.map((spell) => (
+                  <SelectItem key={spell.id} value={spell.id}>{spell.name} (Lvl {spell.level})</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : <div />}
 
-            <div>
-              <Button className="w-full" disabled={busy} onClick={() => void handleQueueAction()}>
-                Queue
-              </Button>
-            </div>
-          </div>
-          {actionError && <p className="text-sm text-red-400">{actionError}</p>}
+          <Button className="h-10" disabled={busy} onClick={() => void handleQueueAction()}>Queue Change</Button>
         </div>
-      </div>
+        {actionError && <p className="mx-auto max-w-[1500px] px-6 pb-4 text-sm text-red-400">{actionError}</p>}
+      </section>
 
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-8 lg:grid-cols-3 sm:px-6 lg:px-8">
-        <Card>
+      <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 px-6 py-8 lg:grid-cols-3">
+        <Card className="border-[#24385b] bg-[#070b14]">
           <CardHeader>
-            <CardTitle>Current Prepared</CardTitle>
-            <CardDescription>{currentSpells.length} spells</CardDescription>
+            <CardTitle className="text-gray-100">Current Prepared</CardTitle>
+            <CardDescription>{currentSpells.length} spells currently prepared</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {currentSpells.length === 0 ? <p className="text-sm text-gray-400">No prepared spells.</p> : currentSpells.map((spell) => <SpellCard key={spell.id} spell={spell} compact showPrepared={false} />)}
+            {currentSpells.length === 0 ? <p className="py-8 text-sm text-gray-500">No prepared spells.</p> : currentSpells.map((spell) => <SpellCard key={spell.id} spell={spell} compact showPrepared={false} />)}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-[#24385b] bg-[#070b14]">
           <CardHeader>
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Pending Queue</CardTitle>
-                <CardDescription>{pendingActions.length} actions</CardDescription>
+                <CardTitle className="text-gray-100">Pending Queue</CardTitle>
+                <CardDescription>{pendingActions.length} actions queued</CardDescription>
               </div>
-              {pendingActions.length > 0 && (
-                <Button variant="ghost" size="sm" disabled={busy} onClick={() => void run(() => clearPendingActions())}>Clear</Button>
-              )}
+              {pendingActions.length > 0 && <Button variant="ghost" size="sm" disabled={busy} onClick={() => void run(() => clearPendingActions())}>Clear All</Button>}
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {pendingActions.length === 0 && <p className="text-sm text-gray-400">No pending actions.</p>}
+            {pendingActions.length === 0 && <p className="py-12 text-center text-sm text-[#6f7c96]">No pending actions</p>}
             {pendingActions.map((action) => {
               const spell = spellById.get(action.spellId);
               const replacement = action.replacementSpellId ? spellById.get(action.replacementSpellId) : null;
               return (
-                <div key={action.id} className="rounded-lg border border-gray-700 bg-gray-800/50 p-3 text-sm">
+                <div key={action.id} className="rounded-xl border border-[#2b3f63] bg-[#121b2d] p-3 text-sm">
                   <div className="mb-2 flex items-center justify-between gap-2">
-                    <Badge variant="outline">{action.type}</Badge>
-                    <Button variant="ghost" size="sm" disabled={busy} onClick={() => void run(() => removePendingAction(action.id))}>
-                      <X className="h-4 w-4" />
-                    </Button>
+                    <Badge className={action.type === 'add' ? 'bg-green-600 text-white' : action.type === 'remove' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'}>{action.type}</Badge>
+                    <Button variant="ghost" size="sm" disabled={busy} onClick={() => void run(() => removePendingAction(action.id))}><X className="h-4 w-4" /></Button>
                   </div>
-                  {action.type === 'replace' && replacement && (
-                    <p className="text-gray-400">{replacement.name} {'->'} {spell?.name || action.spellId}</p>
-                  )}
-                  {action.type !== 'replace' && <p className="text-gray-200">{spell?.name || action.spellId}</p>}
+                  {action.type === 'replace' && replacement && <p className="text-gray-300"><span className="line-through text-gray-500">{replacement.name}</span> {'->'} {spell?.name || action.spellId}</p>}
+                  {action.type !== 'replace' && <p className="text-gray-100">{spell?.name || action.spellId}</p>}
                 </div>
               );
             })}
             {pendingActions.length > 0 && (
-              <Button className="w-full" disabled={busy} onClick={() => void run(() => applyPendingActions())}>
-                <Check className="mr-2 h-4 w-4" />
-                Apply Plan
+              <Button className="w-full bg-white text-black hover:bg-gray-200" disabled={busy} onClick={() => void run(() => applyPendingActions())}>
+                <Check className="mr-2 h-4 w-4" />Apply Plan
               </Button>
             )}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-[#24385b] bg-[#070b14]">
           <CardHeader>
-            <CardTitle>Preview</CardTitle>
-            <CardDescription>{previewSpells.length} spells after apply</CardDescription>
+            <CardTitle className="text-gray-100">Preview</CardTitle>
+            <CardDescription>{previewSpells.length} spells after applying changes</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {pendingActions.length > 0 && (
-              <div className="rounded-lg border border-purple-700 bg-purple-500/10 p-3 text-sm">
-                {diff.replaced.length > 0 && (
-                  <p className="text-blue-300">Replaced: {diff.replaced.map((entry) => `${entry.oldSpell.name} -> ${entry.newSpell.name}`).join(', ')}</p>
-                )}
-                {diff.added.length > 0 && <p className="text-green-300">Added: {diff.added.map((entry) => entry.name).join(', ')}</p>}
-                {diff.removed.length > 0 && <p className="text-red-300">Removed: {diff.removed.map((entry) => entry.name).join(', ')}</p>}
+              <div className="rounded-xl border border-purple-700 bg-purple-500/10 p-3 text-sm">
+                <p className="mb-1 font-semibold text-purple-200">Changes Summary:</p>
+                {diff.replaced.length > 0 && <p className="text-blue-300">{diff.replaced.length} Replaced: {diff.replaced.map((entry) => `${entry.oldSpell.name} -> ${entry.newSpell.name}`).join(', ')}</p>}
+                {diff.added.length > 0 && <p className="text-green-300">{diff.added.length} Added: {diff.added.map((entry) => entry.name).join(', ')}</p>}
+                {diff.removed.length > 0 && <p className="text-red-300">{diff.removed.length} Removed: {diff.removed.map((entry) => entry.name).join(', ')}</p>}
               </div>
             )}
-            {previewSpells.length === 0 ? <p className="text-sm text-gray-400">No spells in preview.</p> : previewSpells.map((spell) => <SpellCard key={spell.id} spell={spell} compact showPrepared={false} />)}
+            {previewSpells.length === 0 ? <p className="py-8 text-sm text-gray-500">No spells in preview.</p> : previewSpells.map((spell) => <SpellCard key={spell.id} spell={spell} compact showPrepared={false} />)}
           </CardContent>
         </Card>
       </main>
 
-      {loading && <p className="px-4 pb-6 text-gray-400">Loading prepare state...</p>}
-      {!loading && error && <p className="px-4 pb-6 text-red-400">{error}</p>}
-      {mode.staticDataMode && <p className="px-4 pb-6 text-sm text-yellow-300">Static mode active: pending actions and prepared state are stored in browser storage.</p>}
+      {loading && <p className="px-6 pb-6 text-gray-400">Loading prepare state...</p>}
+      {!loading && error && <p className="px-6 pb-6 text-red-400">{error}</p>}
+      {mode.staticDataMode && <p className="px-6 pb-6 text-sm text-yellow-300">Static mode active: pending actions and prepared state are stored in browser storage.</p>}
     </div>
   );
 }

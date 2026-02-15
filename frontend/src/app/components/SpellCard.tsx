@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useApp, fromCsvInput, toCsvInput } from '../context/AppContext';
 import type { UiSpell } from '../types/spell';
 import { Badge } from './ui/badge';
@@ -16,6 +16,19 @@ interface SpellCardProps {
   compact?: boolean;
 }
 
+function schoolBadgeClass(school: string) {
+  const name = school.toLowerCase();
+  if (name === 'abjuration') return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+  if (name === 'evocation') return 'bg-red-500/20 text-red-300 border-red-500/30';
+  if (name === 'divination') return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+  if (name === 'enchantment') return 'bg-pink-500/20 text-pink-300 border-pink-500/30';
+  if (name === 'transmutation') return 'bg-green-500/20 text-green-300 border-green-500/30';
+  if (name === 'conjuration') return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
+  if (name === 'illusion') return 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30';
+  if (name === 'necromancy') return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
+  return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
+}
+
 export function SpellCard({ spell, showPrepared = true, compact = false }: SpellCardProps) {
   const { updateSpell, deleteSpell, togglePrepared, currentCharacter } = useApp();
   const [isEditing, setIsEditing] = useState(false);
@@ -24,6 +37,7 @@ export function SpellCard({ spell, showPrepared = true, compact = false }: Spell
   const [error, setError] = useState<string | null>(null);
 
   const isPrepared = currentCharacter?.preparedSpellIds.includes(spell.id) || false;
+  const sourceText = useMemo(() => spell.source.join(', '), [spell.source]);
 
   async function run(action: () => Promise<void>) {
     setBusy(true);
@@ -64,20 +78,31 @@ export function SpellCard({ spell, showPrepared = true, compact = false }: Spell
 
   if (compact) {
     return (
-      <div className="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800/50 p-3">
-        <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-3 rounded-xl border border-[#2b3f63] bg-[#131d30] p-3">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <p className="truncate font-medium text-gray-100">{spell.name}</p>
-            <Badge variant="secondary">Level {spell.level}</Badge>
-            {spell.school && <Badge variant="outline">{spell.school}</Badge>}
+            <p className="font-medium truncate text-gray-100">{spell.name}</p>
+            {spell.school && (
+              <Badge variant="outline" className={`border text-xs ${schoolBadgeClass(spell.school)}`}>
+                {spell.school}
+              </Badge>
+            )}
+            <Badge variant="secondary" className="bg-gray-700 text-xs text-gray-100">
+              Level {spell.level}
+            </Badge>
           </div>
         </div>
         {showPrepared && (
           <div className="flex items-center gap-2">
-            <Label htmlFor={`prepared-${spell.id}`} className="text-sm text-gray-400">
+            <Label htmlFor={`prepared-${spell.id}`} className="text-xs text-gray-300">
               Prepared
             </Label>
-            <Switch id={`prepared-${spell.id}`} checked={isPrepared} disabled={busy} onCheckedChange={() => void run(() => togglePrepared(spell.id))} />
+            <Switch
+              id={`prepared-${spell.id}`}
+              checked={isPrepared}
+              disabled={busy}
+              onCheckedChange={() => void run(() => togglePrepared(spell.id))}
+            />
           </div>
         )}
       </div>
@@ -85,26 +110,35 @@ export function SpellCard({ spell, showPrepared = true, compact = false }: Spell
   }
 
   return (
-    <Card className={isPrepared ? 'border-green-500/40 bg-green-500/10' : ''}>
-      <CardHeader>
+    <Card className={`border-[#24385b] bg-[#070b14] text-gray-100 shadow-sm ${isPrepared ? 'ring-1 ring-green-500/50' : ''}`}>
+      <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
             {isEditing ? (
-              <Input value={editedSpell.name} onChange={(event) => setEditedSpell({ ...editedSpell, name: event.target.value })} />
+              <Input
+                value={editedSpell.name}
+                onChange={(event) => setEditedSpell({ ...editedSpell, name: event.target.value })}
+              />
             ) : (
-              <CardTitle>{spell.name}</CardTitle>
+              <CardTitle className="text-xl font-semibold text-gray-100">{spell.name}</CardTitle>
             )}
-            <CardDescription className="mt-2 flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">Level {spell.level}</Badge>
-              {spell.school && <Badge variant="outline">{spell.school}</Badge>}
-              {spell.source.length > 0 && <span className="text-xs text-gray-400">{spell.source.join(', ')}</span>}
+            <CardDescription className="mt-3 flex flex-wrap items-center gap-2 text-gray-400">
+              {spell.school && (
+                <Badge variant="outline" className={`border text-xs ${schoolBadgeClass(spell.school)}`}>
+                  {spell.school}
+                </Badge>
+              )}
+              <Badge variant="secondary" className="bg-gray-700 text-xs text-gray-100">
+                Level {spell.level}
+              </Badge>
+              {sourceText && <span className="text-xs text-[#71809a]">{sourceText}</span>}
             </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             {!isEditing ? (
               <>
                 <Button variant="ghost" size="sm" disabled={busy} onClick={() => setIsEditing(true)}>
-                  <Pencil className="h-4 w-4" />
+                  <Pencil className="h-4 w-4 text-gray-200" />
                 </Button>
                 <Button variant="ghost" size="sm" disabled={busy} onClick={() => void run(() => deleteSpell(spell.id))}>
                   <Trash2 className="h-4 w-4 text-red-500" />
@@ -113,7 +147,7 @@ export function SpellCard({ spell, showPrepared = true, compact = false }: Spell
             ) : (
               <>
                 <Button variant="ghost" size="sm" disabled={busy} onClick={handleSave}>
-                  <Save className="h-4 w-4 text-green-500" />
+                  <Save className="h-4 w-4 text-green-400" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -124,55 +158,108 @@ export function SpellCard({ spell, showPrepared = true, compact = false }: Spell
                     setIsEditing(false);
                   }}
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 text-gray-300" />
                 </Button>
               </>
             )}
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4 pt-0">
         {isEditing ? (
           <>
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <Label>Source</Label>
-                <Input value={toCsvInput(editedSpell.source)} onChange={(event) => setEditedSpell({ ...editedSpell, source: fromCsvInput(event.target.value) })} />
+                <Input
+                  value={toCsvInput(editedSpell.source)}
+                  onChange={(event) =>
+                    setEditedSpell({ ...editedSpell, source: fromCsvInput(event.target.value) })
+                  }
+                />
               </div>
               <div>
                 <Label>Tags</Label>
-                <Input value={toCsvInput(editedSpell.tags)} onChange={(event) => setEditedSpell({ ...editedSpell, tags: fromCsvInput(event.target.value) })} />
+                <Input
+                  value={toCsvInput(editedSpell.tags)}
+                  onChange={(event) =>
+                    setEditedSpell({ ...editedSpell, tags: fromCsvInput(event.target.value) })
+                  }
+                />
               </div>
               <div>
                 <Label>Casting Time</Label>
-                <Input value={editedSpell.castingTime} onChange={(event) => setEditedSpell({ ...editedSpell, castingTime: event.target.value })} />
+                <Input
+                  value={editedSpell.castingTime}
+                  onChange={(event) =>
+                    setEditedSpell({ ...editedSpell, castingTime: event.target.value })
+                  }
+                />
               </div>
               <div>
                 <Label>Range</Label>
-                <Input value={editedSpell.range} onChange={(event) => setEditedSpell({ ...editedSpell, range: event.target.value })} />
+                <Input
+                  value={editedSpell.range}
+                  onChange={(event) => setEditedSpell({ ...editedSpell, range: event.target.value })}
+                />
               </div>
             </div>
             <div>
               <Label>Description</Label>
-              <Textarea rows={4} value={editedSpell.description} onChange={(event) => setEditedSpell({ ...editedSpell, description: event.target.value })} />
+              <Textarea
+                rows={4}
+                value={editedSpell.description}
+                onChange={(event) =>
+                  setEditedSpell({ ...editedSpell, description: event.target.value })
+                }
+              />
             </div>
           </>
         ) : (
           <>
-            {spell.description && <p className="text-sm text-gray-300">{spell.description}</p>}
-            <div className="grid gap-2 text-sm text-gray-400 md:grid-cols-2">
-              {spell.components && <p><span className="font-medium text-gray-300">Components:</span> {spell.components}</p>}
-              {spell.duration && <p><span className="font-medium text-gray-300">Duration:</span> {spell.duration}</p>}
-              {spell.castingTime && <p><span className="font-medium text-gray-300">Casting Time:</span> {spell.castingTime}</p>}
-              {spell.range && <p><span className="font-medium text-gray-300">Range:</span> {spell.range}</p>}
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+              {spell.castingTime && (
+                <p>
+                  <span className="font-semibold text-gray-100">Casting Time:</span>{' '}
+                  <span className="text-gray-200">{spell.castingTime}</span>
+                </p>
+              )}
+              {spell.range && (
+                <p>
+                  <span className="font-semibold text-gray-100">Range:</span>{' '}
+                  <span className="text-gray-200">{spell.range}</span>
+                </p>
+              )}
+              {spell.components && (
+                <p>
+                  <span className="font-semibold text-gray-100">Components:</span>{' '}
+                  <span className="text-gray-200">{spell.components}</span>
+                </p>
+              )}
+              {spell.duration && (
+                <p>
+                  <span className="font-semibold text-gray-100">Duration:</span>{' '}
+                  <span className="text-gray-200">{spell.duration}</span>
+                </p>
+              )}
             </div>
+            {spell.description && (
+              <p className="line-clamp-5 text-sm text-[#6f7c96]">{spell.description}</p>
+            )}
           </>
         )}
 
         {showPrepared && !isEditing && (
-          <div className="flex items-center gap-2 border-t border-gray-700 pt-3">
-            <Switch id={`prepared-full-${spell.id}`} checked={isPrepared} disabled={busy} onCheckedChange={() => void run(() => togglePrepared(spell.id))} />
-            <Label htmlFor={`prepared-full-${spell.id}`}>{isPrepared ? 'Prepared' : 'Not Prepared'}</Label>
+          <div className="flex items-center gap-2 border-t border-[#253752] pt-3">
+            <Switch
+              id={`prepared-full-${spell.id}`}
+              checked={isPrepared}
+              disabled={busy}
+              onCheckedChange={() => void run(() => togglePrepared(spell.id))}
+            />
+            <Label htmlFor={`prepared-full-${spell.id}`} className="text-gray-200">
+              {isPrepared ? 'Prepared' : 'Not Prepared'}
+            </Label>
           </div>
         )}
 
