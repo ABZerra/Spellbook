@@ -427,10 +427,17 @@ function render() {
   renderPendingTypeList(elements.pendingReplacedList, 'replace');
 
   renderSimpleList(elements.previewList, planState.preview.nextPreparedSpellIds, 'No prepared spells in preview.');
-  renderSimpleList(elements.previewAddedList, getSummarySpellIds(planState.preview.summary, 'added'), 'No added spells.');
-  renderSimpleList(elements.previewRemovedList, getSummarySpellIds(planState.preview.summary, 'removed'), 'No removed spells.');
 
-  const previewReplaced = getSummaryReplacements(planState.preview.summary);
+  const previewSummary = planState.preview.summary;
+  const previewReplaced = getSummaryReplacements(previewSummary);
+  const replacedFrom = new Set(previewReplaced.map((entry) => entry.from));
+  const replacedTo = new Set(previewReplaced.map((entry) => entry.to));
+  const standaloneAdded = getSummarySpellIds(previewSummary, 'added').filter((spellId) => !replacedTo.has(spellId));
+  const standaloneRemoved = getSummarySpellIds(previewSummary, 'removed').filter((spellId) => !replacedFrom.has(spellId));
+
+  renderSimpleList(elements.previewAddedList, standaloneAdded, 'No standalone added spells.');
+  renderSimpleList(elements.previewRemovedList, standaloneRemoved, 'No standalone removed spells.');
+
   if (previewReplaced.length === 0) {
     elements.previewReplacedList.innerHTML = '<li class="empty">No replaced spells.</li>';
   } else {
