@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Plus, RefreshCw, Search, Wand2 } from 'lucide-react';
+import { BookOpen, Plus, RefreshCw, Search, Wand2, X } from 'lucide-react';
 import { useApp, fromCsvInput } from '../context/AppContext';
 import { CharacterSwitcher } from '../components/CharacterSwitcher';
 import { SpellCard } from '../components/SpellCard';
+import { SpellDetailsPanel } from '../components/SpellDetailsPanel';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import {
@@ -35,6 +36,7 @@ export function CatalogPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [selectedSpellId, setSelectedSpellId] = useState<string | null>(null);
   const [draft, setDraft] = useState({
     id: '',
     name: '',
@@ -86,6 +88,20 @@ export function CatalogPage() {
   }, [levelFilter, nameFilter, preparedFilter, sourceFilter, sortKey, spells, tagsFilter]);
 
   const preparedCount = currentCharacter?.preparedSpellIds.length || 0;
+  const selectedSpell = useMemo(
+    () => (selectedSpellId ? filteredSpells.find((spell) => spell.id === selectedSpellId) || null : null),
+    [filteredSpells, selectedSpellId],
+  );
+
+  useEffect(() => {
+    if (!selectedSpellId) return;
+    if (filteredSpells.some((spell) => spell.id === selectedSpellId)) return;
+    setSelectedSpellId(null);
+  }, [filteredSpells, selectedSpellId]);
+
+  function handleInspectSpell(spellId: string) {
+    setSelectedSpellId((current) => (current === spellId ? null : spellId));
+  }
 
   async function handleCreateSpell() {
     setIsCreating(true);
@@ -257,14 +273,41 @@ export function CatalogPage() {
         {loading && <p className="text-gray-400">Loading spells...</p>}
         {!loading && error && <p className="text-red-400">{error}</p>}
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-          {filteredSpells.map((spell) => <SpellCard key={spell.id} spell={spell} />)}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          {filteredSpells.map((spell) => (
+            <SpellCard
+              key={spell.id}
+              spell={spell}
+              onInspect={(nextSpell) => handleInspectSpell(nextSpell.id)}
+              isSelected={spell.id === selectedSpell?.id}
+            />
+          ))}
         </div>
 
         {!loading && filteredSpells.length === 0 && <p className="mt-6 text-sm text-gray-400">No spells match the current filters.</p>}
 
         {mode.staticDataMode && <p className="mt-6 text-sm text-yellow-300">Static mode active: API unavailable, using local `spells.json` with browser draft persistence.</p>}
       </main>
+
+      <div
+        className={`fixed inset-0 z-40 bg-black/35 transition-opacity duration-300 ${selectedSpell ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
+        onClick={() => setSelectedSpellId(null)}
+      />
+      <aside
+        className={`fixed right-4 top-4 z-50 w-[calc(100%-2rem)] max-w-[420px] transform transition-transform duration-300 ${selectedSpell ? 'translate-x-0' : 'translate-x-[110%]'}`}
+      >
+        <div className="relative max-h-[calc(100vh-2rem)] overflow-y-auto rounded-2xl border border-[#2a4067] bg-[#050c1b] p-1 shadow-2xl">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute right-3 top-3 z-10"
+            onClick={() => setSelectedSpellId(null)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          <SpellDetailsPanel spell={selectedSpell || null} title="Catalog Details" />
+        </div>
+      </aside>
     </div>
   );
 }

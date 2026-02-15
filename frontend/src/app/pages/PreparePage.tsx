@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Check, RefreshCw, Wand2, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { computeDiff, computePreview } from '../domain/planner';
 import { CharacterSwitcher } from '../components/CharacterSwitcher';
 import { SpellCard } from '../components/SpellCard';
+import { SpellDetailsPanel } from '../components/SpellDetailsPanel';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
@@ -30,6 +31,7 @@ export function PreparePage() {
   const [replacementSpellId, setReplacementSpellId] = useState('');
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [selectedSpellId, setSelectedSpellId] = useState<string | null>(null);
 
   const currentPreparedIds = currentCharacter?.preparedSpellIds || [];
   const pendingActions = currentCharacter?.pendingActions || [];
@@ -58,6 +60,20 @@ export function PreparePage() {
   );
 
   const spellById = useMemo(() => new Map(spells.map((spell) => [spell.id, spell])), [spells]);
+  const selectedSpell = useMemo(
+    () => (selectedSpellId ? spellById.get(selectedSpellId) || null : null),
+    [selectedSpellId, spellById],
+  );
+
+  useEffect(() => {
+    if (!selectedSpellId) return;
+    if (spellById.has(selectedSpellId)) return;
+    setSelectedSpellId(null);
+  }, [selectedSpellId, spellById]);
+
+  function handleInspectSpell(spellId: string) {
+    setSelectedSpellId((current) => (current === spellId ? null : spellId));
+  }
 
   async function run(action: () => Promise<void>) {
     setBusy(true);
@@ -166,14 +182,27 @@ export function PreparePage() {
         {actionError && <p className="mx-auto max-w-[1500px] px-6 pb-4 text-sm text-red-400">{actionError}</p>}
       </section>
 
-      <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 px-6 py-8 lg:grid-cols-3">
+      <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 px-6 py-8 xl:grid-cols-3">
         <Card className="border-[#24385b] bg-[#070b14]">
           <CardHeader>
             <CardTitle className="text-gray-100">Current Prepared</CardTitle>
             <CardDescription>{currentSpells.length} spells currently prepared</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {currentSpells.length === 0 ? <p className="py-8 text-sm text-gray-500">No prepared spells.</p> : currentSpells.map((spell) => <SpellCard key={spell.id} spell={spell} compact showPrepared={false} />)}
+            {currentSpells.length === 0 ? (
+              <p className="py-8 text-sm text-gray-500">No prepared spells.</p>
+            ) : (
+              currentSpells.map((spell) => (
+                <SpellCard
+                  key={spell.id}
+                  spell={spell}
+                  compact
+                  showPrepared={false}
+                  onInspect={(nextSpell) => handleInspectSpell(nextSpell.id)}
+                  isSelected={spell.id === selectedSpell?.id}
+                />
+              ))
+            )}
           </CardContent>
         </Card>
 
@@ -225,10 +254,43 @@ export function PreparePage() {
                 {diff.removed.length > 0 && <p className="text-red-300">{diff.removed.length} Removed: {diff.removed.map((entry) => entry.name).join(', ')}</p>}
               </div>
             )}
-            {previewSpells.length === 0 ? <p className="py-8 text-sm text-gray-500">No spells in preview.</p> : previewSpells.map((spell) => <SpellCard key={spell.id} spell={spell} compact showPrepared={false} />)}
+            {previewSpells.length === 0 ? (
+              <p className="py-8 text-sm text-gray-500">No spells in preview.</p>
+            ) : (
+              previewSpells.map((spell) => (
+                <SpellCard
+                  key={spell.id}
+                  spell={spell}
+                  compact
+                  showPrepared={false}
+                  onInspect={(nextSpell) => handleInspectSpell(nextSpell.id)}
+                  isSelected={spell.id === selectedSpell?.id}
+                />
+              ))
+            )}
           </CardContent>
         </Card>
       </main>
+
+      <div
+        className={`fixed inset-0 z-40 bg-black/35 transition-opacity duration-300 ${selectedSpell ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
+        onClick={() => setSelectedSpellId(null)}
+      />
+      <aside
+        className={`fixed right-4 top-4 z-50 w-[calc(100%-2rem)] max-w-[420px] transform transition-transform duration-300 ${selectedSpell ? 'translate-x-0' : 'translate-x-[110%]'}`}
+      >
+        <div className="relative max-h-[calc(100vh-2rem)] overflow-y-auto rounded-2xl border border-[#2a4067] bg-[#050c1b] p-1 shadow-2xl">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute right-3 top-3 z-10"
+            onClick={() => setSelectedSpellId(null)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          <SpellDetailsPanel spell={selectedSpell || null} title="Prepare Details" />
+        </div>
+      </aside>
 
       {loading && <p className="px-6 pb-6 text-gray-400">Loading prepare state...</p>}
       {!loading && error && <p className="px-6 pb-6 text-red-400">{error}</p>}

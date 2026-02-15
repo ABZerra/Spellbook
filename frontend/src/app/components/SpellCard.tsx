@@ -14,6 +14,8 @@ interface SpellCardProps {
   spell: UiSpell;
   showPrepared?: boolean;
   compact?: boolean;
+  onInspect?: (spell: UiSpell) => void;
+  isSelected?: boolean;
 }
 
 function schoolBadgeClass(school: string) {
@@ -29,7 +31,13 @@ function schoolBadgeClass(school: string) {
   return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
 }
 
-export function SpellCard({ spell, showPrepared = true, compact = false }: SpellCardProps) {
+export function SpellCard({
+  spell,
+  showPrepared = true,
+  compact = false,
+  onInspect,
+  isSelected = false,
+}: SpellCardProps) {
   const { updateSpell, deleteSpell, togglePrepared, currentCharacter } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [editedSpell, setEditedSpell] = useState(spell);
@@ -38,6 +46,17 @@ export function SpellCard({ spell, showPrepared = true, compact = false }: Spell
 
   const isPrepared = currentCharacter?.preparedSpellIds.includes(spell.id) || false;
   const sourceText = useMemo(() => spell.source.join(', '), [spell.source]);
+
+  function shouldSkipInspect(target: EventTarget | null) {
+    if (!(target instanceof HTMLElement)) return false;
+    return Boolean(target.closest('button, a, input, textarea, select, label, [role="switch"], [data-no-inspect="true"]'));
+  }
+
+  function handleInspect(event: React.MouseEvent<HTMLElement>) {
+    if (!onInspect) return;
+    if (shouldSkipInspect(event.target)) return;
+    onInspect(spell);
+  }
 
   async function run(action: () => Promise<void>) {
     setBusy(true);
@@ -78,7 +97,10 @@ export function SpellCard({ spell, showPrepared = true, compact = false }: Spell
 
   if (compact) {
     return (
-      <div className="flex items-center gap-3 rounded-xl border border-[#2b3f63] bg-[#131d30] p-3">
+      <div
+        onClick={handleInspect}
+        className={`flex items-center gap-3 rounded-xl border p-3 ${isSelected ? 'border-cyan-400 bg-[#172440]' : 'border-[#2b3f63] bg-[#131d30]'} ${onInspect ? 'cursor-pointer' : ''}`}
+      >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="font-medium truncate text-gray-100">{spell.name}</p>
@@ -110,7 +132,10 @@ export function SpellCard({ spell, showPrepared = true, compact = false }: Spell
   }
 
   return (
-    <Card className={`border-[#24385b] bg-[#070b14] text-gray-100 shadow-sm ${isPrepared ? 'ring-1 ring-green-500/50' : ''}`}>
+    <Card
+      onClick={handleInspect}
+      className={`border-[#24385b] bg-[#070b14] text-gray-100 shadow-sm ${isPrepared ? 'ring-1 ring-green-500/50' : ''} ${isSelected ? 'ring-2 ring-cyan-400/80' : ''} ${onInspect ? 'cursor-pointer' : ''}`}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
