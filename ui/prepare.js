@@ -308,6 +308,15 @@ function renderSimpleList(element, spellIds, emptyText) {
   element.innerHTML = sorted.map((spellId) => spellListItemMarkup(spellId)).join('');
 }
 
+function renderPreviewSummaryList(element, spellIds, emptyText) {
+  if (typeof renderCompactPreviewList === 'function') {
+    renderCompactPreviewList(element, spellIds, emptyText);
+    return;
+  }
+
+  renderSimpleList(element, spellIds, emptyText);
+}
+
 function renderPendingTypeList(element, type) {
   const entries = pendingChanges
     .map((change, index) => ({ change, index }))
@@ -435,8 +444,8 @@ function render() {
   const standaloneAdded = getSummarySpellIds(previewSummary, 'added').filter((spellId) => !replacedTo.has(spellId));
   const standaloneRemoved = getSummarySpellIds(previewSummary, 'removed').filter((spellId) => !replacedFrom.has(spellId));
 
-  renderSimpleList(elements.previewAddedList, standaloneAdded, 'No standalone added spells.');
-  renderSimpleList(elements.previewRemovedList, standaloneRemoved, 'No standalone removed spells.');
+  renderPreviewSummaryList(elements.previewAddedList, standaloneAdded, 'No standalone added spells.');
+  renderPreviewSummaryList(elements.previewRemovedList, standaloneRemoved, 'No standalone removed spells.');
 
   if (previewReplaced.length === 0) {
     elements.previewReplacedList.innerHTML = '<li class="empty">No replaced spells.</li>';
