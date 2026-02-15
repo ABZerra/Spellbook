@@ -308,13 +308,22 @@ function renderSimpleList(element, spellIds, emptyText) {
   element.innerHTML = sorted.map((spellId) => spellListItemMarkup(spellId)).join('');
 }
 
-function renderPreviewSummaryList(element, spellIds, emptyText) {
-  if (typeof renderCompactPreviewList === 'function') {
-    renderCompactPreviewList(element, spellIds, emptyText);
+function renderCompactPreviewList(element, spellIds, emptyText) {
+  if (spellIds.length === 0) {
+    element.innerHTML = `<li class="empty">${escapeHtml(emptyText)}</li>`;
     return;
   }
 
-  renderSimpleList(element, spellIds, emptyText);
+  const sorted = sortSpellIds(spellIds, 'name');
+  element.innerHTML = sorted
+    .map((spellId) => {
+      const spell = findSpellById(spellId);
+      if (!spell) return `<li>${escapeHtml(spellId)}</li>`;
+      return `<li class="diff-chip">
+        <button type="button" class="link-button spell-link diff-chip-link" data-spell-id="${escapeHtml(spell.id)}">${escapeHtml(spellDisplay(spell))}</button>
+      </li>`;
+    })
+    .join('');
 }
 
 function renderPendingTypeList(element, type) {
@@ -444,8 +453,8 @@ function render() {
   const standaloneAdded = getSummarySpellIds(previewSummary, 'added').filter((spellId) => !replacedTo.has(spellId));
   const standaloneRemoved = getSummarySpellIds(previewSummary, 'removed').filter((spellId) => !replacedFrom.has(spellId));
 
-  renderPreviewSummaryList(elements.previewAddedList, standaloneAdded, 'No standalone added spells.');
-  renderPreviewSummaryList(elements.previewRemovedList, standaloneRemoved, 'No standalone removed spells.');
+  renderCompactPreviewList(elements.previewAddedList, standaloneAdded, 'No standalone added spells.');
+  renderCompactPreviewList(elements.previewRemovedList, standaloneRemoved, 'No standalone removed spells.');
 
   if (previewReplaced.length === 0) {
     elements.previewReplacedList.innerHTML = '<li class="empty">No replaced spells.</li>';
