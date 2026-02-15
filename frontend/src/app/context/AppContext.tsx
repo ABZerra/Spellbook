@@ -110,11 +110,29 @@ export function AppProvider({ children }: AppProviderProps) {
   const [pendingVersion, setPendingVersion] = useState(1);
 
   const loadConfig = useCallback(async (): Promise<ConfigResponse> => {
-    const response = await fetch('/api/config', { credentials: 'include' });
-    if (!response.ok) {
-      throw new Error('Failed to load configuration.');
+    let payload: ConfigResponse;
+    try {
+      const response = await fetch('/api/config', { credentials: 'include' });
+      if (!response.ok) {
+        throw new Error('Failed to load configuration.');
+      }
+      payload = (await response.json()) as ConfigResponse;
+    } catch {
+      const fallbackCharacterId = normalizeCharacterId(
+        localStorage.getItem(CHARACTER_KEY),
+        defaultCharacterId,
+      );
+      payload = {
+        remotePendingPlanEnabled: false,
+        defaultCharacterId,
+        characterId: fallbackCharacterId,
+        authenticated: false,
+        userId: null,
+        displayName: null,
+        spellsBackend: 'json',
+        allowLocalDraftEdits: true,
+      };
     }
-    const payload = (await response.json()) as ConfigResponse;
     setMode({
       remotePendingPlanEnabled: Boolean(payload.remotePendingPlanEnabled),
       spellsBackend: String(payload.spellsBackend || 'json'),
@@ -151,7 +169,7 @@ export function AppProvider({ children }: AppProviderProps) {
       // Fall through to static fallback.
     }
 
-    const staticResponse = await fetch('/spells.json', { cache: 'no-store' });
+    const staticResponse = await fetch(`${import.meta.env.BASE_URL}spells.json`, { cache: 'no-store' });
     if (!staticResponse.ok) {
       throw new Error('Unable to load spells from API or static fallback.');
     }
