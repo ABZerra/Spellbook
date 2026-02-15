@@ -25,38 +25,16 @@
         <p class="subtitle">Filter and browse your available spells before planning long-rest changes.</p>
       </header>
 
-      <section class="panel account-panel" aria-label="Authentication">
-        <div class="account-grid auth-grid">
-          <label>
-            Sign up User ID
-            <input id="signupUserIdInput" type="text" minlength="2" maxlength="64" pattern="[A-Za-z0-9_.-]{2,64}" placeholder="new-user" />
-          </label>
-          <label>
-            Display Name
-            <input id="signupDisplayNameInput" type="text" maxlength="80" placeholder="Optional display name" />
-          </label>
-          <button id="signupButton" type="button">Sign Up</button>
-        </div>
-        <div class="account-grid auth-grid">
-          <label>
-            Sign in User ID
-            <input id="signinUserIdInput" type="text" minlength="2" maxlength="64" pattern="[A-Za-z0-9_.-]{2,64}" placeholder="existing-user" />
-          </label>
+      <section class="panel account-panel" aria-label="Character">
+        <div class="account-grid account-switch-grid">
           <label>
             Character ID
             <input id="characterIdInput" type="text" minlength="2" maxlength="64" pattern="[A-Za-z0-9_.-]{2,64}" placeholder="default-character" />
           </label>
-          <div class="account-actions">
-            <button id="signinButton" type="button">Sign In</button>
-            <button id="logoutButton" type="button" class="secondary-button">Log Out</button>
-          </div>
-        </div>
-        <div class="account-grid account-switch-grid">
-          <div class="muted account-inline-note">Character applies to current signed-in user.</div>
           <div></div>
           <button id="switchCharacterButton" type="button" class="secondary-button">Switch Character</button>
         </div>
-        <p id="accountSessionSummary" class="muted account-summary">Not signed in.</p>
+        <p id="accountSessionSummary" class="muted account-summary">Local mode (no remote auth).</p>
       </section>
 
       <section class="panel controls" aria-label="Spell filters">

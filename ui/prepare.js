@@ -41,12 +41,6 @@ const elements = {
   spellDetailPreparation: document.getElementById('spellDetailPreparation'),
   spellDetailCombos: document.getElementById('spellDetailCombos'),
   spellDetailItems: document.getElementById('spellDetailItems'),
-  signupUserIdInput: document.getElementById('signupUserIdInput'),
-  signupDisplayNameInput: document.getElementById('signupDisplayNameInput'),
-  signupButton: document.getElementById('signupButton'),
-  signinUserIdInput: document.getElementById('signinUserIdInput'),
-  signinButton: document.getElementById('signinButton'),
-  logoutButton: document.getElementById('logoutButton'),
   characterIdInput: document.getElementById('characterIdInput'),
   switchCharacterButton: document.getElementById('switchCharacterButton'),
   accountSessionSummary: document.getElementById('accountSessionSummary'),
@@ -72,27 +66,14 @@ function normalizeIdentity(value, fallback) {
   return /^[A-Za-z0-9_.-]{2,64}$/.test(next) ? next : fallback;
 }
 
-function parseRequiredIdentity(value, fieldName) {
-  const next = String(value || '').trim();
-  if (!/^[A-Za-z0-9_.-]{2,64}$/.test(next)) {
-    throw new Error(`${fieldName} must use 2-64 chars: letters, numbers, dot, underscore, hyphen.`);
-  }
-  return next;
-}
-
 function getPendingPlanStorageKey() {
   const userKey = currentUserId || 'anonymous';
   return `${PENDING_PLAN_KEY_PREFIX}.${userKey}.${currentCharacterId}`;
 }
 
 function updateSessionSummary() {
-  if (elements.signupButton) elements.signupButton.disabled = !remotePendingPlanEnabled;
-  if (elements.signinButton) elements.signinButton.disabled = !remotePendingPlanEnabled;
   if (elements.switchCharacterButton) {
     elements.switchCharacterButton.disabled = remotePendingPlanEnabled && !authenticated;
-  }
-  if (elements.logoutButton) {
-    elements.logoutButton.disabled = remotePendingPlanEnabled && !authenticated;
   }
 
   if (!remotePendingPlanEnabled) {
@@ -454,85 +435,10 @@ async function fetchConfig() {
     currentCharacterId = normalizeIdentity(fromQuery, configCharacter);
 
     elements.characterIdInput.value = currentCharacterId;
-    if (elements.signinUserIdInput && currentUserId) {
-      elements.signinUserIdInput.value = currentUserId;
-    }
     updateSessionSummary();
   } catch {
     // Keep defaults.
   }
-}
-
-async function submitAuth(path, payload) {
-  const response = await fetch(path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(body.error || `HTTP ${response.status}`);
-  }
-
-  authenticated = true;
-  currentUserId = normalizeIdentity(body.userId, currentUserId);
-  currentDisplayName = body.displayName ? String(body.displayName) : currentUserId;
-  currentCharacterId = normalizeIdentity(body.characterId, currentCharacterId);
-  elements.characterIdInput.value = currentCharacterId;
-  if (elements.signinUserIdInput && currentUserId) {
-    elements.signinUserIdInput.value = currentUserId;
-  }
-  updateSessionSummary();
-
-  const nextUrl = new URL(window.location.href);
-  nextUrl.searchParams.set('characterId', currentCharacterId);
-  window.history.replaceState({}, '', nextUrl);
-}
-
-async function signup() {
-  const userId = parseRequiredIdentity(elements.signupUserIdInput?.value, 'Sign up User ID');
-  const displayName = String(elements.signupDisplayNameInput?.value || '').trim();
-  const characterId = normalizeIdentity(elements.characterIdInput?.value, currentCharacterId);
-
-  await submitAuth('api/auth/signup', { userId, displayName, characterId });
-  pendingChanges = [];
-  pendingPlanVersion = 1;
-  remoteActivePreparedSet = new Set();
-  await loadSpells();
-  setStatus(`Signed up and signed in as ${currentUserId}.`);
-}
-
-async function signin() {
-  const userId = parseRequiredIdentity(elements.signinUserIdInput?.value, 'Sign in User ID');
-  const characterId = normalizeIdentity(elements.characterIdInput?.value, currentCharacterId);
-
-  await submitAuth('api/auth/signin', { userId, characterId });
-  pendingChanges = [];
-  pendingPlanVersion = 1;
-  remoteActivePreparedSet = new Set();
-  await loadSpells();
-  setStatus(`Signed in as ${currentUserId}.`);
-}
-
-async function logout() {
-  const response = await fetch('api/auth/logout', { method: 'POST' });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(payload.error || `HTTP ${response.status}`);
-  }
-
-  authenticated = false;
-  currentUserId = null;
-  currentDisplayName = null;
-  currentCharacterId = defaultCharacterId;
-  elements.characterIdInput.value = currentCharacterId;
-  pendingChanges = [];
-  pendingPlanVersion = 1;
-  remoteActivePreparedSet = new Set();
-  updateSessionSummary();
-  await loadSpells();
-  setStatus('Signed out.');
 }
 
 async function switchCharacter() {
@@ -975,18 +881,6 @@ elements.clearPendingButton.addEventListener('click', () => {
 
 elements.applyPlanButton.addEventListener('click', () => {
   void applyPendingPlan();
-});
-
-elements.signupButton.addEventListener('click', () => {
-  void signup().catch((error) => setStatus(`Unable to sign up: ${error.message}`, true));
-});
-
-elements.signinButton.addEventListener('click', () => {
-  void signin().catch((error) => setStatus(`Unable to sign in: ${error.message}`, true));
-});
-
-elements.logoutButton.addEventListener('click', () => {
-  void logout().catch((error) => setStatus(`Unable to sign out: ${error.message}`, true));
 });
 
 elements.switchCharacterButton.addEventListener('click', () => {
