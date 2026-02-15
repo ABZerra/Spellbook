@@ -32,6 +32,18 @@ Pages:
 - `http://localhost:3000/` (spell catalog/editor)
 - `http://localhost:3000/prepare` (pending spell preparation planner)
 
+## Run new React frontend (with existing API)
+
+```bash
+# Terminal 1
+npm run dev:api
+
+# Terminal 2
+npm run dev:frontend
+```
+
+Then open `http://localhost:5173`.
+
 The UI serves a local API under:
 
 - `GET /api/health`

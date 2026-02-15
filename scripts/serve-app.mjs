@@ -32,7 +32,10 @@ import { createSpellCacheService } from '../src/services/spell-cache-service.js'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
-const uiDir = path.join(rootDir, 'ui');
+const legacyUiDir = path.join(rootDir, 'ui');
+const frontendDistDir = path.join(rootDir, 'frontend', 'dist');
+const useFrontendBuild = existsSync(path.join(frontendDistDir, 'index.html'));
+const uiDir = useFrontendBuild ? frontendDistDir : legacyUiDir;
 const dbPath = process.env.SPELLS_DB
   ? path.resolve(process.cwd(), process.env.SPELLS_DB)
   : path.join(rootDir, 'data', 'spells.json');
@@ -152,8 +155,12 @@ function normalizeSpellPatch(input) {
 
 function getStaticFilePath(urlPath) {
   let filePath = urlPath;
-  if (urlPath === '/') filePath = '/index.html';
-  if (urlPath === '/prepare') filePath = '/prepare.html';
+  if (useFrontendBuild) {
+    if (urlPath === '/' || urlPath === '/prepare') filePath = '/index.html';
+  } else {
+    if (urlPath === '/') filePath = '/index.html';
+    if (urlPath === '/prepare') filePath = '/prepare.html';
+  }
   const resolved = path.normalize(path.join(uiDir, filePath));
   if (!resolved.startsWith(uiDir)) return null;
   return resolved;
@@ -1002,6 +1009,7 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Spellbook UI listening on http://localhost:${port}`);
+    console.log(`Static frontend: ${useFrontendBuild ? 'frontend/dist' : 'ui'}`);
     if (spellsBackend === 'notion') {
       console.log(`Loaded spell database backend: notion (${notionDatabaseId})`);
       console.log(`Notion cache path: ${spellsCachePath}`);
