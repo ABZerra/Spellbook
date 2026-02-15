@@ -63,6 +63,14 @@ function getLocalPatchKey() {
   return `${LOCAL_PATCH_KEY_PREFIX}.${userKey}.${currentCharacterId}`;
 }
 
+function withCharacterApiPath(pathname) {
+  const url = new URL(pathname, window.location.origin);
+  if (currentCharacterId) {
+    url.searchParams.set('characterId', currentCharacterId);
+  }
+  return `${url.pathname}${url.search}`;
+}
+
 function updateSessionSummary() {
   if (!elements.accountSessionSummary) return;
   if (elements.switchCharacterButton) {
@@ -541,7 +549,7 @@ async function patchSpell(spellId, patch) {
   let response;
 
   try {
-    response = await fetch(`api/spells/${encodeURIComponent(spellId)}`, {
+    response = await fetch(withCharacterApiPath(`api/spells/${encodeURIComponent(spellId)}`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patch),
@@ -565,7 +573,7 @@ async function patchSpell(spellId, patch) {
 }
 
 async function createSpell(patch) {
-  const response = await fetch('api/spells', {
+  const response = await fetch(withCharacterApiPath('api/spells'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(patch),
@@ -580,7 +588,7 @@ async function createSpell(patch) {
 }
 
 async function deleteSpell(spellId) {
-  const response = await fetch(`api/spells/${encodeURIComponent(spellId)}`, {
+  const response = await fetch(withCharacterApiPath(`api/spells/${encodeURIComponent(spellId)}`), {
     method: 'DELETE',
   });
 
@@ -591,7 +599,7 @@ async function deleteSpell(spellId) {
 }
 
 async function refreshSpellsNow() {
-  const response = await fetch('api/spells/sync', {
+  const response = await fetch(withCharacterApiPath('api/spells/sync'), {
     method: 'POST',
   });
 
@@ -785,7 +793,7 @@ async function loadSpells() {
     let loadedSpells = [];
 
     try {
-      const response = await fetch('api/spells');
+      const response = await fetch(withCharacterApiPath('api/spells'));
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || `HTTP ${response.status}`);

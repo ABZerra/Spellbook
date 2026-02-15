@@ -49,6 +49,7 @@ const elements = {
   spellDetailPreparation: document.getElementById('spellDetailPreparation'),
   spellDetailCombos: document.getElementById('spellDetailCombos'),
   spellDetailItems: document.getElementById('spellDetailItems'),
+  catalogNavLink: document.getElementById('catalogNavLink'),
   characterIdInput: document.getElementById('characterIdInput'),
   switchCharacterButton: document.getElementById('switchCharacterButton'),
   accountSessionSummary: document.getElementById('accountSessionSummary'),
@@ -77,6 +78,19 @@ function normalizeIdentity(value, fallback) {
 function getPendingPlanStorageKey() {
   const userKey = currentUserId || 'anonymous';
   return `${PENDING_PLAN_KEY_PREFIX}.${userKey}.${currentCharacterId}`;
+}
+
+function withCharacterApiPath(pathname) {
+  const url = new URL(pathname, window.location.origin);
+  if (currentCharacterId) {
+    url.searchParams.set('characterId', currentCharacterId);
+  }
+  return `${url.pathname}${url.search}`;
+}
+
+function updateCatalogLink() {
+  if (!elements.catalogNavLink) return;
+  elements.catalogNavLink.href = `./index.html?characterId=${encodeURIComponent(currentCharacterId)}`;
 }
 
 function updateSessionSummary() {
@@ -456,6 +470,7 @@ async function fetchConfig() {
 
     elements.characterIdInput.value = currentCharacterId;
     updateSessionSummary();
+    updateCatalogLink();
   } catch {
     // Keep defaults.
   }
@@ -464,6 +479,10 @@ async function fetchConfig() {
 async function switchCharacter() {
   if (!remotePendingPlanEnabled) {
     currentCharacterId = normalizeIdentity(elements.characterIdInput.value, currentCharacterId);
+    updateCatalogLink();
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set('characterId', currentCharacterId);
+    window.history.replaceState({}, '', nextUrl);
     await loadSpells();
     return;
   }
@@ -489,6 +508,7 @@ async function switchCharacter() {
   currentCharacterId = normalizeIdentity(payload.characterId, currentCharacterId);
   elements.characterIdInput.value = currentCharacterId;
   updateSessionSummary();
+  updateCatalogLink();
 
   const nextUrl = new URL(window.location.href);
   nextUrl.searchParams.set('characterId', currentCharacterId);
@@ -609,7 +629,7 @@ function queueChange(change) {
 }
 
 async function patchPrepared(spellId, prepared) {
-  const response = await fetch(`api/spells/${encodeURIComponent(spellId)}`, {
+  const response = await fetch(withCharacterApiPath(`api/spells/${encodeURIComponent(spellId)}`), {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ prepared }),
@@ -712,7 +732,7 @@ async function loadSpells() {
     let loadedSpells = [];
 
     try {
-      const response = await fetch('api/spells');
+      const response = await fetch(withCharacterApiPath('api/spells'));
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || `HTTP ${response.status}`);
