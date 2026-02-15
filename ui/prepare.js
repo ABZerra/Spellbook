@@ -1,6 +1,7 @@
 import { applyPlan, validatePlan } from './domain/planner.js';
 
 const PENDING_PLAN_KEY_PREFIX = 'spellbook.pendingPlan.v1';
+const LOCAL_PREPARED_KEY_PREFIX = 'spellbook.localPrepared.v1';
 const STATIC_SPELLS_PATH = 'spells.json';
 let defaultCharacterId = 'default-character';
 
@@ -59,6 +60,7 @@ let authenticated = false;
 let currentUserId = null;
 let currentDisplayName = null;
 let remoteActivePreparedSet = new Set();
+let localActivePreparedSet = new Set();
 let staticDataMode = false;
 
 function normalizeIdentity(value, fallback) {
@@ -70,6 +72,11 @@ function normalizeIdentity(value, fallback) {
 function getPendingPlanStorageKey() {
   const userKey = currentUserId || 'anonymous';
   return `${PENDING_PLAN_KEY_PREFIX}.${userKey}.${currentCharacterId}`;
+}
+
+function getLocalPreparedStorageKey() {
+  const userKey = currentUserId || 'anonymous';
+  return `${LOCAL_PREPARED_KEY_PREFIX}.${userKey}.${currentCharacterId}`;
 }
 
 function withCharacterApiPath(pathname) {
@@ -145,12 +152,21 @@ function applyRemotePreparedState() {
   }
 }
 
+function applyLocalPreparedState() {
+  if (remotePendingPlanEnabled) return;
+
+  localActivePreparedSet = loadLocalPreparedSpellIds(spells.filter((spell) => spell.prepared).map((spell) => spell.id));
+  for (const spell of spells) {
+    spell.prepared = localActivePreparedSet.has(spell.id);
+  }
+}
+
 function getActiveSpellIds() {
   if (remotePendingPlanEnabled) {
     return [...remoteActivePreparedSet];
   }
 
-  return spells.filter((spell) => spell.prepared).map((spell) => spell.id);
+  return [...localActivePreparedSet];
 }
 
 function sanitizePendingChange(change) {
@@ -203,6 +219,36 @@ function clearPendingPlanFallback() {
     localStorage.removeItem(getPendingPlanStorageKey());
   } catch {
     // Ignore storage issues.
+  }
+}
+
+function loadLocalPreparedSpellIds(defaultSpellIds) {
+  try {
+    const raw = localStorage.getItem(getLocalPreparedStorageKey());
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return new Set(parsed.filter((spellId) => typeof spellId === 'string' && spellId));
+      }
+    }
+  } catch {
+    // Ignore parse/storage errors and fall back to defaults.
+  }
+
+  const seeded = new Set(defaultSpellIds.filter((spellId) => typeof spellId === 'string' && spellId));
+  try {
+    localStorage.setItem(getLocalPreparedStorageKey(), JSON.stringify([...seeded]));
+  } catch {
+    // Ignore storage errors.
+  }
+  return seeded;
+}
+
+function saveLocalPreparedSpellIds() {
+  try {
+    localStorage.setItem(getLocalPreparedStorageKey(), JSON.stringify([...localActivePreparedSet]));
+  } catch {
+    // Ignore storage errors.
   }
 }
 
@@ -608,20 +654,6 @@ function queueChange(change) {
   void persistPendingChanges(nextPending, 'Pending plan updated.');
 }
 
-async function patchPrepared(spellId, prepared) {
-  const response = await fetch(withCharacterApiPath(`api/spells/${encodeURIComponent(spellId)}`), {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prepared }),
-  });
-
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const message = payload.error || `HTTP ${response.status}`;
-    throw new Error(message);
-  }
-}
-
 async function applyPendingPlan() {
   if (isApplying) return;
 
@@ -653,48 +685,16 @@ async function applyPendingPlan() {
       return;
     }
 
-    const currentSet = new Set(planState.activeSpellIds);
     const nextSet = new Set(planState.preview.nextPreparedSpellIds);
-
-    const toPrepare = [...nextSet].filter((spellId) => !currentSet.has(spellId));
-    const toUnprepare = [...currentSet].filter((spellId) => !nextSet.has(spellId));
-
-    const patches = [...toPrepare.map((spellId) => ({ spellId, prepared: true })), ...toUnprepare.map((spellId) => ({
-      spellId,
-      prepared: false,
-    }))];
-
-    if (staticDataMode) {
-      const nextSetLookup = new Set(planState.preview.nextPreparedSpellIds);
-      for (const spell of spells) {
-        spell.prepared = nextSetLookup.has(spell.id);
-      }
-      pendingChanges = [];
-      clearPendingPlanFallback();
-      render();
-      setStatus('Plan applied locally in static mode.');
-      return;
+    localActivePreparedSet = nextSet;
+    saveLocalPreparedSpellIds();
+    for (const spell of spells) {
+      spell.prepared = localActivePreparedSet.has(spell.id);
     }
-
-    const failedSpellIds = [];
-
-    for (const patch of patches) {
-      try {
-        await patchPrepared(patch.spellId, patch.prepared);
-      } catch {
-        failedSpellIds.push(patch.spellId);
-      }
-    }
-
-    if (failedSpellIds.length > 0) {
-      setStatus(`Apply failed for ${failedSpellIds.length} spell(s): ${failedSpellIds.join(', ')}`, true);
-      return;
-    }
-
     pendingChanges = [];
     clearPendingPlanFallback();
-    await loadSpells();
-    setStatus('Plan applied successfully. Pending queue cleared.');
+    render();
+    setStatus(staticDataMode ? 'Plan applied locally in static mode.' : 'Plan applied locally. Pending queue cleared.');
   } catch (error) {
     setStatus(`Unable to apply plan: ${error.message}`, true);
   } finally {
@@ -742,6 +742,7 @@ async function loadSpells() {
     }
 
     applyRemotePreparedState();
+    applyLocalPreparedState();
 
     try {
       validatePlan(pendingChanges, getKnownSpellIds());
