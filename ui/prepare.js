@@ -1,6 +1,7 @@
-import { applyPlan, validatePlan } from '/domain/planner.js';
+import { applyPlan, validatePlan } from './domain/planner.js';
 
 const PENDING_PLAN_KEY_PREFIX = 'spellbook.pendingPlan.v1';
+const STATIC_SPELLS_PATH = 'spells.json';
 let defaultCharacterId = 'default-character';
 
 const elements = {
@@ -63,6 +64,7 @@ let authenticated = false;
 let currentUserId = null;
 let currentDisplayName = null;
 let remoteActivePreparedSet = new Set();
+let staticDataMode = false;
 
 function normalizeIdentity(value, fallback) {
   const next = String(value || '').trim();
@@ -437,7 +439,7 @@ function updateStateFromRemotePayload(payload) {
 
 async function fetchConfig() {
   try {
-    const response = await fetch('/api/config');
+    const response = await fetch('api/config');
     if (!response.ok) return;
 
     const payload = await response.json();
@@ -493,7 +495,7 @@ async function signup() {
   const displayName = String(elements.signupDisplayNameInput?.value || '').trim();
   const characterId = normalizeIdentity(elements.characterIdInput?.value, currentCharacterId);
 
-  await submitAuth('/api/auth/signup', { userId, displayName, characterId });
+  await submitAuth('api/auth/signup', { userId, displayName, characterId });
   pendingChanges = [];
   pendingPlanVersion = 1;
   remoteActivePreparedSet = new Set();
@@ -505,7 +507,7 @@ async function signin() {
   const userId = parseRequiredIdentity(elements.signinUserIdInput?.value, 'Sign in User ID');
   const characterId = normalizeIdentity(elements.characterIdInput?.value, currentCharacterId);
 
-  await submitAuth('/api/auth/signin', { userId, characterId });
+  await submitAuth('api/auth/signin', { userId, characterId });
   pendingChanges = [];
   pendingPlanVersion = 1;
   remoteActivePreparedSet = new Set();
@@ -514,7 +516,7 @@ async function signin() {
 }
 
 async function logout() {
-  const response = await fetch('/api/auth/logout', { method: 'POST' });
+  const response = await fetch('api/auth/logout', { method: 'POST' });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     throw new Error(payload.error || `HTTP ${response.status}`);
@@ -547,7 +549,7 @@ async function switchCharacter() {
   const characterId = normalizeIdentity(elements.characterIdInput.value, '');
   if (!characterId) throw new Error('Character ID is required.');
 
-  const response = await fetch('/api/session', {
+  const response = await fetch('api/session', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ characterId }),
@@ -574,7 +576,7 @@ async function switchCharacter() {
 }
 
 async function loadRemotePendingPlan() {
-  const response = await fetch(`/api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan`);
+  const response = await fetch(`api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan`);
   const payload = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -591,7 +593,7 @@ async function syncRemotePendingPlan(nextChanges, successMessage) {
   savePendingPlanFallback();
   render();
 
-  const response = await fetch(`/api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan`, {
+  const response = await fetch(`api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ version: expectedVersion, changes: nextChanges }),
@@ -681,7 +683,7 @@ function queueChange(change) {
 }
 
 async function patchPrepared(spellId, prepared) {
-  const response = await fetch(`/api/spells/${encodeURIComponent(spellId)}`, {
+  const response = await fetch(`api/spells/${encodeURIComponent(spellId)}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ prepared }),
@@ -710,7 +712,7 @@ async function applyPendingPlan() {
 
   try {
     if (remotePendingPlanEnabled) {
-      const response = await fetch(`/api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan/apply`, {
+      const response = await fetch(`api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan/apply`, {
         method: 'POST',
       });
 
@@ -731,10 +733,22 @@ async function applyPendingPlan() {
     const toPrepare = [...nextSet].filter((spellId) => !currentSet.has(spellId));
     const toUnprepare = [...currentSet].filter((spellId) => !nextSet.has(spellId));
 
-    const patches = [
-      ...toPrepare.map((spellId) => ({ spellId, prepared: true })),
-      ...toUnprepare.map((spellId) => ({ spellId, prepared: false })),
-    ];
+    const patches = [...toPrepare.map((spellId) => ({ spellId, prepared: true })), ...toUnprepare.map((spellId) => ({
+      spellId,
+      prepared: false,
+    }))];
+
+    if (staticDataMode) {
+      const nextSetLookup = new Set(planState.preview.nextPreparedSpellIds);
+      for (const spell of spells) {
+        spell.prepared = nextSetLookup.has(spell.id);
+      }
+      pendingChanges = [];
+      clearPendingPlanFallback();
+      render();
+      setStatus('Plan applied locally in static mode.');
+      return;
+    }
 
     const failedSpellIds = [];
 
@@ -768,14 +782,32 @@ async function loadSpells() {
   setStatus('Loading spells...');
 
   try {
-    const response = await fetch('/api/spells');
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      throw new Error(payload.error || `HTTP ${response.status}`);
+    let loadedFromStaticFile = false;
+    let loadedSpells = [];
+
+    try {
+      const response = await fetch('api/spells');
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || `HTTP ${response.status}`);
+      }
+
+      const payload = await response.json();
+      loadedSpells = Array.isArray(payload.spells) ? payload.spells : [];
+    } catch {
+      const staticResponse = await fetch(STATIC_SPELLS_PATH);
+      if (!staticResponse.ok) {
+        const payload = await staticResponse.json().catch(() => ({}));
+        throw new Error(payload.error || `HTTP ${staticResponse.status}`);
+      }
+
+      const payload = await staticResponse.json();
+      loadedSpells = Array.isArray(payload.spells) ? payload.spells : [];
+      loadedFromStaticFile = true;
     }
 
-    const payload = await response.json();
-    spells = Array.isArray(payload.spells) ? payload.spells : [];
+    staticDataMode = loadedFromStaticFile;
+    spells = loadedSpells;
 
     if (remotePendingPlanEnabled) {
       await loadRemotePendingPlan();
@@ -797,7 +829,9 @@ async function loadSpells() {
     if (!elements.prepareStatusMessage.classList.contains('error')) {
       const mode = remotePendingPlanEnabled
         ? `Remote draft (${currentUserId || 'anonymous'}/${currentCharacterId})`
-        : 'Local draft';
+        : staticDataMode
+          ? 'Static local draft'
+          : 'Local draft';
       setStatus(`Loaded ${spells.length} spells. ${mode}.`);
     }
   } catch (error) {
@@ -903,7 +937,7 @@ elements.clearPendingButton.addEventListener('click', () => {
     pendingChanges = [];
     render();
 
-    void fetch(`/api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan`, {
+    void fetch(`api/characters/${encodeURIComponent(currentCharacterId)}/pending-plan`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ version: expectedVersion }),

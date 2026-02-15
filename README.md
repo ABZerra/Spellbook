@@ -44,6 +44,19 @@ The UI serves a local API under:
 - `tags`
 - `prepared`
 
+## GitHub Pages deployment
+
+This repo is configured to deploy a static build to GitHub Pages via `.github/workflows/deploy-pages.yml`.
+
+- Build command: `npm run build:pages`
+- Output folder: `dist/`
+- Publish trigger: push to `main` or `github-pages`
+
+For GitHub Pages, the app runs in static mode:
+- spells are read from `spells.json`
+- edit/save falls back to local browser draft storage
+- remote auth/session/pending-plan API features are unavailable
+
 ### Local Draft Mode (static preview safe)
 
 The UI now supports local draft persistence for edits when API writes are unavailable (for example, static hosting like GitHub Pages).

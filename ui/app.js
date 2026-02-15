@@ -1,4 +1,5 @@
 const LOCAL_PATCH_KEY_PREFIX = 'spellbook.localPatches.v1';
+const STATIC_SPELLS_PATH = 'spells.json';
 let defaultCharacterId = 'default-character';
 
 const elements = {
@@ -26,7 +27,7 @@ const elements = {
   characterIdInput: document.getElementById('characterIdInput'),
   switchCharacterButton: document.getElementById('switchCharacterButton'),
   accountSessionSummary: document.getElementById('accountSessionSummary'),
-  prepareNavLink: document.querySelector('a[href="/prepare"]'),
+  prepareNavLink: document.getElementById('prepareNavLink'),
 };
 
 let baseSpells = [];
@@ -90,7 +91,7 @@ function updateSessionSummary() {
 
 function updatePrepareLink() {
   if (!elements.prepareNavLink) return;
-  elements.prepareNavLink.href = `/prepare?characterId=${encodeURIComponent(currentCharacterId)}`;
+  elements.prepareNavLink.href = `./prepare.html?characterId=${encodeURIComponent(currentCharacterId)}`;
 }
 
 function setStatus(message, isError = false) {
@@ -253,7 +254,7 @@ function clearLocalPatches() {
 
 async function fetchConfig() {
   try {
-    const response = await fetch('/api/config');
+    const response = await fetch('api/config');
     if (!response.ok) return;
 
     const payload = await response.json();
@@ -307,7 +308,7 @@ async function signup() {
   const displayName = String(elements.signupDisplayNameInput?.value || '').trim();
   const characterId = normalizeIdentity(elements.characterIdInput?.value, currentCharacterId);
 
-  await submitAuth('/api/auth/signup', { userId, displayName, characterId });
+  await submitAuth('api/auth/signup', { userId, displayName, characterId });
   clearLocalPatches();
   saveMode = 'remote';
   editingSpellId = null;
@@ -319,7 +320,7 @@ async function signin() {
   const userId = parseRequiredIdentity(elements.signinUserIdInput?.value, 'Sign in User ID');
   const characterId = normalizeIdentity(elements.characterIdInput?.value, currentCharacterId);
 
-  await submitAuth('/api/auth/signin', { userId, characterId });
+  await submitAuth('api/auth/signin', { userId, characterId });
   clearLocalPatches();
   saveMode = 'remote';
   editingSpellId = null;
@@ -328,7 +329,7 @@ async function signin() {
 }
 
 async function logout() {
-  const response = await fetch('/api/auth/logout', { method: 'POST' });
+  const response = await fetch('api/auth/logout', { method: 'POST' });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     throw new Error(payload.error || `HTTP ${response.status}`);
@@ -367,7 +368,7 @@ async function switchCharacter() {
   const characterId = normalizeIdentity(elements.characterIdInput?.value, '');
   if (!characterId) throw new Error('Character ID is required.');
 
-  const response = await fetch('/api/session', {
+  const response = await fetch('api/session', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ characterId }),
@@ -599,7 +600,7 @@ async function patchSpell(spellId, patch) {
   let response;
 
   try {
-    response = await fetch(`/api/spells/${encodeURIComponent(spellId)}`, {
+    response = await fetch(`api/spells/${encodeURIComponent(spellId)}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patch),
@@ -614,7 +615,7 @@ async function patchSpell(spellId, patch) {
   if (!response.ok) {
     const message = payload.error || `HTTP ${response.status}`;
     const wrapped = new Error(message);
-    wrapped.fallbackToLocal = response.status === 405;
+    wrapped.fallbackToLocal = response.status === 404 || response.status === 405 || response.status === 501;
     throw wrapped;
   }
 
@@ -734,19 +735,40 @@ function resetLocalEdits() {
 async function loadSpells() {
   try {
     setStatus('Loading spells...');
-    const response = await fetch('/api/spells');
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      throw new Error(payload.error || `HTTP ${response.status}`);
+    let loadedFromStaticFile = false;
+    let loadedSpells = [];
+
+    try {
+      const response = await fetch('api/spells');
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || `HTTP ${response.status}`);
+      }
+
+      const payload = await response.json();
+      loadedSpells = payload.spells || [];
+    } catch {
+      const staticResponse = await fetch(STATIC_SPELLS_PATH);
+      if (!staticResponse.ok) {
+        const payload = await staticResponse.json().catch(() => ({}));
+        throw new Error(payload.error || `HTTP ${staticResponse.status}`);
+      }
+
+      const payload = await staticResponse.json();
+      loadedSpells = payload.spells || [];
+      loadedFromStaticFile = true;
     }
 
-    const payload = await response.json();
-    baseSpells = payload.spells || [];
+    baseSpells = loadedSpells;
     localPatches = loadLocalPatches();
+    if (loadedFromStaticFile) saveMode = 'local-draft';
 
     refreshDerivedOptions();
     updateDraftUi();
     runFilters();
+    if (loadedFromStaticFile) {
+      setStatus(`Loaded ${baseSpells.length} spells in static mode.`);
+    }
   } catch (error) {
     elements.tableBody.innerHTML = '';
     if (remotePendingPlanEnabled && !authenticated) {

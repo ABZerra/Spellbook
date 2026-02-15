@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "dev": "node scripts/serve-app.mjs"
+    "dev": "node scripts/serve-app.mjs",
+    "build:pages": "node scripts/build-gh-pages.mjs"
   },
   "dependencies": {
     "pg": "^8.16.3"
