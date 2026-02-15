@@ -237,6 +237,27 @@ function setSelectOptions(select, spellOptions, placeholder) {
   select.innerHTML = options.join('');
 }
 
+function getSummarySpellIds(summary, key) {
+  const values = summary && Array.isArray(summary[key]) ? summary[key] : [];
+  return values.filter((spellId) => typeof spellId === 'string' && spellId.length > 0);
+}
+
+function getSummaryReplacements(previewSummary) {
+  const summaryReplaced = previewSummary && Array.isArray(previewSummary.replaced) ? previewSummary.replaced : null;
+  if (summaryReplaced) {
+    return summaryReplaced.filter(
+      (entry) => entry && typeof entry.from === 'string' && entry.from && typeof entry.to === 'string' && entry.to,
+    );
+  }
+
+  // Backward-compatible fallback for older planner payloads that omit `summary.replaced`.
+  return pendingChanges
+    .filter(
+      (change) => change.type === 'replace' && typeof change.spellId === 'string' && typeof change.replacementSpellId === 'string',
+    )
+    .map((change) => ({ from: change.spellId, to: change.replacementSpellId }));
+}
+
 function getSortSelectForListElement(element) {
   if (element === elements.currentActiveList) return elements.currentSortSelect;
   if (element === elements.previewList) return elements.previewSortSelect;
@@ -406,10 +427,10 @@ function render() {
   renderPendingTypeList(elements.pendingReplacedList, 'replace');
 
   renderSimpleList(elements.previewList, planState.preview.nextPreparedSpellIds, 'No prepared spells in preview.');
-  renderSimpleList(elements.previewAddedList, planState.preview.summary.added, 'No added spells.');
-  renderSimpleList(elements.previewRemovedList, planState.preview.summary.removed, 'No removed spells.');
+  renderSimpleList(elements.previewAddedList, getSummarySpellIds(planState.preview.summary, 'added'), 'No added spells.');
+  renderSimpleList(elements.previewRemovedList, getSummarySpellIds(planState.preview.summary, 'removed'), 'No removed spells.');
 
-  const previewReplaced = planState.preview.summary.replaced;
+  const previewReplaced = getSummaryReplacements(planState.preview.summary);
   if (previewReplaced.length === 0) {
     elements.previewReplacedList.innerHTML = '<li class="empty">No replaced spells.</li>';
   } else {
