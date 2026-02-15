@@ -35,8 +35,16 @@ const elements = {
   spellDetailLevel: document.getElementById('spellDetailLevel'),
   spellDetailSource: document.getElementById('spellDetailSource'),
   spellDetailTags: document.getElementById('spellDetailTags'),
-  spellDetailComponent: document.getElementById('spellDetailComponent'),
+  spellDetailDuration: document.getElementById('spellDetailDuration'),
+  spellDetailComponents: document.getElementById('spellDetailComponents'),
+  spellDetailSpellList: document.getElementById('spellDetailSpellList'),
+  spellDetailSchool: document.getElementById('spellDetailSchool'),
+  spellDetailRange: document.getElementById('spellDetailRange'),
+  spellDetailCastingTime: document.getElementById('spellDetailCastingTime'),
+  spellDetailSave: document.getElementById('spellDetailSave'),
+  spellDetailDamage: document.getElementById('spellDetailDamage'),
   spellDetailPrepared: document.getElementById('spellDetailPrepared'),
+  spellDetailDescription: document.getElementById('spellDetailDescription'),
   spellDetailNotes: document.getElementById('spellDetailNotes'),
   spellDetailPreparation: document.getElementById('spellDetailPreparation'),
   spellDetailCombos: document.getElementById('spellDetailCombos'),
@@ -313,8 +321,20 @@ function openSpellSidebar(spellId) {
   setDetailText(elements.spellDetailLevel, spell.level, '-');
   setDetailText(elements.spellDetailSource, sourceDisplay(spell), '-');
   setDetailText(elements.spellDetailTags, Array.isArray(spell.tags) && spell.tags.length > 0 ? spell.tags.join(', ') : '', 'None');
-  setDetailText(elements.spellDetailComponent, spell.component, 'None');
+  setDetailText(elements.spellDetailDuration, spell.duration, 'None');
+  setDetailText(elements.spellDetailComponents, spell.components ?? spell.component, 'None');
+  setDetailText(
+    elements.spellDetailSpellList,
+    Array.isArray(spell.spellList) && spell.spellList.length > 0 ? spell.spellList.join(', ') : '',
+    'None',
+  );
+  setDetailText(elements.spellDetailSchool, spell.school, 'None');
+  setDetailText(elements.spellDetailRange, spell.range, 'None');
+  setDetailText(elements.spellDetailCastingTime, spell.castingTime, 'None');
+  setDetailText(elements.spellDetailSave, spell.save, 'None');
+  setDetailText(elements.spellDetailDamage, spell.damage, 'None');
   setDetailText(elements.spellDetailPrepared, spell.prepared ? 'Yes' : 'No', 'No');
+  setDetailText(elements.spellDetailDescription, spell.description, 'No description.');
   setDetailText(elements.spellDetailNotes, spell.notes, 'No notes.');
   setDetailText(elements.spellDetailPreparation, spell.preparation, 'No preparation details.');
   setDetailText(elements.spellDetailCombos, spell.combos, 'No combo details.');

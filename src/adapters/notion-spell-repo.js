@@ -6,6 +6,19 @@ const DEFAULT_PROPERTY_MAP = {
   level: 'Level',
   source: 'Source',
   tags: 'Tags',
+  description: 'Description',
+  duration: 'Duration',
+  components: 'Components',
+  spellList: 'Spell List',
+  school: 'School',
+  range: 'Range',
+  castingTime: 'Casting Time',
+  save: 'Save',
+  damage: 'Damage',
+  notes: 'Notes',
+  preparation: 'Preparation',
+  combos: 'Combos',
+  items: '🎒 Items',
   archived: 'Archived',
 };
 
@@ -30,6 +43,24 @@ function getRichTextValue(prop) {
 
 function setAsRichText(content) {
   return [{ type: 'text', text: { content } }];
+}
+
+function getSingleSelectValue(prop) {
+  if (!prop) return '';
+  if (prop.type === 'select') {
+    return prop.select?.name ? String(prop.select.name) : '';
+  }
+  if (prop.select?.name) return String(prop.select.name);
+  return getRichTextValue(prop);
+}
+
+function getMultiValue(prop) {
+  if (!prop) return [];
+  if (Array.isArray(prop.multi_select)) {
+    return prop.multi_select.map((entry) => entry?.name).filter(Boolean);
+  }
+  if (prop.select?.name) return [String(prop.select.name)];
+  return asList(getRichTextValue(prop));
 }
 
 function coerceStatusError(message, statusCode = 400) {
@@ -92,21 +123,25 @@ export function createNotionSpellRepo({
     const levelProp = properties[propertyMap.level];
     const sourceProp = properties[propertyMap.source];
     const tagsProp = properties[propertyMap.tags];
+    const description = getRichTextValue(properties[propertyMap.description]) || null;
+    const duration = getSingleSelectValue(properties[propertyMap.duration]) || null;
+    const components = getRichTextValue(properties[propertyMap.components]) || null;
+    const spellList = getMultiValue(properties[propertyMap.spellList]);
+    const school = getSingleSelectValue(properties[propertyMap.school]) || null;
+    const range = getSingleSelectValue(properties[propertyMap.range]) || null;
+    const castingTime = getSingleSelectValue(properties[propertyMap.castingTime]) || null;
+    const save = getSingleSelectValue(properties[propertyMap.save]) || null;
+    const damage = getRichTextValue(properties[propertyMap.damage]) || null;
+    const notes = getRichTextValue(properties[propertyMap.notes]) || null;
+    const preparation = getRichTextValue(properties[propertyMap.preparation]) || null;
+    const combos = getRichTextValue(properties[propertyMap.combos]) || null;
+    const items = getRichTextValue(properties[propertyMap.items]) || null;
     const archivedProp = properties[propertyMap.archived];
 
     const level = Number(levelProp?.number ?? 0);
 
-    const source = Array.isArray(sourceProp?.multi_select)
-      ? (sourceProp.multi_select || []).map((entry) => entry.name).filter(Boolean)
-      : sourceProp?.select?.name
-        ? [String(sourceProp.select.name)]
-        : asList(getRichTextValue(sourceProp));
-
-    const tags = Array.isArray(tagsProp?.multi_select)
-      ? (tagsProp.multi_select || []).map((entry) => entry.name).filter(Boolean)
-      : tagsProp?.select?.name
-        ? [String(tagsProp.select.name)]
-        : asList(getRichTextValue(tagsProp));
+    const source = getMultiValue(sourceProp);
+    const tags = getMultiValue(tagsProp);
 
     const archived = Boolean(page.archived) || Boolean(archivedProp?.checkbox);
 
@@ -116,6 +151,20 @@ export function createNotionSpellRepo({
       level,
       source,
       tags,
+      description,
+      duration,
+      components,
+      component: components,
+      spellList,
+      school,
+      range,
+      castingTime,
+      save,
+      damage,
+      notes,
+      preparation,
+      combos,
+      items,
       prepared: false,
       archived,
       notionPageId: page.id,
@@ -128,6 +177,14 @@ export function createNotionSpellRepo({
 
   function validateSchemaShape(database) {
     const properties = database?.properties || {};
+    const ensureOptionalPropertyType = (propertyName, allowedTypes) => {
+      const property = properties[propertyName];
+      if (!property) return null;
+      if (!allowedTypes.includes(property.type)) {
+        throw new Error(`Notion property \`${propertyName}\` must be one of: ${allowedTypes.join(', ')}.`);
+      }
+      return property.type;
+    };
 
     const spellIdProp = properties[propertyMap.spellId];
     if (!spellIdProp || !['rich_text', 'title'].includes(spellIdProp.type)) {
@@ -165,9 +222,65 @@ export function createNotionSpellRepo({
         name: nameProp.type,
         source: sourceProp.type,
         tags: tagsProp.type,
+        description: ensureOptionalPropertyType(propertyMap.description, ['rich_text', 'title']),
+        duration: ensureOptionalPropertyType(propertyMap.duration, ['select', 'rich_text']),
+        components: ensureOptionalPropertyType(propertyMap.components, ['rich_text', 'title']),
+        spellList: ensureOptionalPropertyType(propertyMap.spellList, ['multi_select', 'select', 'rich_text']),
+        school: ensureOptionalPropertyType(propertyMap.school, ['select', 'rich_text']),
+        range: ensureOptionalPropertyType(propertyMap.range, ['select', 'rich_text']),
+        castingTime: ensureOptionalPropertyType(propertyMap.castingTime, ['select', 'rich_text']),
+        save: ensureOptionalPropertyType(propertyMap.save, ['select', 'rich_text']),
+        damage: ensureOptionalPropertyType(propertyMap.damage, ['rich_text', 'title']),
+        notes: ensureOptionalPropertyType(propertyMap.notes, ['rich_text', 'title']),
+        preparation: ensureOptionalPropertyType(propertyMap.preparation, ['rich_text', 'title']),
+        combos: ensureOptionalPropertyType(propertyMap.combos, ['rich_text', 'title']),
+        items: ensureOptionalPropertyType(propertyMap.items, ['rich_text', 'title']),
         archived: archivedProp?.type || null,
       },
     };
+  }
+
+function setOptionalRichTextProperty(properties, schema, schemaKey, propertyName, input, inputKey) {
+    if (!Object.prototype.hasOwnProperty.call(input, inputKey)) return;
+    if (!schema.propertyTypes[schemaKey]) {
+      throw coerceStatusError(`Notion property \`${propertyName}\` is not configured in this database.`, 400);
+    }
+  const value = String(input[inputKey] || '').trim();
+  if (schema.propertyTypes[schemaKey] === 'title') {
+    properties[propertyName] = { title: value ? setAsRichText(value) : [] };
+    return;
+  }
+  properties[propertyName] = { rich_text: value ? setAsRichText(value) : [] };
+}
+
+  function setOptionalSingleSelectProperty(properties, schema, schemaKey, propertyName, input, inputKey) {
+    if (!Object.prototype.hasOwnProperty.call(input, inputKey)) return;
+    if (!schema.propertyTypes[schemaKey]) {
+      throw coerceStatusError(`Notion property \`${propertyName}\` is not configured in this database.`, 400);
+    }
+    const value = String(input[inputKey] || '').trim();
+    if (schema.propertyTypes[schemaKey] === 'select') {
+      properties[propertyName] = { select: value ? { name: value } : null };
+      return;
+    }
+    properties[propertyName] = { rich_text: value ? setAsRichText(value) : [] };
+  }
+
+  function setOptionalMultiProperty(properties, schema, schemaKey, propertyName, input, inputKey) {
+    if (!Object.prototype.hasOwnProperty.call(input, inputKey)) return;
+    if (!schema.propertyTypes[schemaKey]) {
+      throw coerceStatusError(`Notion property \`${propertyName}\` is not configured in this database.`, 400);
+    }
+    const value = asList(input[inputKey]);
+    if (schema.propertyTypes[schemaKey] === 'multi_select') {
+      properties[propertyName] = { multi_select: value.map((name) => ({ name })) };
+      return;
+    }
+    if (schema.propertyTypes[schemaKey] === 'select') {
+      properties[propertyName] = { select: value.length > 0 ? { name: value[0] } : null };
+      return;
+    }
+    properties[propertyName] = { rich_text: value.length > 0 ? setAsRichText(value.join(', ')) : [] };
   }
 
   function buildWritePropertyPayload(schema, input, { includeId = false } = {}) {
@@ -220,6 +333,20 @@ export function createNotionSpellRepo({
         properties[propertyMap.tags] = { rich_text: setAsRichText(tags.join(', ')) };
       }
     }
+
+    setOptionalRichTextProperty(properties, schema, 'description', propertyMap.description, input, 'description');
+    setOptionalSingleSelectProperty(properties, schema, 'duration', propertyMap.duration, input, 'duration');
+    setOptionalRichTextProperty(properties, schema, 'components', propertyMap.components, input, 'components');
+    setOptionalMultiProperty(properties, schema, 'spellList', propertyMap.spellList, input, 'spellList');
+    setOptionalSingleSelectProperty(properties, schema, 'school', propertyMap.school, input, 'school');
+    setOptionalSingleSelectProperty(properties, schema, 'range', propertyMap.range, input, 'range');
+    setOptionalSingleSelectProperty(properties, schema, 'castingTime', propertyMap.castingTime, input, 'castingTime');
+    setOptionalSingleSelectProperty(properties, schema, 'save', propertyMap.save, input, 'save');
+    setOptionalRichTextProperty(properties, schema, 'damage', propertyMap.damage, input, 'damage');
+    setOptionalRichTextProperty(properties, schema, 'notes', propertyMap.notes, input, 'notes');
+    setOptionalRichTextProperty(properties, schema, 'preparation', propertyMap.preparation, input, 'preparation');
+    setOptionalRichTextProperty(properties, schema, 'combos', propertyMap.combos, input, 'combos');
+    setOptionalRichTextProperty(properties, schema, 'items', propertyMap.items, input, 'items');
 
     return properties;
   }

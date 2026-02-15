@@ -85,6 +85,11 @@ function parseCsvList(value) {
     .filter(Boolean);
 }
 
+function normalizeOptionalText(value) {
+  const next = String(value ?? '').trim();
+  return next ? next : null;
+}
+
 function normalizeSpellPatch(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     throw new Error('Payload must be a JSON object.');
@@ -92,6 +97,12 @@ function normalizeSpellPatch(input) {
 
   const hasOwn = (key) => Object.prototype.hasOwnProperty.call(input, key);
   const patch = {};
+
+  if (hasOwn('id')) {
+    const id = String(input.id || '').trim();
+    if (!id) throw new Error('`id` is required.');
+    patch.id = id;
+  }
 
   if (hasOwn('name')) {
     const name = String(input.name || '').trim();
@@ -118,6 +129,23 @@ function normalizeSpellPatch(input) {
   if (hasOwn('prepared')) {
     patch.prepared = Boolean(input.prepared);
   }
+
+  if (hasOwn('description')) patch.description = normalizeOptionalText(input.description);
+  if (hasOwn('duration')) patch.duration = normalizeOptionalText(input.duration);
+  if (hasOwn('components')) patch.components = normalizeOptionalText(input.components);
+  if (hasOwn('spellList')) {
+    const spellList = Array.isArray(input.spellList) ? input.spellList : parseCsvList(input.spellList);
+    patch.spellList = spellList.map((entry) => String(entry).trim()).filter(Boolean);
+  }
+  if (hasOwn('school')) patch.school = normalizeOptionalText(input.school);
+  if (hasOwn('range')) patch.range = normalizeOptionalText(input.range);
+  if (hasOwn('castingTime')) patch.castingTime = normalizeOptionalText(input.castingTime);
+  if (hasOwn('save')) patch.save = normalizeOptionalText(input.save);
+  if (hasOwn('damage')) patch.damage = normalizeOptionalText(input.damage);
+  if (hasOwn('notes')) patch.notes = normalizeOptionalText(input.notes);
+  if (hasOwn('preparation')) patch.preparation = normalizeOptionalText(input.preparation);
+  if (hasOwn('combos')) patch.combos = normalizeOptionalText(input.combos);
+  if (hasOwn('items')) patch.items = normalizeOptionalText(input.items);
 
   return patch;
 }
@@ -810,6 +838,22 @@ const server = http.createServer(async (req, res) => {
 
       const hasSharedFields = ['id', 'name', 'level', 'source', 'tags'].some((field) =>
         Object.prototype.hasOwnProperty.call(patch, field),
+      ) || [
+        'description',
+        'duration',
+        'components',
+        'spellList',
+        'school',
+        'range',
+        'castingTime',
+        'save',
+        'damage',
+        'notes',
+        'preparation',
+        'combos',
+        'items',
+      ].some((field) =>
+        Object.prototype.hasOwnProperty.call(patch, field),
       );
       if (!hasSharedFields) {
         return sendJson(res, 400, { error: 'Payload must include shared spell fields.' });
@@ -821,6 +865,19 @@ const server = http.createServer(async (req, res) => {
         level: patch.level,
         source: patch.source,
         tags: patch.tags,
+        description: patch.description,
+        duration: patch.duration,
+        components: patch.components,
+        spellList: patch.spellList,
+        school: patch.school,
+        range: patch.range,
+        castingTime: patch.castingTime,
+        save: patch.save,
+        damage: patch.damage,
+        notes: patch.notes,
+        preparation: patch.preparation,
+        combos: patch.combos,
+        items: patch.items,
       };
       if (!remotePendingPlanEnabled && spellsBackend === 'json' && Object.prototype.hasOwnProperty.call(patch, 'prepared')) {
         sharedPayload.prepared = Boolean(patch.prepared);
