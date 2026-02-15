@@ -15,6 +15,10 @@ export function applyPlan(activeSpellIds, changes) {
   const replaced = [];
 
   for (const change of changes) {
+    if (!['add', 'remove', 'replace'].includes(change.type)) {
+      throw new Error(`Unsupported change type: ${change.type}`);
+    }
+
     if (change.type === 'add') {
       if (!prepared.has(change.spellId)) {
         prepared.add(change.spellId);
@@ -70,6 +74,13 @@ export function validatePlan(changes, knownSpellIds) {
   const seen = new Set();
 
   for (const change of changes) {
+    if (!['add', 'remove', 'replace'].includes(change.type)) {
+      throw new Error(`Unsupported change type: ${change.type}`);
+    }
+    if (typeof change.spellId !== 'string' || change.spellId.length === 0) {
+      throw new Error('spellId must be a non-empty string');
+    }
+
     const key = `${change.type}:${change.spellId}:${change.replacementSpellId ?? ''}`;
     if (seen.has(key)) {
       throw new Error(`Duplicate change found: ${key}`);

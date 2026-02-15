@@ -12,19 +12,20 @@ Enable users to prepare, review, and save their next long-rest spell changes whi
 - Compare active list and planned list.
 - Browse spell details and metadata quickly.
 - Organize spells into reusable groups.
-- Keep independent spellbooks per character.
+- Keep spell planning state locally on-device.
 - Review applied long-rest snapshots over time.
 
 ## MVP scope
-- Character-level spellbooks
+- Single local character (`local-character`) on one device
+- Local JSON persistence (`data/local-state.json`)
 - Active list + pending plan
 - Planned changes (add/remove/replace + note)
 - Diff preview
 - Apply plan to create long-rest snapshot
-- History browsing per character
+- History browsing for the local character
 
 ## Success criteria
 - Plans can be saved without applying.
 - Preview exactly matches what apply will produce.
 - Apply writes immutable history and updates active list.
-- Data remains isolated per character.
+- Data remains local to a single device.

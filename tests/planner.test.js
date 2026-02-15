@@ -65,3 +65,16 @@ test('applyPlan handles add and remove sequence for same spell id', () => {
   assert.deepEqual(result.summary.removed, ['sleep']);
   assert.deepEqual(result.summary.replaced, []);
 });
+
+test('validatePlan throws on unsupported change type', () => {
+  assert.throws(
+    () =>
+      validatePlan(
+        [
+          { type: 'swap', spellId: 'sleep' },
+        ],
+        new Set(['sleep']),
+      ),
+    /Unsupported change type/,
+  );
+});
