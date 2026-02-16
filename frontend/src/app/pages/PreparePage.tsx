@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, RefreshCw, Wand2, X } from 'lucide-react';
+import { BookOpen, Check, RefreshCw, Wand2, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { computeDiff, computePreview } from '../domain/planner';
 import { CharacterSwitcher } from '../components/CharacterSwitcher';
@@ -121,9 +121,9 @@ export function PreparePage() {
           </div>
           <div className="flex items-center gap-3">
             <CharacterSwitcher />
-            <Link to="/">
+            <Link to="/prepare">
               <Button variant="outline" className="h-10 border-[#2c3f62] bg-[#101b31] text-gray-100 hover:bg-[#182743]">
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <BookOpen className="mr-2 h-4 w-4" />
                 Catalog
               </Button>
             </Link>

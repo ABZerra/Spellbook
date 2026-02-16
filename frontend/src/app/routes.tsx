@@ -5,11 +5,11 @@ import { PreparePage } from './pages/PreparePage';
 export const router = createBrowserRouter([
   {
     path: '/',
-    Component: CatalogPage,
+    Component: PreparePage,
   },
   {
     path: '/prepare',
-    Component: PreparePage,
+    Component: CatalogPage,
   },
 ], {
   basename: import.meta.env.BASE_URL,
