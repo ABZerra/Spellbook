@@ -2,7 +2,7 @@
  * Build next prepared spell list and summary from active list + pending changes.
  *
  * @param {string[]} activeSpellIds
- * @param {{ type: 'add' | 'remove' | 'replace', spellId: string, replacementSpellId?: string }[]} changes
+ * @param {{ type: 'add' | 'remove' | 'replace', spellId: string, replacementSpellId?: string, note?: string }[]} changes
  * @returns {{ nextPreparedSpellIds: string[], summary: { added: string[], removed: string[], replaced: Array<{from: string, to: string}> } }}
  */
 export function applyPlan(activeSpellIds, changes) {
@@ -67,7 +67,7 @@ export function applyPlan(activeSpellIds, changes) {
 /**
  * Validate a pending plan against available spell IDs.
  *
- * @param {{ type: 'add' | 'remove' | 'replace', spellId: string, replacementSpellId?: string }[]} changes
+ * @param {{ type: 'add' | 'remove' | 'replace', spellId: string, replacementSpellId?: string, note?: string }[]} changes
  * @param {Set<string>} knownSpellIds
  */
 export function validatePlan(changes, knownSpellIds) {
@@ -79,6 +79,9 @@ export function validatePlan(changes, knownSpellIds) {
     }
     if (typeof change.spellId !== 'string' || change.spellId.length === 0) {
       throw new Error('spellId must be a non-empty string');
+    }
+    if (change.note !== undefined && typeof change.note !== 'string') {
+      throw new Error('note must be a string when provided');
     }
 
     const key = `${change.type}:${change.spellId}:${change.replacementSpellId ?? ''}`;

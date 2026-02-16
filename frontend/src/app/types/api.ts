@@ -4,6 +4,7 @@ export interface ApiPendingChange {
   type: ChangeType;
   spellId: string;
   replacementSpellId?: string;
+  note?: string;
 }
 
 export interface ApiSpell {

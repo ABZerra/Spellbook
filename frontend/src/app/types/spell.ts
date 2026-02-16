@@ -29,6 +29,20 @@ export interface UiPendingAction {
   type: ChangeType;
   spellId: string;
   replacementSpellId?: string;
+  note?: string;
+}
+
+export interface SlotDraft {
+  spellId: string | null;
+  note?: string;
+}
+
+export interface DiffItem {
+  action: ChangeType;
+  index: number;
+  fromSpellId?: string;
+  toSpellId?: string;
+  note?: string;
 }
 
 export interface UiSpellDraft {
@@ -58,6 +72,7 @@ export interface CharacterSummary {
   name: string;
   preparedSpellIds: string[];
   pendingActions: UiPendingAction[];
+  nextList?: SlotDraft[];
 }
 
 export type Spell = UiSpell;

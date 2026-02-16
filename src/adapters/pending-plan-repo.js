@@ -7,6 +7,12 @@ export class PendingPlanVersionConflictError extends Error {
   }
 }
 
+function sanitizeOptionalNote(note) {
+  const normalized = String(note ?? '').trim();
+  if (!normalized) return undefined;
+  return normalized.slice(0, 500);
+}
+
 export function sanitizePlannedChange(change) {
   if (!change || typeof change !== 'object' || Array.isArray(change)) {
     throw new Error('Each change must be an object.');
@@ -25,16 +31,20 @@ export function sanitizePlannedChange(change) {
       throw new Error('`replacementSpellId` is required for replace changes.');
     }
 
+    const note = sanitizeOptionalNote(change.note);
     return {
       type: 'replace',
       spellId: change.spellId,
       replacementSpellId: change.replacementSpellId,
+      ...(note ? { note } : {}),
     };
   }
 
+  const note = sanitizeOptionalNote(change.note);
   return {
     type: change.type,
     spellId: change.spellId,
+    ...(note ? { note } : {}),
   };
 }
 
@@ -65,13 +75,21 @@ function toPendingPlanRow(characterId, row) {
   };
 }
 
+function mapPendingPlanResultRow(characterId, result) {
+  if (result.rowCount === 0) {
+    return null;
+  }
+  return toPendingPlanRow(characterId, result.rows[0]);
+}
+
 export async function getPendingPlan(client, characterId) {
   const result = await client.query(
     'SELECT version, changes, updated_at FROM pending_plans WHERE character_id = $1',
     [characterId],
   );
 
-  if (result.rowCount === 0) {
+  const row = mapPendingPlanResultRow(characterId, result);
+  if (!row) {
     return {
       characterId,
       version: 1,
@@ -80,7 +98,26 @@ export async function getPendingPlan(client, characterId) {
     };
   }
 
-  return toPendingPlanRow(characterId, result.rows[0]);
+  return row;
+}
+
+export async function getPendingPlanForUpdate(client, characterId) {
+  const result = await client.query(
+    `
+      SELECT version, changes, updated_at
+      FROM pending_plans
+      WHERE character_id = $1
+      FOR UPDATE
+    `,
+    [characterId],
+  );
+
+  const row = mapPendingPlanResultRow(characterId, result);
+  if (!row) {
+    throw new Error(`Missing pending plan for character: ${characterId}`);
+  }
+
+  return row;
 }
 
 export async function replacePendingPlan(client, { characterId, expectedVersion, changes, knownSpellIds }) {
@@ -151,4 +188,12 @@ export async function appendPendingChange(client, { characterId, expectedVersion
     changes: [...currentPlan.changes, sanitizePlannedChange(change)],
     knownSpellIds,
   });
+}
+
+export function plannedChangeEquals(left, right) {
+  if (!left || !right) return false;
+  if (left.type !== right.type) return false;
+  if (left.spellId !== right.spellId) return false;
+  if ((left.replacementSpellId || null) !== (right.replacementSpellId || null)) return false;
+  return (left.note || null) === (right.note || null);
 }

@@ -67,6 +67,7 @@ export function mapUiPendingToApiPending(actions: UiPendingAction[]): ApiPending
     type: action.type,
     spellId: action.spellId,
     replacementSpellId: action.replacementSpellId,
+    note: action.note,
   }));
 }
 
@@ -76,5 +77,6 @@ export function mapApiPendingToUiPending(changes: ApiPendingChange[]): UiPending
     type: change.type,
     spellId: change.spellId,
     replacementSpellId: change.replacementSpellId,
+    note: change.note,
   }));
 }

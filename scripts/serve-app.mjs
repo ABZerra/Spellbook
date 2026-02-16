@@ -21,6 +21,7 @@ import {
 import { getPreparedList, replacePreparedList } from '../src/adapters/prepared-list-repo.js';
 import { PendingPlanVersionConflictError } from '../src/adapters/pending-plan-repo.js';
 import {
+  applyOnePendingPlanChange,
   appendPendingPlanChange,
   applyPendingPlanState,
   clearPendingPlanState,
@@ -356,8 +357,9 @@ async function handleCharacterRoutes(req, res, url) {
   const pendingPlanMatch = url.pathname.match(/^\/api\/characters\/([^/]+)\/pending-plan$/);
   const pendingChangeMatch = url.pathname.match(/^\/api\/characters\/([^/]+)\/pending-plan\/changes$/);
   const pendingApplyMatch = url.pathname.match(/^\/api\/characters\/([^/]+)\/pending-plan\/apply$/);
+  const pendingApplyOneMatch = url.pathname.match(/^\/api\/characters\/([^/]+)\/pending-plan\/apply-one$/);
 
-  if (!pendingPlanMatch && !pendingChangeMatch && !pendingApplyMatch) return false;
+  if (!pendingPlanMatch && !pendingChangeMatch && !pendingApplyMatch && !pendingApplyOneMatch) return false;
 
   try {
     if (pendingPlanMatch && req.method === 'GET') {
@@ -416,6 +418,22 @@ async function handleCharacterRoutes(req, res, url) {
       const payload = await withCharacterScope({ req, characterId }, ({ client }) =>
         applyPendingPlanState(client, {
           characterId,
+          knownSpellIds,
+        }),
+      );
+
+      return sendJson(res, 200, payload);
+    }
+
+    if (pendingApplyOneMatch && req.method === 'POST') {
+      const characterId = decodeURIComponent(pendingApplyOneMatch[1]);
+      const body = parseJsonBody(await readRequestBody(req));
+      const knownSpellIds = getKnownSpellIds();
+      const payload = await withCharacterScope({ req, characterId }, ({ client }) =>
+        applyOnePendingPlanChange(client, {
+          characterId,
+          expectedVersion: Number.parseInt(String(body.version), 10),
+          change: body.change,
           knownSpellIds,
         }),
       );

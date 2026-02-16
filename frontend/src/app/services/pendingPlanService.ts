@@ -30,3 +30,10 @@ export function applyPendingPlan(characterId: string) {
     method: 'POST',
   });
 }
+
+export function applyOnePendingChange(characterId: string, version: number, change: ApiPendingChange) {
+  return apiRequest<ApplyPlanPayload>(`/api/characters/${encodeURIComponent(characterId)}/pending-plan/apply-one`, {
+    method: 'POST',
+    body: { version, change },
+  });
+}

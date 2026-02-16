@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "test": "vitest run \"src/**/*.vitest.ts\""
+    "test": "vitest run"
   },
   "dependencies": {
     "react": "18.3.1",
