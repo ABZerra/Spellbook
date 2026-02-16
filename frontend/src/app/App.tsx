@@ -8,7 +8,7 @@ export default function App() {
     <div className="dark">
       <AppProvider>
         <RouterProvider router={router} />
-        <Toaster />
+        <Toaster position="top-right" />
       </AppProvider>
     </div>
   );

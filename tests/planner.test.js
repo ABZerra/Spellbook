@@ -78,3 +78,16 @@ test('validatePlan throws on unsupported change type', () => {
     /Unsupported change type/,
   );
 });
+
+test('validatePlan throws when note is not a string', () => {
+  assert.throws(
+    () =>
+      validatePlan(
+        [
+          { type: 'add', spellId: 'sleep', note: 12 },
+        ],
+        new Set(['sleep']),
+      ),
+    /note must be a string/,
+  );
+});

@@ -1,5 +1,12 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { computePreview, generateActionId } from '../domain/planner';
+import {
+  applyPendingChangesToNextList,
+  applySingleDiff,
+  buildSlotsFromCurrent,
+  computeDiffFromLists,
+  diffToPendingChanges,
+  generateActionId,
+} from '../domain/planner';
 import {
   mapApiPendingToUiPending,
   mapApiSpellToUiSpell,
@@ -10,14 +17,17 @@ import {
   clearLocalPending,
   clearLocalPatches,
   getLocalPatches,
+  getLocalPendingDraft,
   getLocalPending,
   getLocalPrepared,
+  setLocalPendingDraft,
   setLocalPending,
   setLocalPatches,
   setLocalPrepared,
 } from '../services/localFallbackService';
 import {
   appendPendingChange,
+  applyOnePendingChange,
   applyPendingPlan,
   clearPendingPlan,
   getPendingPlan,
@@ -26,7 +36,8 @@ import {
 import { signIn, signOut, signUp, switchCharacter } from '../services/sessionService';
 import { createSpell as createSpellRequest, deleteSpell as deleteSpellRequest, listSpells, syncSpells, updateSpell as updateSpellRequest } from '../services/spellService';
 import type { ConfigResponse } from '../types/api';
-import type { ApiPendingChange, ApiSpell, AppMode, CharacterSummary, UiPendingAction, UiSpell, UiSpellDraft } from '../types/spell';
+import type { ApiPendingChange } from '../types/api';
+import type { ApiSpell, AppMode, CharacterSummary, DiffItem, SlotDraft, UiPendingAction, UiSpell, UiSpellDraft } from '../types/spell';
 
 interface AppContextType {
   loading: boolean;
@@ -39,6 +50,11 @@ interface AppContextType {
   displayName: string | null;
   authenticated: boolean;
   saveMode: 'remote' | 'local';
+  currentList: string[];
+  nextList: SlotDraft[];
+  diff: DiffItem[];
+  draftSaveStatus: 'idle' | 'saved' | 'error';
+  draftSaveTick: number;
 
   setCharacterId: (characterId: string) => Promise<void>;
   refreshNow: () => Promise<void>;
@@ -57,6 +73,10 @@ interface AppContextType {
   removePendingAction: (actionId: string) => Promise<void>;
   clearPendingActions: () => Promise<void>;
   applyPendingActions: () => Promise<void>;
+  setNextSlot: (index: number, spellId: string | null, note?: string) => Promise<void>;
+  setSlotNote: (index: number, note: string) => Promise<void>;
+  applyOne: (diffItem: DiffItem) => Promise<void>;
+  applyAll: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -75,6 +95,12 @@ function parseListInput(input: string): string[] {
     .split(',')
     .map((entry) => entry.trim())
     .filter(Boolean);
+}
+
+function normalizeNote(note?: string): string | undefined {
+  const normalized = String(note ?? '').trim();
+  if (!normalized) return undefined;
+  return normalized.slice(0, 500);
 }
 
 export function useApp() {
@@ -106,8 +132,12 @@ export function AppProvider({ children }: AppProviderProps) {
   const [authenticated, setAuthenticated] = useState(false);
 
   const [apiSpells, setApiSpells] = useState<ApiSpell[]>([]);
+  const [preparedSpellIds, setPreparedSpellIds] = useState<string[]>([]);
   const [pendingActions, setPendingActions] = useState<UiPendingAction[]>([]);
   const [pendingVersion, setPendingVersion] = useState(1);
+  const [nextList, setNextList] = useState<SlotDraft[]>([]);
+  const [draftSaveStatus, setDraftSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
+  const [draftSaveTick, setDraftSaveTick] = useState(0);
 
   const loadConfig = useCallback(async (): Promise<ConfigResponse> => {
     let payload: ConfigResponse;
@@ -164,7 +194,7 @@ export function AppProvider({ children }: AppProviderProps) {
       setApiSpells(spells);
       setMode((current) => ({ ...current, staticDataMode: false }));
       setSaveMode('remote');
-      return;
+      return spells;
     } catch {
       // Fall through to static fallback.
     }
@@ -181,23 +211,48 @@ export function AppProvider({ children }: AppProviderProps) {
     const defaults = patchedSpells.filter((spell) => spell.prepared).map((spell) => spell.id);
     const localPrepared = getLocalPrepared(nextUserId, nextCharacterId, defaults);
 
-    setApiSpells(patchedSpells.map((spell) => ({ ...spell, prepared: localPrepared.has(spell.id) })));
+    const spells = patchedSpells.map((spell) => ({ ...spell, prepared: localPrepared.has(spell.id) }));
+    setApiSpells(spells);
     setMode((current) => ({ ...current, staticDataMode: true }));
     setSaveMode('local');
+    return spells;
   }, []);
 
   const loadPendingActions = useCallback(
-    async (nextCharacterId: string, nextUserId: string | null, remoteEnabled: boolean, isAuthenticated: boolean) => {
+    async (
+      nextCharacterId: string,
+      nextUserId: string | null,
+      remoteEnabled: boolean,
+      isAuthenticated: boolean,
+      currentPreparedIds: string[],
+    ) => {
       if (remoteEnabled && isAuthenticated) {
         const payload = await getPendingPlan(nextCharacterId);
-        setPendingActions(mapApiPendingToUiPending(payload.plan.changes));
+        const uiPending = mapApiPendingToUiPending(payload.plan.changes);
+        setPendingActions(uiPending);
         setPendingVersion(payload.plan.version);
+        setPreparedSpellIds(payload.activeSpellIds);
+        setNextList(applyPendingChangesToNextList(payload.activeSpellIds, payload.plan.changes));
+        return;
+      }
+
+      const draftPayload = getLocalPendingDraft(nextUserId, nextCharacterId);
+      if (draftPayload) {
+        setPreparedSpellIds(currentPreparedIds);
+        setNextList(draftPayload.nextList);
+        const draftDiff = computeDiffFromLists(buildSlotsFromCurrent(currentPreparedIds), draftPayload.nextList);
+        setPendingActions(mapApiPendingToUiPending(diffToPendingChanges(draftDiff)));
+        setPendingVersion(1);
         return;
       }
 
       const localChanges = getLocalPending(nextUserId, nextCharacterId);
+      setPreparedSpellIds(currentPreparedIds);
+      const migratedNext = applyPendingChangesToNextList(currentPreparedIds, localChanges);
+      setLocalPendingDraft(nextUserId, nextCharacterId, migratedNext);
       setPendingActions(mapApiPendingToUiPending(localChanges));
       setPendingVersion(1);
+      setNextList(migratedNext);
     },
     [],
   );
@@ -225,8 +280,15 @@ export function AppProvider({ children }: AppProviderProps) {
         staticDataMode: false,
       };
 
-      await loadSpells(activeCharacterId, config.userId, nextMode);
-      await loadPendingActions(activeCharacterId, config.userId, nextMode.remotePendingPlanEnabled, Boolean(config.authenticated));
+      const loadedSpells = await loadSpells(activeCharacterId, config.userId, nextMode);
+      const currentPreparedIds = loadedSpells.filter((spell) => spell.prepared).map((spell) => spell.id);
+      await loadPendingActions(
+        activeCharacterId,
+        config.userId,
+        nextMode.remotePendingPlanEnabled,
+        Boolean(config.authenticated),
+        currentPreparedIds,
+      );
     } catch (nextError) {
       const message = nextError instanceof Error ? nextError.message : 'Failed to initialize app.';
       setError(message);
@@ -241,9 +303,10 @@ export function AppProvider({ children }: AppProviderProps) {
 
   const spells = useMemo(() => apiSpells.map(mapApiSpellToUiSpell), [apiSpells]);
 
-  const preparedSpellIds = useMemo(
-    () => apiSpells.filter((spell) => spell.prepared).map((spell) => spell.id),
-    [apiSpells],
+  const currentList = useMemo(() => preparedSpellIds, [preparedSpellIds]);
+  const diff = useMemo(
+    () => computeDiffFromLists(buildSlotsFromCurrent(currentList), nextList),
+    [currentList, nextList],
   );
 
   const currentCharacter: CharacterSummary | null = useMemo(
@@ -252,8 +315,9 @@ export function AppProvider({ children }: AppProviderProps) {
       name: characterId,
       preparedSpellIds,
       pendingActions,
+      nextList,
     }),
-    [characterId, pendingActions, preparedSpellIds],
+    [characterId, nextList, pendingActions, preparedSpellIds],
   );
 
   const setCharacterId = useCallback(
@@ -269,8 +333,9 @@ export function AppProvider({ children }: AppProviderProps) {
       }
 
       setCharacterIdState(nextCharacterId);
-      await loadSpells(nextCharacterId, userId, mode);
-      await loadPendingActions(nextCharacterId, userId, mode.remotePendingPlanEnabled, authenticated);
+      const loadedSpells = await loadSpells(nextCharacterId, userId, mode);
+      const currentPreparedIds = loadedSpells.filter((spell) => spell.prepared).map((spell) => spell.id);
+      await loadPendingActions(nextCharacterId, userId, mode.remotePendingPlanEnabled, authenticated, currentPreparedIds);
     },
     [authenticated, defaultCharacterId, loadPendingActions, loadSpells, mode, userId],
   );
@@ -282,8 +347,10 @@ export function AppProvider({ children }: AppProviderProps) {
       // Manual sync is best effort; fallback is plain reload.
     }
 
-    await loadSpells(characterId, userId, mode);
-  }, [characterId, loadSpells, mode, userId]);
+    const loadedSpells = await loadSpells(characterId, userId, mode);
+    const currentPreparedIds = loadedSpells.filter((spell) => spell.prepared).map((spell) => spell.id);
+    await loadPendingActions(characterId, userId, mode.remotePendingPlanEnabled, authenticated, currentPreparedIds);
+  }, [authenticated, characterId, loadPendingActions, loadSpells, mode, userId]);
 
   const resetLocalDrafts = useCallback(() => {
     clearLocalPatches(userId, characterId);
@@ -352,6 +419,12 @@ export function AppProvider({ children }: AppProviderProps) {
       try {
         const response = await updateSpellRequest(spellId, { prepared: nextPrepared });
         setApiSpells((current) => current.map((entry) => (entry.id === spellId ? response.spell : entry)));
+        setPreparedSpellIds((current) => {
+          if (nextPrepared) {
+            return current.includes(spellId) ? current : [...current, spellId];
+          }
+          return current.filter((id) => id !== spellId);
+        });
       } catch (nextError) {
         if (!mode.allowLocalDraftEdits) {
           throw nextError;
@@ -367,44 +440,207 @@ export function AppProvider({ children }: AppProviderProps) {
 
         setLocalPrepared(userId, characterId, localPrepared);
         updateLocalFallbackPatch(spellId, { prepared: nextPrepared });
+        setPreparedSpellIds((current) => {
+          if (nextPrepared) {
+            return current.includes(spellId) ? current : [...current, spellId];
+          }
+          return current.filter((id) => id !== spellId);
+        });
       }
     },
     [apiSpells, characterId, mode.allowLocalDraftEdits, updateLocalFallbackPatch, userId],
   );
 
-  const persistLocalPending = useCallback(
-    (changes: ApiPendingChange[]) => {
+  const persistLocalDraft = useCallback(
+    (draftSlots: SlotDraft[], changes: ApiPendingChange[]) => {
+      setLocalPendingDraft(userId, characterId, draftSlots);
       setLocalPending(userId, characterId, changes);
       setPendingActions(mapApiPendingToUiPending(changes));
       setPendingVersion(1);
+      setSaveMode('local');
+      setDraftSaveStatus('saved');
+      setDraftSaveTick((tick) => tick + 1);
     },
     [characterId, userId],
   );
 
-  const queuePendingAction = useCallback(
-    async (action: Omit<UiPendingAction, 'id'>) => {
+  const persistDraft = useCallback(
+    async (draftSlots: SlotDraft[]) => {
+      setNextList(draftSlots);
+
+      const draftDiff = computeDiffFromLists(buildSlotsFromCurrent(preparedSpellIds), draftSlots);
+      const nextChanges = diffToPendingChanges(draftDiff);
+      setPendingActions(mapApiPendingToUiPending(nextChanges));
+      setDraftSaveStatus('idle');
+
       if (mode.remotePendingPlanEnabled && authenticated) {
-        const payload = await appendPendingChange(characterId, pendingVersion, {
-          type: action.type,
-          spellId: action.spellId,
-          replacementSpellId: action.replacementSpellId,
-        });
-        setPendingActions(mapApiPendingToUiPending(payload.plan.changes));
-        setPendingVersion(payload.plan.version);
+        try {
+          const payload = await setPendingPlan(characterId, pendingVersion, nextChanges);
+          setPendingActions(mapApiPendingToUiPending(payload.plan.changes));
+          setPendingVersion(payload.plan.version);
+          setNextList(applyPendingChangesToNextList(preparedSpellIds, payload.plan.changes));
+          setDraftSaveStatus('saved');
+          setDraftSaveTick((tick) => tick + 1);
+          return;
+        } catch (nextError) {
+          setDraftSaveStatus('error');
+          throw nextError;
+        }
+      }
+
+      persistLocalDraft(draftSlots, nextChanges);
+    },
+    [
+      authenticated,
+      characterId,
+      mode.remotePendingPlanEnabled,
+      pendingVersion,
+      persistLocalDraft,
+      preparedSpellIds,
+    ],
+  );
+
+  const setNextSlot = useCallback(
+    async (index: number, spellId: string | null, note?: string) => {
+      const nextDraft = nextList.map((slot) => ({ ...slot }));
+      while (nextDraft.length <= index) nextDraft.push({ spellId: null });
+      nextDraft[index] = {
+        spellId,
+        note: normalizeNote(note),
+      };
+      await persistDraft(nextDraft);
+    },
+    [nextList, persistDraft],
+  );
+
+  const setSlotNote = useCallback(
+    async (index: number, note: string) => {
+      const nextDraft = nextList.map((slot) => ({ ...slot }));
+      while (nextDraft.length <= index) nextDraft.push({ spellId: null });
+      nextDraft[index] = {
+        ...nextDraft[index],
+        note: normalizeNote(note),
+      };
+      await persistDraft(nextDraft);
+    },
+    [nextList, persistDraft],
+  );
+
+  const applyOne = useCallback(
+    async (diffItem: DiffItem) => {
+      const change = diffToPendingChanges([diffItem])[0];
+      if (!change) {
         return;
       }
 
-      const nextChanges = [
-        ...mapUiPendingToApiPending(pendingActions),
-        {
-          type: action.type,
-          spellId: action.spellId,
-          replacementSpellId: action.replacementSpellId,
-        },
-      ];
-      persistLocalPending(nextChanges);
+      const nextCurrentSlots = applySingleDiff(buildSlotsFromCurrent(preparedSpellIds), diffItem);
+      const remainingDraft = nextList.map((slot) => ({ ...slot }));
+      while (remainingDraft.length <= diffItem.index) {
+        remainingDraft.push({ spellId: null });
+      }
+      remainingDraft[diffItem.index] = {
+        spellId: nextCurrentSlots[diffItem.index]?.spellId ?? null,
+      };
+
+      if (mode.remotePendingPlanEnabled && authenticated) {
+        const payload = await applyOnePendingChange(characterId, pendingVersion, change);
+        setPendingActions(mapApiPendingToUiPending(payload.plan.changes));
+        setPendingVersion(payload.plan.version);
+        setApiSpells((current) =>
+          current.map((spell) => ({
+            ...spell,
+            prepared: payload.activeSpellIds.includes(spell.id),
+          })),
+        );
+        setPreparedSpellIds(payload.activeSpellIds);
+        setNextList(remainingDraft);
+        return;
+      }
+
+      const nextCurrentPrepared = nextCurrentSlots
+        .map((slot) => slot.spellId)
+        .filter((spellId): spellId is string => Boolean(spellId));
+      const nextCurrentSet = new Set(nextCurrentPrepared);
+      setApiSpells((current) => current.map((spell) => ({ ...spell, prepared: nextCurrentSet.has(spell.id) })));
+      setLocalPrepared(userId, characterId, nextCurrentSet);
+      setPreparedSpellIds(nextCurrentPrepared);
+      const nextDiff = computeDiffFromLists(buildSlotsFromCurrent(nextCurrentPrepared), remainingDraft);
+      const nextChanges = diffToPendingChanges(nextDiff);
+      persistLocalDraft(remainingDraft, nextChanges);
+      setNextList(remainingDraft);
     },
-    [authenticated, characterId, mode.remotePendingPlanEnabled, pendingActions, pendingVersion, persistLocalPending],
+    [
+      authenticated,
+      characterId,
+      mode.remotePendingPlanEnabled,
+      nextList,
+      pendingVersion,
+      persistLocalDraft,
+      preparedSpellIds,
+      userId,
+    ],
+  );
+
+  const applyAll = useCallback(async () => {
+    if (mode.remotePendingPlanEnabled && authenticated) {
+      const payload = await applyPendingPlan(characterId);
+      setPendingActions(mapApiPendingToUiPending(payload.plan.changes));
+      setPendingVersion(payload.plan.version);
+      setApiSpells((current) =>
+        current.map((spell) => ({
+          ...spell,
+          prepared: payload.activeSpellIds.includes(spell.id),
+        })),
+      );
+      setPreparedSpellIds(payload.activeSpellIds);
+      setNextList(buildSlotsFromCurrent(payload.activeSpellIds));
+      return;
+    }
+
+    const nextPreparedIds = nextList
+      .map((slot) => slot.spellId)
+      .filter((spellId): spellId is string => Boolean(spellId));
+    const nextPreparedSet = new Set(nextPreparedIds);
+    setApiSpells((current) => current.map((spell) => ({ ...spell, prepared: nextPreparedSet.has(spell.id) })));
+    setLocalPrepared(userId, characterId, nextPreparedSet);
+    setPreparedSpellIds(nextPreparedIds);
+    clearLocalPending(userId, characterId);
+    setPendingActions([]);
+    setPendingVersion(1);
+    setNextList(buildSlotsFromCurrent(nextPreparedIds));
+  }, [authenticated, characterId, mode.remotePendingPlanEnabled, nextList, userId]);
+
+  const queuePendingAction = useCallback(
+    async (action: Omit<UiPendingAction, 'id'>) => {
+      const nextChange: ApiPendingChange = {
+        type: action.type,
+        spellId: action.spellId,
+        replacementSpellId: action.replacementSpellId,
+        note: action.note,
+      };
+
+      if (mode.remotePendingPlanEnabled && authenticated) {
+        const payload = await appendPendingChange(characterId, pendingVersion, nextChange);
+        setPendingActions(mapApiPendingToUiPending(payload.plan.changes));
+        setPendingVersion(payload.plan.version);
+        setNextList(applyPendingChangesToNextList(preparedSpellIds, payload.plan.changes));
+        return;
+      }
+
+      const nextChanges = [...mapUiPendingToApiPending(pendingActions), nextChange];
+      const nextDraft = applyPendingChangesToNextList(preparedSpellIds, nextChanges);
+      persistLocalDraft(nextDraft, nextChanges);
+      setNextList(nextDraft);
+    },
+    [
+      authenticated,
+      characterId,
+      mode.remotePendingPlanEnabled,
+      pendingActions,
+      pendingVersion,
+      persistLocalDraft,
+      preparedSpellIds,
+    ],
   );
 
   const removePendingAction = useCallback(
@@ -416,12 +652,23 @@ export function AppProvider({ children }: AppProviderProps) {
         const payload = await setPendingPlan(characterId, pendingVersion, nextChanges);
         setPendingActions(mapApiPendingToUiPending(payload.plan.changes));
         setPendingVersion(payload.plan.version);
+        setNextList(applyPendingChangesToNextList(preparedSpellIds, payload.plan.changes));
         return;
       }
 
-      persistLocalPending(nextChanges);
+      const nextDraft = applyPendingChangesToNextList(preparedSpellIds, nextChanges);
+      persistLocalDraft(nextDraft, nextChanges);
+      setNextList(nextDraft);
     },
-    [authenticated, characterId, mode.remotePendingPlanEnabled, pendingActions, pendingVersion, persistLocalPending],
+    [
+      authenticated,
+      characterId,
+      mode.remotePendingPlanEnabled,
+      pendingActions,
+      pendingVersion,
+      persistLocalDraft,
+      preparedSpellIds,
+    ],
   );
 
   const clearPendingActions = useCallback(async () => {
@@ -429,35 +676,19 @@ export function AppProvider({ children }: AppProviderProps) {
       const payload = await clearPendingPlan(characterId);
       setPendingActions(mapApiPendingToUiPending(payload.plan.changes));
       setPendingVersion(payload.plan.version);
+      setNextList(buildSlotsFromCurrent(preparedSpellIds));
       return;
     }
 
     clearLocalPending(userId, characterId);
     setPendingActions([]);
     setPendingVersion(1);
-  }, [authenticated, characterId, mode.remotePendingPlanEnabled, userId]);
+    setNextList(buildSlotsFromCurrent(preparedSpellIds));
+  }, [authenticated, characterId, mode.remotePendingPlanEnabled, preparedSpellIds, userId]);
 
   const applyPendingActions = useCallback(async () => {
-    if (mode.remotePendingPlanEnabled && authenticated) {
-      const payload = await applyPendingPlan(characterId);
-      setPendingActions(mapApiPendingToUiPending(payload.plan.changes));
-      setPendingVersion(payload.plan.version);
-      setApiSpells((current) =>
-        current.map((spell) => ({
-          ...spell,
-          prepared: payload.activeSpellIds.includes(spell.id),
-        })),
-      );
-      return;
-    }
-
-    const previewIds = new Set(computePreview(preparedSpellIds, pendingActions));
-    setApiSpells((current) => current.map((spell) => ({ ...spell, prepared: previewIds.has(spell.id) })));
-    setLocalPrepared(userId, characterId, previewIds);
-    clearLocalPending(userId, characterId);
-    setPendingActions([]);
-    setPendingVersion(1);
-  }, [authenticated, characterId, mode.remotePendingPlanEnabled, pendingActions, preparedSpellIds, userId]);
+    await applyAll();
+  }, [applyAll]);
 
   const handleSignUp = useCallback(
     async (nextUserId: string, nextDisplayName?: string) => {
@@ -492,6 +723,11 @@ export function AppProvider({ children }: AppProviderProps) {
       displayName,
       authenticated,
       saveMode,
+      currentList,
+      nextList,
+      diff,
+      draftSaveStatus,
+      draftSaveTick,
       setCharacterId,
       refreshNow,
       resetLocalDrafts,
@@ -506,24 +742,36 @@ export function AppProvider({ children }: AppProviderProps) {
       removePendingAction,
       clearPendingActions,
       applyPendingActions,
+      setNextSlot,
+      setSlotNote,
+      applyOne,
+      applyAll,
     }),
     [
+      applyAll,
+      applyOne,
       applyPendingActions,
       authenticated,
       createSpell,
       currentCharacter,
       deleteSpell,
+      diff,
+      draftSaveStatus,
+      draftSaveTick,
       error,
       handleSignIn,
       handleSignOut,
       handleSignUp,
       loading,
       mode,
+      nextList,
       queuePendingAction,
       refreshNow,
       removePendingAction,
       resetLocalDrafts,
       saveMode,
+      setNextSlot,
+      setSlotNote,
       setCharacterId,
       spells,
       togglePrepared,
@@ -531,6 +779,7 @@ export function AppProvider({ children }: AppProviderProps) {
       userId,
       displayName,
       clearPendingActions,
+      currentList,
     ],
   );
 
