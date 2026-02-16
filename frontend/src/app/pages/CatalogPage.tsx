@@ -143,7 +143,7 @@ export function CatalogPage() {
           </div>
           <div className="flex items-center gap-3">
             <CharacterSwitcher />
-            <Link to="/">
+            <Link to="/prepare">
               <Button className="h-10 border border-white/20 bg-white text-black hover:bg-gray-200">
                 <Wand2 className="mr-2 h-4 w-4" />
                 Prepare Spells

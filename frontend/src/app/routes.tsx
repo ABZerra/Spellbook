@@ -8,6 +8,10 @@ export const router = createBrowserRouter([
     Component: PreparePage,
   },
   {
+    path: '/prepare',
+    Component: PreparePage,
+  },
+  {
     path: '/catalog',
     Component: CatalogPage,
   },
