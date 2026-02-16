@@ -8,7 +8,7 @@ export const router = createBrowserRouter([
     Component: PreparePage,
   },
   {
-    path: '/prepare',
+    path: '/catalog',
     Component: CatalogPage,
   },
 ], {
