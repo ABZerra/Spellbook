@@ -157,9 +157,9 @@ function normalizeSpellPatch(input) {
 function getStaticFilePath(urlPath) {
   let filePath = urlPath;
   if (useFrontendBuild) {
-    if (urlPath === '/' || urlPath === '/prepare') filePath = '/index.html';
+    if (urlPath === '/' || urlPath === '/catalog' || urlPath === '/prepare') filePath = '/index.html';
   } else {
-    if (urlPath === '/') filePath = '/index.html';
+    if (urlPath === '/' || urlPath === '/catalog') filePath = '/index.html';
     if (urlPath === '/prepare') filePath = '/prepare.html';
   }
   const resolved = path.normalize(path.join(uiDir, filePath));
