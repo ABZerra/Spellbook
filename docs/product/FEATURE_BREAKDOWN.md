@@ -8,13 +8,13 @@
 - Sort by source, level, name, tags, prepared state.
 
 ### Implementation
-- UI: `ui/index.html`, `ui/app.js`
+- UI: `frontend/src/app/pages/CatalogPage.tsx`
 - API: `GET /api/spells`
 
 ## 2. Catalog Editing and CRUD
 
 ### Capabilities
-- Inline editing of spell fields.
+- Edit spell fields.
 - Toggle prepared status.
 - Create new spell entries.
 - Delete spell entries.
@@ -28,20 +28,16 @@
   - JSON repo: `src/adapters/json-spell-repo.js`
   - Notion repo: `src/adapters/notion-spell-repo.js`
 
-### Notes
-- In remote mode, prepared state is character-scoped (stored in `prepared_lists`).
-- In local JSON mode without remote persistence, prepared can be written into JSON spell records.
-
 ## 3. Pending Plan Queue
 
 ### Capabilities
 - Queue `add`, `remove`, `replace` changes.
 - Validate queued changes against known spell IDs.
-- Prevent invalid queue operations in UI (e.g., replacing with already active spell).
+- Apply/clear queued changes.
 
 ### Implementation
 - Domain planner: `src/domain/planner.js`
-- Prepare page logic: `ui/prepare.js`
+- Prepare page logic: `frontend/src/app/pages/PreparePage.tsx`
 - Remote endpoints:
   - `GET /api/characters/:characterId/pending-plan`
   - `PUT /api/characters/:characterId/pending-plan`
@@ -51,21 +47,20 @@
 ## 4. Preview and Diff Visualization
 
 ### Capabilities
-- Show current active spells.
-- Show pending grouped by added/removed/replaced.
-- Show preview list and preview diff split into replaced/added/removed.
-- Support per-change actions: apply now/remove.
+- Show current active list.
+- Show queued changes and computed diff.
+- Support per-change apply/undo in UI.
 
 ### Implementation
-- UI rendering and state transforms in `ui/prepare.js`
-- Planner summary from `applyPlan` in `src/domain/planner.js`
+- UI rendering/state: `frontend/src/app/pages/PreparePage.tsx`
+- Planner logic: `src/domain/planner.js`
 
 ## 5. Apply Plan
 
 ### Capabilities
 - Apply full pending plan to active prepared list.
 - Clear pending queue after apply.
-- Persist remote snapshot metadata in Postgres mode.
+- Persist snapshot metadata in remote mode.
 
 ### Implementation
 - Endpoint: `POST /api/characters/:characterId/pending-plan/apply`
@@ -77,7 +72,7 @@
 ### Capabilities
 - Sign up, sign in, logout.
 - Session cookies and auth checks.
-- Character switching bound to authenticated user ownership.
+- Character switching bound to user ownership.
 
 ### Implementation
 - Endpoints:
@@ -102,23 +97,12 @@
 - Cache service: `src/services/spell-cache-service.js`
 - Sync endpoint: `POST /api/spells/sync`
 
-## 8. Static Mode Fallback
+## 8. Static Fallback
 
 ### Capabilities
-- Serve static bundle from `dist/`.
-- Load spells from static JSON when API unavailable.
-- Save local patches/pending plans in browser storage.
+- Static bundle can read from `spells.json` when API unavailable.
+- Draft edits/pending plan data persist in browser storage.
 
 ### Implementation
 - Build: `scripts/build-gh-pages.mjs`
-- Fallback logic: `ui/app.js`, `ui/prepare.js`
-
-## 9. Standalone Local API
-
-### Capabilities
-- Local state API for a single local character.
-- Supports plan write, preview, apply, and reset.
-
-### Implementation
-- Server: `scripts/serve-spells-api.js`
-- State adapter: `src/state/local-state.js`
+- Frontend fallback: `frontend/src/app/context/AppContext.tsx`

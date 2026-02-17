@@ -4,102 +4,91 @@
 Spellbook
 
 ## Product Summary
-Spellbook is a spell preparation planner for long-rest workflows. It provides:
-- A spell catalog for browsing, filtering, editing, and prepared-state toggling.
-- A preparation planner for queuing `add`, `remove`, and `replace` actions.
-- A deterministic preview before apply.
-- Multiple runtime modes: local JSON, remote Postgres-backed persistence, Notion-backed spell catalog, and static GitHub Pages fallback.
+Spellbook is a spell-preparation workflow app for long-rest planning. The currently implemented product is:
+- A React frontend (`/`, `/prepare`, `/catalog`, `/characters`).
+- An integrated Node API (`/api/*`) for spells, auth/session, and pending-plan operations.
+- A deterministic planner domain used for diffing and apply behavior.
+- Optional remote persistence (Postgres) and optional Notion catalog backend.
+- Static fallback behavior for read/draft continuity when API access is unavailable.
 
 ## Problem
-Players need a reliable way to plan and apply prepared spell changes without losing draft work across sessions/devices.
+Players need to stage and validate prepared-spell changes before committing them, while preserving drafts across interruptions and supporting optional multi-device continuity.
 
-## Goals
-- Let users manage spell catalog state with low friction.
-- Let users stage prep changes safely before applying.
-- Keep plan outcomes deterministic between preview and apply.
-- Support both local-only and remote multi-device usage.
-- Support shared spell catalog updates through Notion.
+## Jobs To Be Done (JTBD)
 
-## Non-Goals
-- Full character-sheet management.
-- Rule engine for all game mechanics.
-- Enterprise-grade identity and authorization.
-- Realtime collaborative editing UI.
+### Primary JTBD
+When I am preparing for a long rest, I want to compare my current prepared spells against a planned next loadout and apply changes safely, so I can avoid mistakes and keep my setup consistent.
 
-## Personas
-1. Solo Local Player
-- Runs app locally.
-- Needs fast filtering and draft planning.
-- Accepts local persistence.
+### Supporting JTBDs
+1. When I manage my spell catalog, I want filtering, sorting, and editing tools, so I can quickly maintain an accurate spell list.
+2. When I switch devices or characters (in remote mode), I want my prepared/pending state scoped correctly, so I can continue without data leakage.
+3. When the API is unavailable (static/fallback scenario), I want local draft persistence, so my work is not blocked.
+4. When using Notion as source-of-truth, I want sync and schema validation, so catalog operations stay reliable.
 
-2. Multi-Device Player
-- Signs in and switches characters.
-- Needs persistent prepared state and pending plans across devices.
-
-3. Catalog Maintainer
-- Uses Notion as shared spell source.
-- Needs sync + manual refresh for updates.
-
-## Key Flows
-1. Catalog flow (`/`)
-- Load spells via `/api/spells`.
-- Filter and sort.
-- Edit spell fields inline.
-- Create or delete spells.
+## Implemented Feature Set (Realistic Current State)
+1. Catalog management (`/catalog`)
+- Load spells from `/api/spells`.
+- Filter by name, level, source, tags.
+- Sort by name, level, source, tags, prepared.
+- Create, edit, delete spells.
 - Toggle prepared state.
 
-2. Prepare flow (`/prepare`)
-- Queue changes via dropdowns.
-- See current active list, pending queue, and preview list.
-- See preview diff split into replaced/added/removed.
-- Apply full plan or apply/remove individual queued change.
+2. Preparation workflow (`/` and `/prepare`)
+- Build next-slot draft list.
+- View current list, next list, and computed diff.
+- Apply one change or full plan.
+- Discard pending changes.
 
-3. Remote identity flow
-- Sign up/sign in (user ID based).
-- Character switching via session endpoint.
-- Prepared/pending state scoped by `user + character`.
+3. Remote mode (optional)
+- User-ID signup/signin/logout.
+- Character-scoped session switching.
+- Pending-plan optimistic version control and conflict responses.
 
-4. Fallback flow
-- If API unavailable, load static `spells.json`.
-- Persist draft changes locally in browser storage.
+4. Notion backend mode (optional)
+- Notion-backed catalog CRUD with schema checks.
+- Periodic cache + manual sync endpoint.
 
-## Current Scope
-### In Scope
-- UI pages:
-  - Catalog: `ui/index.html`
-  - Prepare: `ui/prepare.html`
-- Planner domain logic in `src/domain/planner.js`
-- Main app server in `scripts/serve-app.mjs`
-- Optional remote pending-plan persistence and auth
-- Optional Notion spell backend and cache refresh
-- Standalone local API in `scripts/serve-spells-api.js`
+5. Static fallback mode
+- Frontend falls back to static `spells.json` reads.
+- Local browser draft persistence for edits and pending plan state.
 
-### Out of Scope
-- Password-based auth and account recovery
-- Remote snapshot/history UI
-- Rich role/permission model
+## Requirements Currently Fulfilled
 
-## Success Metrics
-- Apply success rate (successful plan applies / apply attempts)
-- Draft durability rate (write failures that still preserve local draft)
-- Conflict recovery rate (409 conflicts resolved by reload/retry)
-- Catalog freshness in Notion mode (`syncMeta.stale=false` ratio)
+### Functional Requirements (Implemented)
+- `FR-1` Catalog retrieval and filtering is available via `GET /api/spells`.
+- `FR-2` Catalog CRUD is available via `POST/PATCH/DELETE /api/spells*`.
+- `FR-3` Prepared status updates are supported through spell update flows.
+- `FR-4` Plan computation is deterministic via planner domain logic used by prepare UI + API services.
+- `FR-5` Pending-plan CRUD is available via `/api/characters/:characterId/pending-plan*`.
+- `FR-6` Full apply and single-change apply are supported via `/apply` and `/apply-one` endpoints.
+- `FR-7` Remote auth/session operations are available via `/api/auth/*` and `/api/session`.
+- `FR-8` Character ownership/scoping is enforced in remote operations.
+- `FR-9` Notion mode validates required schema compatibility before operation.
+- `FR-10` Static fallback supports local draft continuity when API writes fail/unavailable.
 
-**Assumption:** These metrics are defined as product targets; telemetry collection is not yet implemented.
+### Non-Functional Requirements (Implemented)
+- `NFR-1` Pending-plan remote writes enforce optimistic version conflict detection (`409` behavior).
+- `NFR-2` Health/status endpoint is available at `GET /api/health`.
+- `NFR-3` Test gates are present for domain/adapters/services/frontend and currently pass in repo workflow.
+- `NFR-4` Docs and runtime now align to active architecture (React frontend + integrated API).
 
-## Risks
-- Mode fragmentation: local, remote, Notion, and static behaviors differ.
-- Draft divergence: local patches can diverge from shared source.
-- Auth simplicity: user-ID-only auth has limited security guarantees.
-- Notion schema coupling: property-type drift breaks operations.
-- Concurrency friction: optimistic version conflicts in pending-plan writes.
+## In Scope
+- React app in `frontend/src`.
+- Integrated app server in `scripts/serve-app.mjs`.
+- Domain planner logic in `src/domain/planner.js`.
+- Optional remote pending-plan persistence and auth.
+- Optional Notion spell backend and cache refresh.
+- Static fallback using built assets and `spells.json`.
 
-## Open Questions
-- Should remote long-rest snapshots be surfaced in UI?
-- Should local drafts support explicit reconcile/merge with remote data?
-- Should authentication be upgraded beyond user-id-only?
-- Should Notion sync move to event-based refresh?
+## Out of Scope
+- Password-based auth and account recovery.
+- Full character-sheet management UX (current `/characters` page is limited placeholder content).
+- Remote snapshot/history browsing UI.
+- Role/permission management beyond current ownership checks.
+- Legacy standalone local-state API runtime.
 
-## Assumptions
-- Current priority is workflow reliability over enterprise security features.
-- Spellbook is intended for tabletop spell-preparation use cases similar to DnD-style preparation cycles.
+## Success Criteria (Current Product Baseline)
+- Users can complete catalog CRUD and prepare/apply workflow without endpoint mismatches.
+- Plan outcomes remain deterministic between preview/diff and apply.
+- Remote mode prevents blind overwrites using version checks.
+- Static fallback preserves local progress when remote API access is unavailable.

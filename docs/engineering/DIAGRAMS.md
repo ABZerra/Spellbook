@@ -4,8 +4,8 @@
 
 ```mermaid
 flowchart LR
-  U["User Browser"] --> UI["UI Pages\nindex + prepare"]
-  UI --> API["App Server\nscripts/serve-app.mjs"]
+  U["User Browser"] --> FE["React Frontend\nfrontend/src"]
+  FE --> API["Integrated Server\nscripts/serve-app.mjs"]
   API --> DOMAIN["Planner Domain\nsrc/domain/planner.js"]
   API --> REPO["Spell Repo\nJSON or Notion"]
   API --> CACHE["Spell Cache Service"]
@@ -14,7 +14,7 @@ flowchart LR
   REPO --> NOTION["Notion API"]
 ```
 
-## Main App API Surface
+## Main API Surface
 
 ```mermaid
 flowchart TB
@@ -50,13 +50,4 @@ sequenceDiagram
   SVC->>DB: replacePreparedList
   SVC->>DB: clearPendingPlan
   API-->>UI: snapshot + cleared plan + activeSpellIds
-```
-
-## Static Fallback Behavior
-
-```mermaid
-flowchart LR
-  UI["UI"] --> TRY["Fetch /api/spells"]
-  TRY -->|"failure"| STATIC["Load spells.json"]
-  STATIC --> DRAFT["Persist edits/plans in localStorage"]
 ```

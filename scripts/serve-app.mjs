@@ -33,10 +33,8 @@ import { createSpellCacheService } from '../src/services/spell-cache-service.js'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
-const legacyUiDir = path.join(rootDir, 'ui');
 const frontendDistDir = path.join(rootDir, 'frontend', 'dist');
-const useFrontendBuild = existsSync(path.join(frontendDistDir, 'index.html'));
-const uiDir = useFrontendBuild ? frontendDistDir : legacyUiDir;
+const hasFrontendBuild = existsSync(path.join(frontendDistDir, 'index.html'));
 const dbPath = process.env.SPELLS_DB
   ? path.resolve(process.cwd(), process.env.SPELLS_DB)
   : path.join(rootDir, 'data', 'spells.json');
@@ -155,15 +153,15 @@ function normalizeSpellPatch(input) {
 }
 
 function getStaticFilePath(urlPath) {
+  if (!hasFrontendBuild) return null;
+
   let filePath = urlPath;
-  if (useFrontendBuild) {
-    if (urlPath === '/' || urlPath === '/catalog' || urlPath === '/prepare') filePath = '/index.html';
-  } else {
-    if (urlPath === '/' || urlPath === '/catalog') filePath = '/index.html';
-    if (urlPath === '/prepare') filePath = '/prepare.html';
+  if (urlPath === '/' || urlPath === '/catalog' || urlPath === '/prepare' || urlPath === '/characters') {
+    filePath = '/index.html';
   }
-  const resolved = path.normalize(path.join(uiDir, filePath));
-  if (!resolved.startsWith(uiDir)) return null;
+
+  const resolved = path.normalize(path.join(frontendDistDir, filePath));
+  if (!resolved.startsWith(frontendDistDir)) return null;
   return resolved;
 }
 
@@ -1008,6 +1006,12 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
+  if (!hasFrontendBuild) {
+    return sendJson(res, 503, {
+      error: 'Frontend build not found. Run `npm run dev:frontend` for local UI dev or `npm run build:frontend` for integrated serving.',
+    });
+  }
+
   const staticPath = getStaticFilePath(url.pathname);
   if (!staticPath || !existsSync(staticPath)) {
     return sendJson(res, 404, { error: 'Not found' });
@@ -1027,7 +1031,10 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Spellbook UI listening on http://localhost:${port}`);
-    console.log(`Static frontend: ${useFrontendBuild ? 'frontend/dist' : 'ui'}`);
+    console.log(`Static frontend: frontend/dist`);
+    if (!hasFrontendBuild) {
+      console.log('Frontend build is not present; non-API routes will return 503.');
+    }
     if (spellsBackend === 'notion') {
       console.log(`Loaded spell database backend: notion (${notionDatabaseId})`);
       console.log(`Notion cache path: ${spellsCachePath}`);

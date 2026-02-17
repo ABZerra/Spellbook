@@ -23,11 +23,10 @@ try {
   throw error;
 }
 
-if (existsSync(frontendDistDir)) {
-  cpSync(frontendDistDir, distDir, { recursive: true });
-} else {
-  cpSync(path.join(rootDir, 'ui'), distDir, { recursive: true });
+if (!existsSync(frontendDistDir)) {
+  throw new Error('Missing frontend/dist. Run `npm run build --prefix frontend` first.');
 }
+cpSync(frontendDistDir, distDir, { recursive: true });
 
 mkdirSync(path.join(distDir, 'domain'), { recursive: true });
 cpSync(path.join(rootDir, 'src', 'domain', 'planner.js'), path.join(distDir, 'domain', 'planner.js'));
