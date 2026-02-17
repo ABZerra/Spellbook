@@ -1,4 +1,6 @@
 import React from 'react';
+import { RuneIcon } from './icons/RuneIcon';
+import { SCHOOL_ICON_BY_KEY, normalizeSchoolKey } from './icons/runeIcons';
 import { cn } from './ui/utils';
 
 const SCHOOL_COLORS: Record<string, string> = {
@@ -33,7 +35,10 @@ export function SchoolTag({
   surface = 'dark',
   className,
 }: SchoolTagProps) {
-  const color = SCHOOL_COLORS[school.toLowerCase()] || '#8A6A3D';
+  const normalized = school.toLowerCase();
+  const color = SCHOOL_COLORS[normalized] || '#8A6A3D';
+  const schoolKey = normalizeSchoolKey(normalized);
+  const SchoolGlyph = schoolKey ? SCHOOL_ICON_BY_KEY[schoolKey] : null;
 
   if (variant === 'dot') {
     return (
@@ -57,7 +62,11 @@ export function SchoolTag({
         color: surface === 'paper' ? 'var(--ink)' : 'var(--text)',
       }}
     >
-      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+      {SchoolGlyph ? (
+        <RuneIcon icon={SchoolGlyph} label="Spell school" size={14} variant="gold" interactive />
+      ) : (
+        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+      )}
       {school}
     </span>
   );

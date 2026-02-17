@@ -1,0 +1,12 @@
+import type { SVGProps } from 'react';
+
+export function DiscardPlanIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" {...props}>
+  <path d="M 8 6.8 H 15.5 L 18 9.3 V 17.6 C 18 18.4 17.3 19 16.5 19 H 8 C 7.2 19 6.5 18.4 6.5 17.6 V 8.3 C 6.5 7.5 7.2 6.8 8 6.8 Z" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M 15.5 6.8 V 9.3 H 18" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M 9.2 11.2 L 15.3 17.3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M 15.3 11.2 L 9.2 17.3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+</svg>
+  );
+}

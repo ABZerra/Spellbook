@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Plus, RefreshCw, Search, Wand2, X } from 'lucide-react';
+import { Plus, RefreshCw, Search, Wand2, X, Filter, ArrowUpDown, BookOpen } from 'lucide-react';
 import { useApp, fromCsvInput } from '../context/AppContext';
 import { CharacterSwitcher } from '../components/CharacterSwitcher';
+import { RuneDivider } from '../components/icons/RuneDivider';
+import { RuneIcon } from '../components/icons/RuneIcon';
+import { CharacterIcon } from '../components/icons/runeIcons';
 import { SpellCard } from '../components/SpellCard';
 import { SpellDetailsPanel } from '../components/SpellDetailsPanel';
 import { Badge } from '../components/ui/badge';
@@ -20,6 +23,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../components/ui/tooltip';
 
 const SORT_OPTIONS = ['name', 'level', 'source', 'tags', 'prepared'] as const;
 type SortKey = (typeof SORT_OPTIONS)[number];
@@ -131,10 +135,10 @@ export function CatalogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg text-text">
+    <div className="min-h-screen bg-bg text-text spellbook-leather-watermark">
       <header className="border-b border-border-dark bg-bg-2">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 self-center">
             <BookOpen className="h-8 w-8 text-gold" />
             <div>
               <h1 className="font-display text-[32px] leading-10 tracking-wide text-text">Spellbook</h1>
@@ -147,6 +151,12 @@ export function CatalogPage() {
               <Button variant="brandPrimary" className="h-10">
                 <Wand2 className="mr-2 h-4 w-4" />
                 Prepare Spells
+              </Button>
+            </Link>
+            <Link to="/characters">
+              <Button variant="brandSecondary" className="h-10">
+                <RuneIcon icon={CharacterIcon} label="Character List" size={16} interactive={false} className="mr-2" />
+                Characters
               </Button>
             </Link>
           </div>
@@ -176,12 +186,20 @@ export function CatalogPage() {
             {saveMode === 'local' && <Button variant="brandSecondary" size="sm" onClick={resetLocalDrafts}>Reset local edits</Button>}
           </div>
         </div>
+        <div className="mx-auto max-w-6xl px-6 pb-2">
+          <RuneDivider kind="simple" className="text-gold" />
+        </div>
       </section>
 
       <section className="border-b border-border-dark bg-bg-1">
         <div className="mx-auto max-w-6xl px-6 py-4">
           <div className="relative mb-4">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-dim" />
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-dim" />
+              </TooltipTrigger>
+              <TooltipContent side="top">Search spells</TooltipContent>
+            </Tooltip>
             <Input
               value={nameFilter}
               onChange={(event) => setNameFilter(event.target.value)}
@@ -192,7 +210,15 @@ export function CatalogPage() {
 
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-[220px_220px_1fr_220px_170px]">
             <div className="space-y-1">
-              <Label>School:</Label>
+              <Label className="inline-flex items-center gap-2">
+                <Tooltip delayDuration={200}>
+                  <TooltipTrigger asChild>
+                    <Filter className="h-4 w-4 text-text-dim" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Filter spells</TooltipContent>
+                </Tooltip>
+                School:
+              </Label>
               <Input value={sourceFilter} onChange={(event) => setSourceFilter(event.target.value)} placeholder="All" className="h-10 border-border-dark bg-bg-2" />
             </div>
             <div className="space-y-1">
@@ -218,7 +244,15 @@ export function CatalogPage() {
               </Tabs>
             </div>
             <div className="space-y-1">
-              <Label>Sort:</Label>
+              <Label className="inline-flex items-center gap-2">
+                <Tooltip delayDuration={200}>
+                  <TooltipTrigger asChild>
+                    <ArrowUpDown className="h-4 w-4 text-text-dim" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Sort spells</TooltipContent>
+                </Tooltip>
+                Sort:
+              </Label>
               <Select value={sortKey} onValueChange={(value) => setSortKey(value as SortKey)}>
                 <SelectTrigger className="h-10 border-border-dark bg-bg-2"><SelectValue /></SelectTrigger>
                 <SelectContent>

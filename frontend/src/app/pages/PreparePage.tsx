@@ -1,10 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { BookOpen, CircleHelp, Sparkles, Wand2 } from 'lucide-react';
+import { CircleHelp, Sparkles, Wand2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useApp } from '../context/AppContext';
 import type { DiffItem } from '../types/spell';
 import { CharacterSwitcher } from '../components/CharacterSwitcher';
+import { RuneIcon } from '../components/icons/RuneIcon';
+import {
+  CharacterIcon,
+  DiffChangesIcon,
+  LibraryIcon,
+  SpellCatalogIcon,
+} from '../components/icons/runeIcons';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import {
@@ -90,9 +97,10 @@ export function PreparePage() {
   }, []);
 
   const spellMap = useMemo(() => new Map(spells.map((spell) => [spell.id, spell.name])), [spells]);
+  const spellById = useMemo(() => new Map(spells.map((spell) => [spell.id, spell])), [spells]);
   const currentSpells = useMemo(
-    () => currentList.map((spellId) => ({ spellId, name: asSpellName(spellMap, spellId) })),
-    [currentList, spellMap],
+    () => currentList.map((spellId) => ({ spellId, name: asSpellName(spellMap, spellId), spell: spellById.get(spellId) || null })),
+    [currentList, spellMap, spellById],
   );
 
   const replacedByIndex = useMemo(() => {
@@ -159,12 +167,14 @@ export function PreparePage() {
     await run(async () => {
       await applyAll();
       setShowComplete(true);
-
-      const visibleLines = summaryLines.slice(0, 3);
-      const overflow = summaryLines.length - visibleLines.length;
-      const detail = visibleLines.length > 0 ? ` ${visibleLines.join(' • ')}` : '';
-      const overflowLabel = overflow > 0 ? ` (+${overflow} more)` : '';
-      toast(`Long Rest Updated.${detail}${overflowLabel}`);
+      toast(
+        <div className="space-y-1">
+          <p className="font-semibold">Long Rest Updated.</p>
+          {summaryLines.map((line, index) => (
+            <p key={`long-rest-change-${index}`} className="text-sm">{line}</p>
+          ))}
+        </div>,
+      );
 
       const prefersReducedMotion =
         typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -209,11 +219,11 @@ export function PreparePage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg pb-44 text-text">
+    <div className="min-h-screen bg-bg pb-44 text-text spellbook-leather-watermark">
       <header className="border-b border-border-dark bg-bg-2">
         <div className="mx-auto max-w-6xl px-6 py-4">
           <div className="rounded-2xl border border-border-dark bg-bg-1 p-4 shadow-panel">
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Wand2 className="h-7 w-7 text-accent" />
                 <div>
@@ -225,8 +235,14 @@ export function PreparePage() {
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <Link to="/catalog">
                   <Button variant="brandSecondary" className="h-10">
-                    <BookOpen className="mr-2 h-4 w-4" />
+                    <RuneIcon icon={SpellCatalogIcon} label="Spell Catalog" size={16} interactive={false} className="mr-2" />
                     Spell Catalog
+                  </Button>
+                </Link>
+                <Link to="/characters">
+                  <Button variant="brandSecondary" className="h-10">
+                    <RuneIcon icon={CharacterIcon} label="Character List" size={16} interactive={false} className="mr-2" />
+                    Characters
                   </Button>
                 </Link>
                 <CharacterSwitcher showAccountDetails={false} />
@@ -238,11 +254,11 @@ export function PreparePage() {
                   onRefresh={() => {
                     void refreshNow();
                   }}
-                  trigger={
+                  trigger={(
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-text-muted hover:text-text" title="Open system panel">
                       <CircleHelp className="h-4 w-4" />
                     </Button>
-                  }
+                  )}
                 />
               </div>
             </div>
@@ -254,6 +270,7 @@ export function PreparePage() {
         {isMobile ? (
           <section className="space-y-3">
             <div className="flex items-center gap-2">
+              <RuneIcon icon={DiffChangesIcon} label="Planned preparation list" size={18} variant="gold" interactive />
               <h2 className="font-display text-[18px] leading-6 tracking-wide text-gold">Next Long Rest Planned Spell List</h2>
               <div className="h-px w-10 bg-gold-soft" />
               <Badge className="border border-accent-soft bg-accent-soft text-text">{nextCount}</Badge>
@@ -266,6 +283,7 @@ export function PreparePage() {
             <NextList
               slots={nextList}
               diff={diff}
+              spellById={spellById}
               spellNameById={spellMap}
               replacedByIndex={replacedByIndex}
               duplicateCountByIndex={duplicateCountByIndex}
@@ -283,6 +301,7 @@ export function PreparePage() {
             <Accordion type="single" collapsible className="rounded-xl border border-border-dark bg-bg-1 px-3">
               <AccordionItem value="current">
                 <AccordionTrigger className="gap-2">
+                  <RuneIcon icon={LibraryIcon} label="Current prepared spells" size={16} variant="gold" interactive />
                   <span>Current Active Spell List</span>
                   <Badge className="border border-accent-soft bg-accent-soft text-text">{currentList.length}</Badge>
                 </AccordionTrigger>
@@ -296,6 +315,7 @@ export function PreparePage() {
           <>
             <section className="rounded-2xl border border-border-dark bg-bg-1 p-4 shadow-panel">
               <div className="mb-3 flex items-center gap-2">
+                <RuneIcon icon={DiffChangesIcon} label="Planned preparation list" size={18} variant="gold" interactive />
                 <h2 className="font-display text-[18px] leading-6 tracking-wide text-gold">Next Long Rest Planned Spell List</h2>
                 <div className="h-px w-10 bg-gold-soft" />
                 <Badge className="border border-accent-soft bg-accent-soft text-text">{nextCount}</Badge>
@@ -308,6 +328,7 @@ export function PreparePage() {
               <NextList
                 slots={nextList}
                 diff={diff}
+                spellById={spellById}
                 spellNameById={spellMap}
                 replacedByIndex={replacedByIndex}
                 duplicateCountByIndex={duplicateCountByIndex}
@@ -325,6 +346,7 @@ export function PreparePage() {
 
             <section className="rounded-2xl border border-border-dark bg-bg-1 p-4 shadow-panel">
               <div className="mb-3 flex items-center gap-2">
+                <RuneIcon icon={LibraryIcon} label="Current prepared spells" size={18} variant="gold" interactive />
                 <h2 className="font-display text-[18px] leading-6 tracking-wide text-gold">Current Active Spell List</h2>
                 <div className="h-px w-10 bg-gold-soft" />
                 <Badge className="border border-accent-soft bg-accent-soft text-text">{currentList.length}</Badge>
