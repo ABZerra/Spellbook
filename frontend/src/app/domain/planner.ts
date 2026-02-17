@@ -1,6 +1,11 @@
 import type { ApiPendingChange } from '../types/api';
 import type { DiffItem, PreviewDiff, SlotDraft, UiPendingAction, UiSpell } from '../types/spell';
 
+export interface DuplicateSpellWarning {
+  spellId: string;
+  indexes: number[];
+}
+
 export function computePreview(currentPrepared: string[], pendingActions: UiPendingAction[]): string[] {
   let preview = [...currentPrepared];
 
@@ -171,6 +176,22 @@ export function applySingleDiff(currentSlots: SlotDraft[], diffItem: DiffItem): 
   }
 
   return next;
+}
+
+export function getDuplicateSpellWarnings(nextSlots: SlotDraft[]): DuplicateSpellWarning[] {
+  const slotsBySpell = new Map<string, number[]>();
+
+  for (let index = 0; index < nextSlots.length; index += 1) {
+    const spellId = nextSlots[index]?.spellId;
+    if (!spellId) continue;
+    const indexes = slotsBySpell.get(spellId) || [];
+    indexes.push(index);
+    slotsBySpell.set(spellId, indexes);
+  }
+
+  return [...slotsBySpell.entries()]
+    .filter(([, indexes]) => indexes.length > 1)
+    .map(([spellId, indexes]) => ({ spellId, indexes }));
 }
 
 export function removeAppliedDiffFromDraft(nextSlots: SlotDraft[], diffItem: DiffItem): SlotDraft[] {

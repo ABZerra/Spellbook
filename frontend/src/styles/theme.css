@@ -179,3 +179,12 @@
     line-height: 1.5;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot='dialog-overlay'],
+  [data-slot='dialog-content'],
+  .prepare-complete-overlay {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -594,6 +594,8 @@ export function AppProvider({ children }: AppProviderProps) {
       );
       setPreparedSpellIds(payload.activeSpellIds);
       setNextList(buildSlotsFromCurrent(payload.activeSpellIds));
+      setDraftSaveStatus('idle');
+      setDraftSaveTick(0);
       return;
     }
 
@@ -608,6 +610,8 @@ export function AppProvider({ children }: AppProviderProps) {
     setPendingActions([]);
     setPendingVersion(1);
     setNextList(buildSlotsFromCurrent(nextPreparedIds));
+    setDraftSaveStatus('idle');
+    setDraftSaveTick(0);
   }, [authenticated, characterId, mode.remotePendingPlanEnabled, nextList, userId]);
 
   const queuePendingAction = useCallback(
