@@ -5,6 +5,7 @@ import {
   buildSlotsFromCurrent,
   computeDiffFromLists,
   diffToPendingChanges,
+  getDuplicateSpellWarnings,
   removeAppliedDiffFromDraft,
 } from './planner';
 
@@ -66,5 +67,34 @@ describe('planner v2', () => {
       diff,
     );
     expect(removed).toEqual([{ spellId: 'sleep' }, { spellId: 'light' }]);
+  });
+
+  it('normalizes notes and handles uneven slot lengths in diff computation', () => {
+    const diff = computeDiffFromLists(
+      buildSlotsFromCurrent(['sleep']),
+      [
+        { spellId: 'sleep', note: '   ' },
+        { spellId: 'shield', note: '  keep for reaction  ' },
+      ],
+    );
+
+    expect(diff).toEqual([
+      { action: 'add', index: 1, toSpellId: 'shield', note: 'keep for reaction' },
+    ]);
+  });
+
+  it('identifies duplicate spells in next slot drafts', () => {
+    const warnings = getDuplicateSpellWarnings([
+      { spellId: 'sleep' },
+      { spellId: 'shield' },
+      { spellId: 'sleep' },
+      { spellId: null },
+      { spellId: 'shield' },
+    ]);
+
+    expect(warnings).toEqual([
+      { spellId: 'sleep', indexes: [0, 2] },
+      { spellId: 'shield', indexes: [1, 4] },
+    ]);
   });
 });
