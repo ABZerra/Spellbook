@@ -30,28 +30,28 @@ export function SpellSocket({
 
   return (
     <div
-      className={`group rounded-lg border px-3 py-2 transition-colors motion-reduce:transition-none ${hasDiff ? 'border-amber-200/70 bg-[#162138] shadow-[inset_3px_0_0_#f7c56c]' : 'border-[#2a3c5f] bg-[#111c32]'}`}
+      className={`group rounded-lg border px-3 py-2 transition-colors motion-reduce:transition-none ${hasDiff ? 'border-accent bg-accent-soft shadow-[inset_3px_0_0_var(--accent)]' : 'border-border-dark bg-bg-2 hover:border-accent-soft'}`}
     >
       <div className="flex items-center gap-2">
         <button className="min-w-0 flex-1 text-left" onClick={onClick}>
           <p className="flex flex-wrap items-center gap-2 text-sm">
             {fromSpellName ? (
               <>
-                <span className="text-[#8f9ec0] line-through">{fromSpellName}</span>
-                <span className="text-[#9eb4da]">→</span>
-                <span className="text-gray-100">{name}</span>
+                <span className="text-text-dim line-through">{fromSpellName}</span>
+                <span className="text-accent">→</span>
+                <span className="text-text">{name}</span>
               </>
             ) : (
-              <span className="text-gray-100">{name}</span>
+              <span className="text-text">{name}</span>
             )}
             {duplicateCount > 1 && (
-              <Badge variant="destructive" className="inline-flex items-center gap-1">
+              <Badge variant="destructive" className="inline-flex items-center gap-1 border border-blood-soft bg-blood text-text">
                 <AlertTriangle className="h-3 w-3" />
                 Duplicate x{duplicateCount}
               </Badge>
             )}
             {note && (
-              <span className="inline-flex items-center text-[#9eb4da]" title="Note saved">
+              <span className="inline-flex items-center text-accent" title="Note saved">
                 <ScrollText className="h-3.5 w-3.5" />
               </span>
             )}
@@ -65,7 +65,7 @@ export function SpellSocket({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-[#9fb3d8] hover:text-gray-100"
+                  className="h-8 w-8 text-text-muted hover:text-text"
                   title="Clear this change"
                   onClick={(event) => {
                     event.stopPropagation();
@@ -79,7 +79,7 @@ export function SpellSocket({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-emerald-300 hover:text-emerald-200"
+                  className="h-8 w-8 text-accent hover:text-accent-2"
                   title="Apply this change"
                   onClick={(event) => {
                     event.stopPropagation();
@@ -92,7 +92,7 @@ export function SpellSocket({
             </div>
           )}
 
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-[#9fb3d8] hover:text-gray-100" title="Edit slot" onClick={onClick}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-text-muted hover:text-text" title="Edit slot" onClick={onClick}>
             <Pencil className="h-4 w-4" />
           </Button>
         </div>

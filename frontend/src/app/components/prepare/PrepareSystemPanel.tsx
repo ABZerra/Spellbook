@@ -28,15 +28,15 @@ export function PrepareSystemPanel({
       <SheetTrigger asChild>
         {trigger}
       </SheetTrigger>
-      <SheetContent side="right" className="border-[#24385b] bg-[#081734] text-gray-100 sm:max-w-md">
+      <SheetContent side="right" className="border-border-dark bg-bg-1 text-text sm:max-w-md">
         <SheetHeader className="px-5 pt-6">
-          <SheetTitle>System Panel</SheetTitle>
-          <SheetDescription className="text-[#90a2c0]">Infrastructure controls for draft mode and account state.</SheetDescription>
+          <SheetTitle className="font-display text-gold">System Panel</SheetTitle>
+          <SheetDescription className="text-text-muted">Infrastructure controls for draft mode and account state.</SheetDescription>
         </SheetHeader>
 
         <div className="space-y-4 px-5 pb-6">
-          <div className="rounded-xl border border-[#2a3c5f] bg-[#0e1a33] p-3">
-            <p className="mb-2 text-sm font-semibold text-[#c9d8f6]">Draft Status</p>
+          <div className="rounded-xl border border-border-dark bg-bg-2 p-3">
+            <p className="mb-2 font-display text-sm font-semibold text-gold">Draft Status</p>
             <DraftPersistence
               saveMode={saveMode}
               draftSaveStatus={draftSaveStatus}
@@ -47,20 +47,20 @@ export function PrepareSystemPanel({
 
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
-              className="min-h-10 border-[#2a3c5f] bg-[#0e1a33] text-gray-100 hover:bg-[#162744] hover:text-gray-100"
+              variant="brandSecondary"
+              className="min-h-10"
               onClick={onRefresh}
             >
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
-            <Badge className={saveMode === 'remote' ? 'bg-[#1b2740] text-gray-100' : 'border border-[#2a3c5f] bg-[#0e1a33] text-gray-100'}>
+            <Badge className={saveMode === 'remote' ? 'border border-accent-soft bg-accent-soft text-text' : 'border border-border-dark bg-bg-2 text-text'}>
               {saveMode === 'remote' ? 'Remote' : 'Local draft'}
             </Badge>
           </div>
 
-          <div className="rounded-xl border border-[#2a3c5f] bg-[#0e1a33] p-3">
-            <p className="mb-2 text-sm font-semibold text-[#c9d8f6]">Account & Session</p>
+          <div className="rounded-xl border border-border-dark bg-bg-2 p-3">
+            <p className="mb-2 font-display text-sm font-semibold text-gold">Account & Session</p>
             <CharacterSwitcher showAccountDetails showCharacterControl={false} />
           </div>
         </div>

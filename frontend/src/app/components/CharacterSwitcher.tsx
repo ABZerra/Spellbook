@@ -53,18 +53,18 @@ export function CharacterSwitcher({ showAccountDetails = true, showCharacterCont
       {showCharacterControl && (
         <div className="flex items-center gap-2">
           <div className="relative min-w-[220px]">
-            <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+            <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-dim" />
             <Input
               value={characterIdInput}
               onChange={(event) => setCharacterIdInput(event.target.value)}
               placeholder="My Character"
-              className="h-10 border-[#2a3b5e] bg-[#0f1c33] pl-9 text-gray-100"
+              className="h-10 border-border-dark bg-bg-2 pl-9 text-text"
             />
           </div>
           <Button
-            variant="outline"
+            variant="brandSecondary"
             size="icon"
-            className="h-10 w-10 border-[#2a3b5e] bg-[#0f1c33] text-gray-100 hover:bg-[#172742]"
+            className="h-10 w-10"
             disabled={busy || (mode.remotePendingPlanEnabled && !authenticated)}
             onClick={() => run(() => setCharacterId(characterIdInput))}
           >
@@ -74,15 +74,15 @@ export function CharacterSwitcher({ showAccountDetails = true, showCharacterCont
       )}
 
       {showAccountDetails && mode.remotePendingPlanEnabled && (
-        <details className="rounded-md border border-[#263754] bg-[#0d1527] p-3 text-sm text-gray-300">
-          <summary className="cursor-pointer text-gray-200">Account ({identityLabel})</summary>
+        <details className="rounded-md border border-border-dark bg-bg-2 p-3 text-sm text-text-muted">
+          <summary className="cursor-pointer text-text">Account ({identityLabel})</summary>
           <div className="mt-3 grid gap-2 md:grid-cols-3">
             <div className="space-y-1">
               <Label>Sign In User ID</Label>
               <Input value={signinId} onChange={(event) => setSigninId(event.target.value)} placeholder="user-123" />
               <Button
                 className="w-full"
-                variant="secondary"
+                variant="brandSecondary"
                 disabled={busy || !signinId.trim()}
                 onClick={() => run(() => signIn(signinId.trim()))}
               >
@@ -100,7 +100,7 @@ export function CharacterSwitcher({ showAccountDetails = true, showCharacterCont
               />
               <Button
                 className="w-full"
-                variant="secondary"
+                variant="brandSecondary"
                 disabled={busy || !signupId.trim()}
                 onClick={() => run(() => signUp(signupId.trim(), signupDisplayName.trim() || undefined))}
               >
@@ -112,7 +112,7 @@ export function CharacterSwitcher({ showAccountDetails = true, showCharacterCont
               <Label>Session</Label>
               <Button
                 className="w-full"
-                variant="outline"
+                variant="brandSecondary"
                 disabled={busy || !authenticated}
                 onClick={() => run(() => signOut())}
               >
@@ -123,7 +123,7 @@ export function CharacterSwitcher({ showAccountDetails = true, showCharacterCont
         </details>
       )}
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-blood-2">{error}</p>}
     </div>
   );
 }

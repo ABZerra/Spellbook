@@ -2,6 +2,7 @@ import React from 'react';
 import type { UiSpell } from '../types/spell';
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { SchoolTag } from './SchoolTag';
 
 interface SpellDetailsPanelProps {
   spell?: UiSpell | null;
@@ -12,8 +13,8 @@ function DetailRow({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
   return (
     <div>
-      <p className="text-xs uppercase tracking-wide text-[#7d8aa4]">{label}</p>
-      <p className="mt-1 text-sm text-gray-100">{value}</p>
+      <p className="text-xs uppercase tracking-widest text-ink-muted">{label}</p>
+      <p className="mt-1 text-sm text-ink">{value}</p>
     </div>
   );
 }
@@ -21,23 +22,23 @@ function DetailRow({ label, value }: { label: string; value?: string }) {
 export function SpellDetailsPanel({ spell, title = 'Spell Details' }: SpellDetailsPanelProps) {
   if (!spell) {
     return (
-      <Card className="border-[#24385b] bg-[#070b14] text-gray-100">
+      <Card className="rounded-2xl border border-paper-border bg-paper text-ink shadow-insetPaper">
         <CardHeader>
-          <CardTitle>{title}</CardTitle>
-          <CardDescription>Select a spell to view details.</CardDescription>
+          <CardTitle className="font-display text-[20px] text-ink">{title}</CardTitle>
+          <CardDescription className="text-ink-muted">Select a spell to view details.</CardDescription>
         </CardHeader>
       </Card>
     );
   }
 
   return (
-    <Card className="border-[#24385b] bg-[#070b14] text-gray-100">
+    <Card className="rounded-2xl border border-paper-border bg-paper text-ink shadow-insetPaper">
       <CardHeader>
-        <CardTitle className="text-xl">{spell.name}</CardTitle>
-        <CardDescription className="flex flex-wrap items-center gap-2 text-gray-400">
-          <Badge variant="secondary" className="bg-gray-700 text-xs text-gray-100">Level {spell.level}</Badge>
-          {spell.school && <Badge variant="outline" className="border-[#33507f] text-xs text-[#b6caef]">{spell.school}</Badge>}
-          <Badge className={spell.prepared ? 'bg-green-600 text-white' : 'bg-[#1b2740] text-gray-100'}>
+        <CardTitle className="font-display text-[20px] text-ink">{spell.name}</CardTitle>
+        <CardDescription className="flex flex-wrap items-center gap-2 text-ink-muted">
+          <Badge variant="outline" className="border-accent-soft text-xs text-ink">Level {spell.level}</Badge>
+          {spell.school && <SchoolTag school={spell.school} surface="paper" />}
+          <Badge className={spell.prepared ? 'border border-accent-soft bg-accent-soft text-ink' : 'border border-paper-border bg-paper-2 text-ink'}>
             {spell.prepared ? 'Prepared' : 'Not Prepared'}
           </Badge>
         </CardDescription>

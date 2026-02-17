@@ -6,7 +6,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '../ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../ui/sheet';
 import { Textarea } from '../ui/textarea';
 import {
   deriveSpellCategory,
@@ -110,42 +110,41 @@ export function PrepareSpellDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side={isMobile ? 'bottom' : 'right'}
-        className={`border-[#24385b] bg-[#081734] text-gray-100 ${isMobile ? 'max-h-[92vh]' : 'w-[90vw] sm:max-w-[900px]'}`}
+        className={`border-border-dark bg-bg-1 text-text ${isMobile ? 'max-h-[92vh]' : 'w-[90vw] sm:max-w-[900px]'}`}
       >
-        <SheetHeader className="border-b border-[#1b2a46] px-5 py-4">
-          <SheetTitle className="text-xl font-bold tracking-tight text-amber-100">Replace Spell Slot</SheetTitle>
-          <SheetDescription className="text-base text-[#b9c9e3]">
-            Current active spell: {currentSpellName}. Changes are queued automatically.
-          </SheetDescription>
+        <SheetHeader className="border-b border-border-dark px-5 py-4">
+          <SheetTitle className="font-display text-xl tracking-wide text-gold">
+            Replace {currentSpellName}
+          </SheetTitle>
         </SheetHeader>
 
         <div className={`grid gap-4 overflow-hidden px-4 pb-4 pt-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-[1fr_380px]'}`}>
           <div className="min-h-0 space-y-4">
             {duplicateWarningText && (
-              <p className="flex items-start gap-2 rounded-md border border-amber-400/40 bg-amber-500/15 px-3 py-2 text-sm text-amber-100" role="status">
+              <p className="flex items-start gap-2 rounded-md border border-accent-soft bg-accent-soft px-3 py-2 text-sm text-text" role="status">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 {duplicateWarningText}
               </p>
             )}
 
-            <div className="rounded-xl border border-[#2a3c5f] bg-[#101a30] p-3">
-              <p className="text-xs uppercase tracking-wide text-[#90a2c0]">Selected Replacement</p>
-              <p className="mt-1 text-base font-semibold text-gray-100">
+            <div className="rounded-xl border border-border-dark bg-bg-2 p-3">
+              <p className="text-xs uppercase tracking-widest text-text-dim">Selected Replacement</p>
+              <p className="mt-1 font-display text-base font-semibold text-text">
                 {options.find((spell) => spell.id === selectedSpellId)?.name || 'Empty Slot'}
               </p>
             </div>
 
-            <div className="space-y-2 rounded-xl border border-[#2a3c5f] bg-[#101a30] p-3">
+            <div className="space-y-2 rounded-xl border border-border-dark bg-bg-2 p-3">
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search spells by name, id, or effect..."
-                className="h-10 border-[#2a3c5f] bg-[#0d1527]"
+                className="h-10 border-border-dark bg-bg"
               />
 
               <div className="grid gap-2 md:grid-cols-2">
                 <Select value={levelFilter} onValueChange={setLevelFilter}>
-                  <SelectTrigger className="h-9 border-[#2a3c5f] bg-[#0d1527]"><SelectValue placeholder="Level" /></SelectTrigger>
+                  <SelectTrigger className="h-9 border-border-dark bg-bg"><SelectValue placeholder="Level" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Levels</SelectItem>
                     {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
@@ -157,7 +156,7 @@ export function PrepareSpellDrawer({
                 </Select>
 
                 <Select value={schoolFilter} onValueChange={setSchoolFilter}>
-                  <SelectTrigger className="h-9 border-[#2a3c5f] bg-[#0d1527]"><SelectValue placeholder="School" /></SelectTrigger>
+                  <SelectTrigger className="h-9 border-border-dark bg-bg"><SelectValue placeholder="School" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Schools</SelectItem>
                     {schools.map((school) => (
@@ -170,26 +169,19 @@ export function PrepareSpellDrawer({
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className={ritualOnly ? 'border-amber-300 bg-amber-300 text-black hover:bg-amber-200' : 'border-[#2a3c5f] bg-[#0d1527] text-[#9eb4da] hover:bg-[#13203a]'}
-                  onClick={() => setRitualOnly((current) => !current)}
-                >
+                <Button type="button" variant={ritualOnly ? 'brandPrimary' : 'brandSecondary'} size="sm" onClick={() => setRitualOnly((current) => !current)}>
                   Ritual Only
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant={concentrationOnly ? 'brandPrimary' : 'brandSecondary'}
                   size="sm"
-                  className={concentrationOnly ? 'border-amber-300 bg-amber-300 text-black hover:bg-amber-200' : 'border-[#2a3c5f] bg-[#0d1527] text-[#9eb4da] hover:bg-[#13203a]'}
                   onClick={() => setConcentrationOnly((current) => !current)}
                 >
                   Concentration Only
                 </Button>
                 <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as SpellCategoryFilter)}>
-                  <SelectTrigger className="h-9 w-[160px] border-[#2a3c5f] bg-[#0d1527]">
+                  <SelectTrigger className="h-9 w-[160px] border-border-dark bg-bg">
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -199,64 +191,56 @@ export function PrepareSpellDrawer({
                     <SelectItem value="utility">Utility</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="text-[#9eb4da]"
-                  onClick={resetFilters}
-                >
+                <Button type="button" variant="ghost" size="sm" className="text-text-muted" onClick={resetFilters}>
                   <RotateCcw className="mr-1 h-3.5 w-3.5" />
                   Reset
                 </Button>
               </div>
-              <p className="text-xs text-[#8ea2c7]">
-                {hasActiveFilters ? 'Filters active' : 'No filters active'}
-              </p>
+              <p className="text-xs text-text-dim">{hasActiveFilters ? 'Filters active' : 'No filters active'}</p>
             </div>
 
-            <div className="min-h-0 rounded-xl border border-[#2a3c5f] bg-[#101a30]">
-              <div className="max-h-[40vh] overflow-y-auto p-2">
+            <div className="min-h-0 rounded-xl border border-border-dark bg-bg-2">
+              <div className="arcane-scrollbar max-h-[40vh] overflow-y-auto p-2">
                 <button
                   type="button"
-                  className={`mb-2 w-full rounded-md border px-3 py-2 text-left ${selectedSpellId === null ? 'border-amber-400/70 bg-[#17233a]' : 'border-[#2a3c5f] hover:border-[#3e5784]'}`}
+                  className={`mb-2 w-full rounded-md border px-3 py-2 text-left disabled:cursor-not-allowed disabled:opacity-[0.55] ${selectedSpellId === null ? 'border-accent bg-accent-soft' : 'border-border-dark hover:border-accent-soft'}`}
                   onClick={() => onSelectedSpellIdChange(null)}
                   disabled={busy}
                 >
-                  <p className="text-sm font-semibold text-gray-100">Empty Slot</p>
-                  <p className="text-xs text-[#8ea2c7]">Remove spell from this slot.</p>
+                  <p className="font-display text-sm font-semibold text-text">Empty Slot</p>
+                  <p className="text-xs text-text-dim">Remove spell from this slot.</p>
                 </button>
 
                 {filteredOptions.map((spell) => (
                   <button
                     key={spell.id}
                     type="button"
-                    className={`mb-2 w-full rounded-md border px-3 py-2 text-left ${selectedSpellId === spell.id ? 'border-amber-400/70 bg-[#17233a]' : 'border-[#2a3c5f] hover:border-[#3e5784]'}`}
+                    className={`mb-2 w-full rounded-md border px-3 py-2 text-left disabled:cursor-not-allowed disabled:opacity-[0.55] ${selectedSpellId === spell.id ? 'border-accent bg-accent-soft' : 'border-border-dark hover:border-accent-soft'}`}
                     onClick={() => onSelectedSpellIdChange(spell.id)}
                     onMouseEnter={() => setInspectedSpellId(spell.id)}
                     disabled={busy}
                   >
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-gray-100">{spell.name}</p>
-                      {selectedSpellId === spell.id && <Badge className="bg-amber-500 text-black">Selected</Badge>}
+                      <p className="font-display text-sm font-semibold text-text">{spell.name}</p>
+                      {selectedSpellId === spell.id && <Badge className="border border-accent-soft bg-accent-soft text-text">Selected</Badge>}
                     </div>
-                    <p className="mt-1 text-xs text-[#8ea2c7]">{formatSpellPickerMeta(spell)}</p>
-                    <p className="mt-1 text-xs text-[#8ea2c7]">Range: {spell.range || 'Unknown'}</p>
+                    <p className="mt-1 text-xs text-text-dim">{formatSpellPickerMeta(spell)}</p>
+                    <p className="mt-1 text-xs text-text-dim">Range: {spell.range || 'Unknown'}</p>
                   </button>
                 ))}
 
                 {filteredOptions.length === 0 && (
-                  <p className="px-2 py-4 text-sm text-[#8ea2c7]">
+                  <p className="px-2 py-4 text-sm text-text-dim">
                     {hasActiveFilters ? 'No spells match current filters.' : 'No spells available.'}
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="rounded-xl border border-[#2a3c5f] bg-[#101a30] p-3">
-              <p className="mb-2 text-sm text-[#9db2d8]">Change Note</p>
+            <div className="rounded-xl border border-border-dark bg-bg-2 p-3">
+              <p className="mb-2 text-sm text-text-muted">Change Note</p>
               <Textarea
-                className="min-h-20 border-[#2a3c5f] bg-[#0d1527]"
+                className="min-h-20 border-border-dark bg-bg"
                 placeholder="Capture your rationale for this change..."
                 value={note}
                 onChange={(event) => onNoteChange(event.target.value)}
@@ -264,7 +248,7 @@ export function PrepareSpellDrawer({
             </div>
           </div>
 
-          <div className="min-h-0 overflow-y-auto rounded-xl border border-[#2a3c5f] bg-[#101a30] p-2">
+          <div className="arcane-scrollbar min-h-0 overflow-y-auto rounded-xl border border-border-dark bg-paper p-2">
             <SpellDetailsPanel spell={inspectedSpell} title="Spell Details (In Ritual)" />
           </div>
         </div>

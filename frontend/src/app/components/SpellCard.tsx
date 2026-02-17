@@ -9,6 +9,7 @@ import { Label } from './ui/label';
 import { Switch } from './ui/switch';
 import { Textarea } from './ui/textarea';
 import { Pencil, Save, Trash2, X } from 'lucide-react';
+import { SchoolTag } from './SchoolTag';
 
 interface SpellCardProps {
   spell: UiSpell;
@@ -16,19 +17,6 @@ interface SpellCardProps {
   compact?: boolean;
   onInspect?: (spell: UiSpell) => void;
   isSelected?: boolean;
-}
-
-function schoolBadgeClass(school: string) {
-  const name = school.toLowerCase();
-  if (name === 'abjuration') return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
-  if (name === 'evocation') return 'bg-red-500/20 text-red-300 border-red-500/30';
-  if (name === 'divination') return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
-  if (name === 'enchantment') return 'bg-pink-500/20 text-pink-300 border-pink-500/30';
-  if (name === 'transmutation') return 'bg-green-500/20 text-green-300 border-green-500/30';
-  if (name === 'conjuration') return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
-  if (name === 'illusion') return 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30';
-  if (name === 'necromancy') return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
-  return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
 }
 
 export function SpellCard({
@@ -99,26 +87,18 @@ export function SpellCard({
     return (
       <div
         onClick={handleInspect}
-        className={`flex items-center gap-3 rounded-xl border p-3 ${isSelected ? 'border-cyan-400 bg-[#172440]' : 'border-[#2b3f63] bg-[#131d30]'} ${onInspect ? 'cursor-pointer' : ''}`}
+        className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${isSelected ? 'border-accent bg-accent-soft' : 'border-border-dark bg-bg-2 hover:border-accent-soft'} ${onInspect ? 'cursor-pointer' : ''}`}
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <p className="font-medium truncate text-gray-100">{spell.name}</p>
-            {spell.school && (
-              <Badge variant="outline" className={`border text-xs ${schoolBadgeClass(spell.school)}`}>
-                {spell.school}
-              </Badge>
-            )}
-            <Badge variant="secondary" className="bg-gray-700 text-xs text-gray-100">
-              Level {spell.level}
-            </Badge>
+            <p className="truncate font-display text-base text-text">{spell.name}</p>
+            {spell.school && <SchoolTag school={spell.school} variant="pill" surface="dark" />}
+            <Badge variant="outline" className="border-accent-soft text-xs text-text">Level {spell.level}</Badge>
           </div>
         </div>
         {showPrepared && (
           <div className="flex items-center gap-2">
-            <Label htmlFor={`prepared-${spell.id}`} className="text-xs text-gray-300">
-              Prepared
-            </Label>
+            <Label htmlFor={`prepared-${spell.id}`} className="text-xs text-text-muted">Prepared</Label>
             <Switch
               id={`prepared-${spell.id}`}
               checked={isPrepared}
@@ -134,45 +114,36 @@ export function SpellCard({
   return (
     <Card
       onClick={handleInspect}
-      className={`border-[#24385b] bg-[#070b14] text-gray-100 shadow-sm ${isPrepared ? 'ring-1 ring-green-500/50' : ''} ${isSelected ? 'ring-2 ring-cyan-400/80' : ''} ${onInspect ? 'cursor-pointer' : ''}`}
+      className={`rounded-2xl border bg-bg-1 text-text shadow-panel transition-colors ${isPrepared ? 'border-accent-soft' : 'border-border-dark'} ${isSelected ? 'border-accent bg-accent-soft' : 'hover:border-accent-soft'} ${onInspect ? 'cursor-pointer' : ''}`}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
             {isEditing ? (
-              <Input
-                value={editedSpell.name}
-                onChange={(event) => setEditedSpell({ ...editedSpell, name: event.target.value })}
-              />
+              <Input value={editedSpell.name} onChange={(event) => setEditedSpell({ ...editedSpell, name: event.target.value })} />
             ) : (
-              <CardTitle className="text-xl font-semibold text-gray-100">{spell.name}</CardTitle>
+              <CardTitle className="font-display text-[20px] leading-7 text-text">{spell.name}</CardTitle>
             )}
-            <CardDescription className="mt-3 flex flex-wrap items-center gap-2 text-gray-400">
-              {spell.school && (
-                <Badge variant="outline" className={`border text-xs ${schoolBadgeClass(spell.school)}`}>
-                  {spell.school}
-                </Badge>
-              )}
-              <Badge variant="secondary" className="bg-gray-700 text-xs text-gray-100">
-                Level {spell.level}
-              </Badge>
-              {sourceText && <span className="text-xs text-[#71809a]">{sourceText}</span>}
+            <CardDescription className="mt-3 flex flex-wrap items-center gap-2 text-text-muted">
+              {spell.school && <SchoolTag school={spell.school} variant="pill" surface="dark" />}
+              <Badge variant="outline" className="border-accent-soft text-xs text-text">Level {spell.level}</Badge>
+              {sourceText && <span className="text-xs uppercase tracking-wider text-text-dim">{sourceText}</span>}
             </CardDescription>
           </div>
           <div className="flex gap-1">
             {!isEditing ? (
               <>
                 <Button variant="ghost" size="sm" disabled={busy} onClick={() => setIsEditing(true)}>
-                  <Pencil className="h-4 w-4 text-gray-200" />
+                  <Pencil className="h-4 w-4 text-text" />
                 </Button>
                 <Button variant="ghost" size="sm" disabled={busy} onClick={() => void run(() => deleteSpell(spell.id))}>
-                  <Trash2 className="h-4 w-4 text-red-500" />
+                  <Trash2 className="h-4 w-4 text-blood-2" />
                 </Button>
               </>
             ) : (
               <>
                 <Button variant="ghost" size="sm" disabled={busy} onClick={handleSave}>
-                  <Save className="h-4 w-4 text-green-400" />
+                  <Save className="h-4 w-4 text-accent" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -183,7 +154,7 @@ export function SpellCard({
                     setIsEditing(false);
                   }}
                 >
-                  <X className="h-4 w-4 text-gray-300" />
+                  <X className="h-4 w-4 text-text-muted" />
                 </Button>
               </>
             )}
@@ -196,99 +167,70 @@ export function SpellCard({
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <Label>Source</Label>
-                <Input
-                  value={toCsvInput(editedSpell.source)}
-                  onChange={(event) =>
-                    setEditedSpell({ ...editedSpell, source: fromCsvInput(event.target.value) })
-                  }
-                />
+                <Input value={toCsvInput(editedSpell.source)} onChange={(event) => setEditedSpell({ ...editedSpell, source: fromCsvInput(event.target.value) })} />
               </div>
               <div>
                 <Label>Tags</Label>
-                <Input
-                  value={toCsvInput(editedSpell.tags)}
-                  onChange={(event) =>
-                    setEditedSpell({ ...editedSpell, tags: fromCsvInput(event.target.value) })
-                  }
-                />
+                <Input value={toCsvInput(editedSpell.tags)} onChange={(event) => setEditedSpell({ ...editedSpell, tags: fromCsvInput(event.target.value) })} />
               </div>
               <div>
                 <Label>Casting Time</Label>
-                <Input
-                  value={editedSpell.castingTime}
-                  onChange={(event) =>
-                    setEditedSpell({ ...editedSpell, castingTime: event.target.value })
-                  }
-                />
+                <Input value={editedSpell.castingTime} onChange={(event) => setEditedSpell({ ...editedSpell, castingTime: event.target.value })} />
               </div>
               <div>
                 <Label>Range</Label>
-                <Input
-                  value={editedSpell.range}
-                  onChange={(event) => setEditedSpell({ ...editedSpell, range: event.target.value })}
-                />
+                <Input value={editedSpell.range} onChange={(event) => setEditedSpell({ ...editedSpell, range: event.target.value })} />
               </div>
             </div>
             <div>
               <Label>Description</Label>
-              <Textarea
-                rows={4}
-                value={editedSpell.description}
-                onChange={(event) =>
-                  setEditedSpell({ ...editedSpell, description: event.target.value })
-                }
-              />
+              <Textarea rows={4} value={editedSpell.description} onChange={(event) => setEditedSpell({ ...editedSpell, description: event.target.value })} />
             </div>
           </>
         ) : (
-          <>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              {spell.castingTime && (
-                <p>
-                  <span className="font-semibold text-gray-100">Casting Time:</span>{' '}
-                  <span className="text-gray-200">{spell.castingTime}</span>
-                </p>
-              )}
-              {spell.range && (
-                <p>
-                  <span className="font-semibold text-gray-100">Range:</span>{' '}
-                  <span className="text-gray-200">{spell.range}</span>
-                </p>
-              )}
-              {spell.components && (
-                <p>
-                  <span className="font-semibold text-gray-100">Components:</span>{' '}
-                  <span className="text-gray-200">{spell.components}</span>
-                </p>
-              )}
-              {spell.duration && (
-                <p>
-                  <span className="font-semibold text-gray-100">Duration:</span>{' '}
-                  <span className="text-gray-200">{spell.duration}</span>
-                </p>
-              )}
+          <div className="rounded-2xl border border-paper-border bg-paper text-ink shadow-insetPaper">
+            <div className="space-y-4 p-5">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                {spell.castingTime && (
+                  <p>
+                    <span className="font-semibold text-ink">Casting Time:</span>{' '}
+                    <span className="text-ink-muted">{spell.castingTime}</span>
+                  </p>
+                )}
+                {spell.range && (
+                  <p>
+                    <span className="font-semibold text-ink">Range:</span>{' '}
+                    <span className="text-ink-muted">{spell.range}</span>
+                  </p>
+                )}
+                {spell.components && (
+                  <p>
+                    <span className="font-semibold text-ink">Components:</span>{' '}
+                    <span className="text-ink-muted">{spell.components}</span>
+                  </p>
+                )}
+                {spell.duration && (
+                  <p>
+                    <span className="font-semibold text-ink">Duration:</span>{' '}
+                    <span className="text-ink-muted">{spell.duration}</span>
+                  </p>
+                )}
+              </div>
+              {spell.description && <p className="line-clamp-5 max-w-[80ch] space-y-3 text-sm text-ink-muted">{spell.description}</p>}
             </div>
-            {spell.description && (
-              <p className="line-clamp-5 text-sm text-[#6f7c96]">{spell.description}</p>
-            )}
-          </>
+          </div>
         )}
 
         {showPrepared && !isEditing && (
-          <div className="flex items-center gap-2 border-t border-[#253752] pt-3">
-            <Switch
-              id={`prepared-full-${spell.id}`}
-              checked={isPrepared}
-              disabled={busy}
-              onCheckedChange={() => void run(() => togglePrepared(spell.id))}
-            />
-            <Label htmlFor={`prepared-full-${spell.id}`} className="text-gray-200">
+          <div className="flex items-center gap-2 border-t border-border-dark pt-3">
+            <Switch id={`prepared-full-${spell.id}`} checked={isPrepared} disabled={busy} onCheckedChange={() => void run(() => togglePrepared(spell.id))} />
+            <Label htmlFor={`prepared-full-${spell.id}`} className="text-text">
               {isPrepared ? 'Prepared' : 'Not Prepared'}
             </Label>
           </div>
         )}
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm text-blood-2">{error}</p>}
       </CardContent>
     </Card>
   );
