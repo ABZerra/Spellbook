@@ -13,7 +13,7 @@ export function DraftPersistence({ saveMode, draftSaveStatus, draftSaveTick, has
     return (
       <div className="flex items-center gap-2">
         <Badge variant={saveMode === 'remote' ? 'secondary' : 'outline'}>{saveMode === 'remote' ? 'Remote' : 'Local draft'}</Badge>
-        <Badge className="bg-[#1b2740] text-gray-100">No draft changes</Badge>
+        <Badge className="border border-gold-soft bg-gold-soft text-text">No draft changes</Badge>
       </div>
     );
   }
@@ -23,10 +23,10 @@ export function DraftPersistence({ saveMode, draftSaveStatus, draftSaveTick, has
 
   const statusClassName =
     draftSaveStatus === 'saved'
-      ? 'bg-emerald-600 text-white'
+      ? 'border border-gold-soft bg-gold-soft text-text'
       : draftSaveStatus === 'error'
-        ? 'bg-red-600 text-white'
-        : 'bg-[#1b2740] text-gray-100';
+        ? 'bg-blood text-text'
+        : 'border border-border-dark bg-bg-2 text-text';
 
   return (
     <div className="flex items-center gap-2">

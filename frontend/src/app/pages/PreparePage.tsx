@@ -209,22 +209,22 @@ export function PreparePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#040a17] pb-44 text-gray-100">
-      <header className="border-b border-[#1b2a46] bg-[#07142d]">
-        <div className="mx-auto max-w-[1500px] px-6 py-4">
-          <div className="rounded-2xl border border-[#253a5f] bg-[#081734] p-4">
+    <div className="min-h-screen bg-bg pb-44 text-text">
+      <header className="border-b border-border-dark bg-bg-2">
+        <div className="mx-auto max-w-6xl px-6 py-4">
+          <div className="rounded-2xl border border-border-dark bg-bg-1 p-4 shadow-panel">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex items-center gap-3">
-                <Wand2 className="h-7 w-7 text-amber-300" />
+                <Wand2 className="h-7 w-7 text-gold" />
                 <div>
-                  <h1 className="text-2xl font-semibold">✨ Preparation Ritual</h1>
-                  <p className="text-sm text-[#90a2c0]">Plan your next long rest loadout in one flow</p>
+                  <h1 className="font-display text-[32px] leading-10 tracking-wide text-text">Preparation Ritual</h1>
+                  <p className="text-sm text-text-muted">Plan your next long rest loadout in one flow</p>
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <Link to="/catalog">
-                  <Button className="h-10 border border-white/20 bg-white text-black hover:bg-gray-200">
+                  <Button variant="brandSecondary" className="h-10">
                     <BookOpen className="mr-2 h-4 w-4" />
                     Spell Catalog
                   </Button>
@@ -239,26 +239,26 @@ export function PreparePage() {
                     void refreshNow();
                   }}
                   trigger={
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-[#9eb4da] hover:text-gray-100" title="Open system panel">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-text-muted hover:text-text" title="Open system panel">
                       <CircleHelp className="h-4 w-4" />
                     </Button>
                   }
                 />
               </div>
             </div>
-
           </div>
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 px-6 py-8 md:grid-cols-[1.3fr_0.7fr]">
+      <main className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-6 py-8 md:grid-cols-[minmax(0,1fr)_max-content]">
         {isMobile ? (
           <section className="space-y-3">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold text-gray-100">✨ Next Long Rest Planned Spell List</h2>
-              <Badge className="bg-[#1b2740] text-gray-100">{nextCount}</Badge>
+              <h2 className="font-display text-[18px] leading-6 tracking-wide text-gold">Next Long Rest Planned Spell List</h2>
+              <div className="h-px w-10 bg-gold-soft" />
+              <Badge className="border border-gold-soft bg-gold-soft text-text">{nextCount}</Badge>
               <Badge
-                className={`bg-amber-500 text-black transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
+                className={`border border-gold-soft bg-gold-soft text-text transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
               >
                 {diff.length} Changes
               </Badge>
@@ -280,11 +280,11 @@ export function PreparePage() {
               }}
             />
 
-            <Accordion type="single" collapsible className="rounded-xl border border-[#2a3c5f] bg-[#0d1527] px-3">
+            <Accordion type="single" collapsible className="rounded-xl border border-border-dark bg-bg-1 px-3">
               <AccordionItem value="current">
                 <AccordionTrigger className="gap-2">
                   <span>Current Active Spell List</span>
-                  <Badge className="bg-[#1b2740] text-gray-100">{currentList.length}</Badge>
+                  <Badge className="border border-gold-soft bg-gold-soft text-text">{currentList.length}</Badge>
                 </AccordionTrigger>
                 <AccordionContent>
                   <CurrentList currentSpells={currentSpells} isMobile />
@@ -294,12 +294,13 @@ export function PreparePage() {
           </section>
         ) : (
           <>
-            <section className="rounded-2xl border border-[#2f4770] bg-[#0c1a33] p-4 shadow-[0_0_0_1px_rgba(250,209,120,0.2)]">
+            <section className="rounded-2xl border border-border-dark bg-bg-1 p-4 shadow-panel">
               <div className="mb-3 flex items-center gap-2">
-                <h2 className="text-lg font-semibold text-gray-100">✨ Next Long Rest Planned Spell List</h2>
-                <Badge className="bg-[#1b2740] text-gray-100">{nextCount}</Badge>
+                <h2 className="font-display text-[18px] leading-6 tracking-wide text-gold">Next Long Rest Planned Spell List</h2>
+                <div className="h-px w-10 bg-gold-soft" />
+                <Badge className="border border-gold-soft bg-gold-soft text-text">{nextCount}</Badge>
                 <Badge
-                  className={`bg-amber-500 text-black transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
+                  className={`border border-gold-soft bg-gold-soft text-text transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
                 >
                   {diff.length} Changes
                 </Badge>
@@ -322,10 +323,11 @@ export function PreparePage() {
               />
             </section>
 
-            <section className="rounded-2xl border border-[#1f2f4c] bg-[#091325] p-4">
+            <section className="rounded-2xl border border-border-dark bg-bg-1 p-4 shadow-panel">
               <div className="mb-3 flex items-center gap-2">
-                <h2 className="text-base font-medium text-[#93a8d0]">Current Active Spell List</h2>
-                <Badge className="bg-[#1b2740] text-gray-100">{currentList.length}</Badge>
+                <h2 className="font-display text-[18px] leading-6 tracking-wide text-gold">Current Active Spell List</h2>
+                <div className="h-px w-10 bg-gold-soft" />
+                <Badge className="border border-gold-soft bg-gold-soft text-text">{currentList.length}</Badge>
               </div>
               <CurrentList currentSpells={currentSpells} />
             </section>
@@ -377,17 +379,17 @@ export function PreparePage() {
       />
 
       {showComplete && (
-        <div className="prepare-complete-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/35 motion-reduce:animate-none">
-          <div className="rounded-2xl border border-amber-300/50 bg-[#111c32] px-6 py-5 text-center shadow-2xl motion-reduce:transition-none">
-            <Sparkles className="mx-auto mb-2 h-6 w-6 text-amber-300" />
-            <p className="text-lg font-semibold text-amber-100">Long Rest Updated</p>
+        <div className="prepare-complete-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-sm motion-reduce:animate-none">
+          <div className="rounded-2xl border border-gold-soft bg-bg-1 px-6 py-5 text-center shadow-panel motion-reduce:transition-none">
+            <Sparkles className="mx-auto mb-2 h-6 w-6 text-gold" />
+            <p className="font-display text-lg font-semibold text-text">Long Rest Updated</p>
           </div>
         </div>
       )}
 
-      {loading && <p className="px-6 pb-6 text-gray-400">Loading prepare state...</p>}
-      {!loading && error && <p className="px-6 pb-6 text-red-400">{error}</p>}
-      {actionError && <p className="px-6 pb-6 text-red-400">{actionError}</p>}
+      {loading && <p className="px-6 pb-6 text-text-muted">Loading prepare state...</p>}
+      {!loading && error && <p className="px-6 pb-6 text-blood-2">{error}</p>}
+      {actionError && <p className="px-6 pb-6 text-blood-2">{actionError}</p>}
     </div>
   );
 }
