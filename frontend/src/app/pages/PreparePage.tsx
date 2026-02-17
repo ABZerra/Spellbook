@@ -214,9 +214,9 @@ export function PreparePage() {
 
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <Link to="/catalog">
-                  <Button variant="outline" className="h-10 border-[#2a3c5f] bg-[#0e1a33] text-gray-100 hover:bg-[#162744]">
+                  <Button className="h-10 border border-white/20 bg-white text-black hover:bg-gray-200">
                     <BookOpen className="mr-2 h-4 w-4" />
-                    Catalog
+                    Spell Catalog
                   </Button>
                 </Link>
                 <CharacterSwitcher showAccountDetails={false} />

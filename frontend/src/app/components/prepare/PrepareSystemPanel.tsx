@@ -47,11 +47,15 @@ export function PrepareSystemPanel({
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" className="min-h-10 border-[#2a3c5f] bg-[#0e1a33]" onClick={onRefresh}>
+            <Button
+              variant="outline"
+              className="min-h-10 border-[#2a3c5f] bg-[#0e1a33] text-gray-100 hover:bg-[#162744] hover:text-gray-100"
+              onClick={onRefresh}
+            >
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
-            <Badge variant={saveMode === 'remote' ? 'secondary' : 'outline'}>
+            <Badge className={saveMode === 'remote' ? 'bg-[#1b2740] text-gray-100' : 'border border-[#2a3c5f] bg-[#0e1a33] text-gray-100'}>
               {saveMode === 'remote' ? 'Remote' : 'Local draft'}
             </Badge>
           </div>
