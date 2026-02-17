@@ -5,7 +5,12 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Plus, User } from 'lucide-react';
 
-export function CharacterSwitcher() {
+interface CharacterSwitcherProps {
+  showAccountDetails?: boolean;
+  showCharacterControl?: boolean;
+}
+
+export function CharacterSwitcher({ showAccountDetails = true, showCharacterControl = true }: CharacterSwitcherProps) {
   const {
     currentCharacter,
     setCharacterId,
@@ -45,28 +50,30 @@ export function CharacterSwitcher() {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <div className="relative min-w-[220px]">
-          <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-          <Input
-            value={characterIdInput}
-            onChange={(event) => setCharacterIdInput(event.target.value)}
-            placeholder="My Character"
-            className="h-10 border-[#2a3b5e] bg-[#0f1c33] pl-9 text-gray-100"
-          />
+      {showCharacterControl && (
+        <div className="flex items-center gap-2">
+          <div className="relative min-w-[220px]">
+            <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+            <Input
+              value={characterIdInput}
+              onChange={(event) => setCharacterIdInput(event.target.value)}
+              placeholder="My Character"
+              className="h-10 border-[#2a3b5e] bg-[#0f1c33] pl-9 text-gray-100"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-10 w-10 border-[#2a3b5e] bg-[#0f1c33] text-gray-100 hover:bg-[#172742]"
+            disabled={busy || (mode.remotePendingPlanEnabled && !authenticated)}
+            onClick={() => run(() => setCharacterId(characterIdInput))}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-10 w-10 border-[#2a3b5e] bg-[#0f1c33] text-gray-100 hover:bg-[#172742]"
-          disabled={busy || (mode.remotePendingPlanEnabled && !authenticated)}
-          onClick={() => run(() => setCharacterId(characterIdInput))}
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-      </div>
+      )}
 
-      {mode.remotePendingPlanEnabled && (
+      {showAccountDetails && mode.remotePendingPlanEnabled && (
         <details className="rounded-md border border-[#263754] bg-[#0d1527] p-3 text-sm text-gray-300">
           <summary className="cursor-pointer text-gray-200">Account ({identityLabel})</summary>
           <div className="mt-3 grid gap-2 md:grid-cols-3">

@@ -77,7 +77,7 @@ export function SearchAutocomplete({
       </div>
 
       <CommandInput placeholder="Search spell name..." value={query} onValueChange={setQuery} />
-      <CommandList className="bg-[#0d1527]">
+      <CommandList className="max-h-[48vh] bg-[#0d1527]">
         <CommandGroup heading="Spells">
           {filteredOptions.map((spell) => (
             <CommandItem
@@ -112,7 +112,7 @@ export function SearchAutocomplete({
         </CommandGroup>
       </CommandList>
 
-      <div className="border-t border-[#1b2a46] p-4">
+      <div className="border-t border-[#1b2a46] p-5">
         {duplicateWarningText && (
           <p className="mb-3 flex items-start gap-2 rounded-md border border-amber-400/40 bg-amber-500/15 px-3 py-2 text-sm text-amber-100" role="status">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
