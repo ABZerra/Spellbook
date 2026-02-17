@@ -87,13 +87,13 @@ export function SpellCard({
     return (
       <div
         onClick={handleInspect}
-        className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${isSelected ? 'border-gold bg-gold-soft/40' : 'border-border-dark bg-bg-2 hover:border-gold-soft'} ${onInspect ? 'cursor-pointer' : ''}`}
+        className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${isSelected ? 'border-accent bg-accent-soft' : 'border-border-dark bg-bg-2 hover:border-accent-soft'} ${onInspect ? 'cursor-pointer' : ''}`}
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="truncate font-display text-base text-text">{spell.name}</p>
             {spell.school && <SchoolTag school={spell.school} variant="pill" surface="dark" />}
-            <Badge variant="outline" className="border-gold-soft text-xs text-text">Level {spell.level}</Badge>
+            <Badge variant="outline" className="border-accent-soft text-xs text-text">Level {spell.level}</Badge>
           </div>
         </div>
         {showPrepared && (
@@ -114,7 +114,7 @@ export function SpellCard({
   return (
     <Card
       onClick={handleInspect}
-      className={`rounded-2xl border bg-bg-1 text-text shadow-panel transition-colors ${isPrepared ? 'border-gold-soft' : 'border-border-dark'} ${isSelected ? 'border-gold bg-gold-soft/20' : 'hover:border-gold-soft'} ${onInspect ? 'cursor-pointer' : ''}`}
+      className={`rounded-2xl border bg-bg-1 text-text shadow-panel transition-colors ${isPrepared ? 'border-accent-soft' : 'border-border-dark'} ${isSelected ? 'border-accent bg-accent-soft' : 'hover:border-accent-soft'} ${onInspect ? 'cursor-pointer' : ''}`}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
@@ -126,7 +126,7 @@ export function SpellCard({
             )}
             <CardDescription className="mt-3 flex flex-wrap items-center gap-2 text-text-muted">
               {spell.school && <SchoolTag school={spell.school} variant="pill" surface="dark" />}
-              <Badge variant="outline" className="border-gold-soft text-xs text-text">Level {spell.level}</Badge>
+              <Badge variant="outline" className="border-accent-soft text-xs text-text">Level {spell.level}</Badge>
               {sourceText && <span className="text-xs uppercase tracking-wider text-text-dim">{sourceText}</span>}
             </CardDescription>
           </div>
@@ -143,7 +143,7 @@ export function SpellCard({
             ) : (
               <>
                 <Button variant="ghost" size="sm" disabled={busy} onClick={handleSave}>
-                  <Save className="h-4 w-4 text-gold" />
+                  <Save className="h-4 w-4 text-accent" />
                 </Button>
                 <Button
                   variant="ghost"

@@ -83,7 +83,7 @@ export function SearchAutocomplete({
             <CommandItem
               key={spell.id}
               value={`${spell.name} ${spell.id} ${spell.level}`}
-              className="text-text hover:bg-gold-soft data-[selected=true]:bg-gold-soft data-[selected=true]:text-text"
+              className="text-text hover:bg-accent-soft data-[selected=true]:bg-accent-soft data-[selected=true]:text-text"
               onSelect={() => {
                 onSelectedSpellIdChange(spell.id);
                 setQuery(spell.name);
@@ -91,7 +91,7 @@ export function SearchAutocomplete({
             >
               <span>{spell.name}</span>
               <span className="text-xs text-text-dim">Lvl {spell.level}</span>
-              {selectedSpellId === spell.id && <span className="ml-auto text-xs text-gold">Selected</span>}
+              {selectedSpellId === spell.id && <span className="ml-auto text-xs text-accent">Selected</span>}
             </CommandItem>
           ))}
         </CommandGroup>
@@ -100,21 +100,21 @@ export function SearchAutocomplete({
         <CommandGroup heading="Actions">
           <CommandItem
             value="remove spell"
-            className="text-text hover:bg-gold-soft data-[selected=true]:bg-gold-soft data-[selected=true]:text-text"
+            className="text-text hover:bg-accent-soft data-[selected=true]:bg-accent-soft data-[selected=true]:text-text"
             onSelect={() => {
               onSelectedSpellIdChange(null);
               setQuery('');
             }}
           >
             Remove spell
-            {selectedSpellId === null && <span className="ml-auto text-xs text-gold">Selected</span>}
+            {selectedSpellId === null && <span className="ml-auto text-xs text-accent">Selected</span>}
           </CommandItem>
         </CommandGroup>
       </CommandList>
 
       <div className="border-t border-border-dark p-5">
         {duplicateWarningText && (
-          <p className="mb-3 flex items-start gap-2 rounded-md border border-gold-soft bg-gold-soft/60 px-3 py-2 text-sm text-text" role="status">
+          <p className="mb-3 flex items-start gap-2 rounded-md border border-accent-soft bg-accent-soft px-3 py-2 text-sm text-text" role="status">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             {duplicateWarningText}
           </p>

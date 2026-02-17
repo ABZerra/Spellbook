@@ -54,7 +54,7 @@ export function PrepareSystemPanel({
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
-            <Badge className={saveMode === 'remote' ? 'border border-gold-soft bg-gold-soft text-text' : 'border border-border-dark bg-bg-2 text-text'}>
+            <Badge className={saveMode === 'remote' ? 'border border-accent-soft bg-accent-soft text-text' : 'border border-border-dark bg-bg-2 text-text'}>
               {saveMode === 'remote' ? 'Remote' : 'Local draft'}
             </Badge>
           </div>

@@ -36,9 +36,9 @@ export function SpellDetailsPanel({ spell, title = 'Spell Details' }: SpellDetai
       <CardHeader>
         <CardTitle className="font-display text-[20px] text-ink">{spell.name}</CardTitle>
         <CardDescription className="flex flex-wrap items-center gap-2 text-ink-muted">
-          <Badge variant="outline" className="border-gold-soft text-xs text-ink">Level {spell.level}</Badge>
+          <Badge variant="outline" className="border-accent-soft text-xs text-ink">Level {spell.level}</Badge>
           {spell.school && <SchoolTag school={spell.school} surface="paper" />}
-          <Badge className={spell.prepared ? 'border border-gold-soft bg-gold-soft text-ink' : 'border border-paper-border bg-paper-2 text-ink'}>
+          <Badge className={spell.prepared ? 'border border-accent-soft bg-accent-soft text-ink' : 'border border-paper-border bg-paper-2 text-ink'}>
             {spell.prepared ? 'Prepared' : 'Not Prepared'}
           </Badge>
         </CardDescription>

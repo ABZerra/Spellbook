@@ -157,15 +157,15 @@ export function CatalogPage() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-6 px-6 py-3 text-sm">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-text">Total Spells:</span>
-            <Badge className="border border-gold-soft bg-gold-soft text-text">{spells.length}</Badge>
+            <Badge className="border border-accent-soft bg-accent-soft text-text">{spells.length}</Badge>
           </div>
           <div className="flex items-center gap-2">
             <span className="font-semibold text-text">Prepared:</span>
-            <Badge className="border border-gold-soft bg-gold-soft text-text">{preparedCount}</Badge>
+            <Badge className="border border-accent-soft bg-accent-soft text-text">{preparedCount}</Badge>
           </div>
           <div className="flex items-center gap-2">
             <span className="font-semibold text-text">Showing:</span>
-            <Badge className="border border-gold-soft bg-gold-soft text-text">{filteredSpells.length}</Badge>
+            <Badge className="border border-accent-soft bg-accent-soft text-text">{filteredSpells.length}</Badge>
           </div>
           <div className="ml-auto flex items-center gap-2">
             <Badge variant={saveMode === 'remote' ? 'secondary' : 'outline'}>{saveMode === 'remote' ? 'Remote' : 'Local draft'}</Badge>
@@ -281,7 +281,7 @@ export function CatalogPage() {
 
         {!loading && filteredSpells.length === 0 && <p className="mt-6 text-sm text-text-muted">No spells match the current filters.</p>}
 
-        {mode.staticDataMode && <p className="mt-6 text-sm text-gold">Static mode active: API unavailable, using local `spells.json` with browser draft persistence.</p>}
+        {mode.staticDataMode && <p className="mt-6 text-sm text-text-muted">Static mode active: API unavailable, using local `spells.json` with browser draft persistence.</p>}
       </main>
 
       <div

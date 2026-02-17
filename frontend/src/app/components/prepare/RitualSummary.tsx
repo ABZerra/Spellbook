@@ -43,7 +43,7 @@ function DuplicateWarningList({ warnings, spellNameById }: { warnings: Duplicate
         const slotsLabel = warning.indexes.map((index) => index + 1).join(', ');
 
         return (
-          <div key={`dup-${warning.spellId}`} className="rounded-lg border border-gold-soft bg-gold-soft/60 px-3 py-2 text-sm text-text">
+          <div key={`dup-${warning.spellId}`} className="rounded-lg border border-accent-soft bg-accent-soft px-3 py-2 text-sm text-text">
             {spellName} appears in slots {slotsLabel}
           </div>
         );
@@ -130,7 +130,7 @@ export function RitualSummary({
             <DrawerTitle className="font-display text-gold">Queued Ritual Changes</DrawerTitle>
             <DrawerDescription className="text-text-muted">Review queued changes before applying.</DrawerDescription>
           </DrawerHeader>
-          <div className="max-h-[60vh] space-y-3 overflow-y-auto px-4 pb-4">
+          <div className="arcane-scrollbar max-h-[60vh] space-y-3 overflow-y-auto px-4 pb-4">
             {hasAnyDiff ? content : <p className="rounded-lg border border-border-dark bg-bg-2 px-3 py-2 text-sm text-text-muted">No queued changes.</p>}
             <div className="flex gap-2">
               <Button variant="brandPrimary" className="flex-1 min-h-11" disabled={busy || !hasAnyDiff} onClick={onApplyAllChanges}>
@@ -169,7 +169,7 @@ export function RitualSummary({
         </div>
 
         {showDesktopSummary && (
-          <div className="mt-3 max-h-[28vh] space-y-3 overflow-y-auto pb-1 md:grid md:grid-cols-3 md:gap-3 md:space-y-0">
+          <div className="arcane-scrollbar mt-3 max-h-[28vh] space-y-3 overflow-y-auto pb-1 md:grid md:grid-cols-3 md:gap-3 md:space-y-0">
             {content}
           </div>
         )}

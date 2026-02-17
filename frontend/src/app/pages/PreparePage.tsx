@@ -215,7 +215,7 @@ export function PreparePage() {
           <div className="rounded-2xl border border-border-dark bg-bg-1 p-4 shadow-panel">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex items-center gap-3">
-                <Wand2 className="h-7 w-7 text-gold" />
+                <Wand2 className="h-7 w-7 text-accent" />
                 <div>
                   <h1 className="font-display text-[32px] leading-10 tracking-wide text-text">Preparation Ritual</h1>
                   <p className="text-sm text-text-muted">Plan your next long rest loadout in one flow</p>
@@ -256,9 +256,9 @@ export function PreparePage() {
             <div className="flex items-center gap-2">
               <h2 className="font-display text-[18px] leading-6 tracking-wide text-gold">Next Long Rest Planned Spell List</h2>
               <div className="h-px w-10 bg-gold-soft" />
-              <Badge className="border border-gold-soft bg-gold-soft text-text">{nextCount}</Badge>
+              <Badge className="border border-accent-soft bg-accent-soft text-text">{nextCount}</Badge>
               <Badge
-                className={`border border-gold-soft bg-gold-soft text-text transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
+                className={`border border-accent-soft bg-accent-soft text-text transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
               >
                 {diff.length} Changes
               </Badge>
@@ -284,7 +284,7 @@ export function PreparePage() {
               <AccordionItem value="current">
                 <AccordionTrigger className="gap-2">
                   <span>Current Active Spell List</span>
-                  <Badge className="border border-gold-soft bg-gold-soft text-text">{currentList.length}</Badge>
+                  <Badge className="border border-accent-soft bg-accent-soft text-text">{currentList.length}</Badge>
                 </AccordionTrigger>
                 <AccordionContent>
                   <CurrentList currentSpells={currentSpells} isMobile />
@@ -298,9 +298,9 @@ export function PreparePage() {
               <div className="mb-3 flex items-center gap-2">
                 <h2 className="font-display text-[18px] leading-6 tracking-wide text-gold">Next Long Rest Planned Spell List</h2>
                 <div className="h-px w-10 bg-gold-soft" />
-                <Badge className="border border-gold-soft bg-gold-soft text-text">{nextCount}</Badge>
+                <Badge className="border border-accent-soft bg-accent-soft text-text">{nextCount}</Badge>
                 <Badge
-                  className={`border border-gold-soft bg-gold-soft text-text transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
+                  className={`border border-accent-soft bg-accent-soft text-text transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
                 >
                   {diff.length} Changes
                 </Badge>
@@ -327,7 +327,7 @@ export function PreparePage() {
               <div className="mb-3 flex items-center gap-2">
                 <h2 className="font-display text-[18px] leading-6 tracking-wide text-gold">Current Active Spell List</h2>
                 <div className="h-px w-10 bg-gold-soft" />
-                <Badge className="border border-gold-soft bg-gold-soft text-text">{currentList.length}</Badge>
+                <Badge className="border border-accent-soft bg-accent-soft text-text">{currentList.length}</Badge>
               </div>
               <CurrentList currentSpells={currentSpells} />
             </section>
@@ -380,8 +380,8 @@ export function PreparePage() {
 
       {showComplete && (
         <div className="prepare-complete-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-sm motion-reduce:animate-none">
-          <div className="rounded-2xl border border-gold-soft bg-bg-1 px-6 py-5 text-center shadow-panel motion-reduce:transition-none">
-            <Sparkles className="mx-auto mb-2 h-6 w-6 text-gold" />
+          <div className="rounded-2xl border border-accent-soft bg-bg-1 px-6 py-5 text-center shadow-panel motion-reduce:transition-none">
+            <Sparkles className="mx-auto mb-2 h-6 w-6 text-accent" />
             <p className="font-display text-lg font-semibold text-text">Long Rest Updated</p>
           </div>
         </div>

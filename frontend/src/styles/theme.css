@@ -5,29 +5,33 @@
   --font-display-family: "Cinzel", serif;
   --font-ui-family: "Inter", sans-serif;
 
-  --bg: #14110E;
-  --bg-elev-1: #1B1713;
-  --bg-elev-2: #221D18;
-  --border-dark: #2E2721;
+  --bg: #0E1116;
+  --bg-elev-1: #141923;
+  --bg-elev-2: #1A2130;
+  --border-dark: rgba(255, 255, 255, 0.08);
   --shadow-dark: rgba(0, 0, 0, 0.35);
 
-  --paper: #E7DCC6;
-  --paper-2: #DCCFB6;
-  --ink: #1E1A16;
-  --ink-muted: rgba(30, 26, 22, 0.72);
-  --paper-border: rgba(126, 101, 58, 0.30);
+  --paper: #E9E4D9;
+  --paper-2: #DCD5C7;
+  --ink: #181A1F;
+  --ink-muted: rgba(24, 26, 31, 0.72);
+  --paper-border: rgba(24, 26, 31, 0.14);
+
+  --accent: #3B82F6;
+  --accent-2: #2563EB;
+  --accent-soft: rgba(59, 130, 246, 0.16);
 
   --gold: #C6A35B;
-  --gold-2: #B48B3D;
-  --gold-soft: rgba(198, 163, 91, 0.18);
+  --gold-2: #C6A35B;
+  --gold-soft: rgba(198, 163, 91, 0.12);
 
-  --blood: #5B171B;
+  --blood: #7A1D23;
   --blood-2: #7A1D23;
-  --blood-soft: rgba(91, 23, 27, 0.18);
+  --blood-soft: rgba(122, 29, 35, 0.18);
 
-  --text: #F2EADF;
-  --text-muted: rgba(242, 234, 223, 0.72);
-  --text-dim: rgba(242, 234, 223, 0.55);
+  --text: #F1F5F9;
+  --text-muted: rgba(241, 245, 249, 0.72);
+  --text-dim: rgba(241, 245, 249, 0.55);
 
   --background: var(--bg);
   --foreground: var(--text);
@@ -35,13 +39,12 @@
   --card-foreground: var(--text);
   --popover: var(--bg-elev-1);
   --popover-foreground: var(--text);
-  --primary: var(--blood);
+  --primary: var(--accent);
   --primary-foreground: var(--text);
   --secondary: var(--bg-elev-2);
   --secondary-foreground: var(--text);
   --muted: var(--bg-elev-2);
   --muted-foreground: var(--text-muted);
-  --accent: var(--gold-soft);
   --accent-foreground: var(--text);
   --destructive: var(--blood);
   --destructive-foreground: var(--text);
@@ -49,16 +52,16 @@
   --input: var(--bg-elev-2);
   --input-background: var(--bg-elev-2);
   --switch-background: var(--border-dark);
-  --ring: var(--gold-soft);
+  --ring: var(--accent-soft);
   --radius: 14px;
   --sidebar: var(--bg-elev-1);
   --sidebar-foreground: var(--text);
-  --sidebar-primary: var(--gold);
+  --sidebar-primary: var(--accent);
   --sidebar-primary-foreground: var(--ink);
   --sidebar-accent: var(--bg-elev-2);
   --sidebar-accent-foreground: var(--text);
   --sidebar-border: var(--border-dark);
-  --sidebar-ring: var(--gold-soft);
+  --sidebar-ring: var(--accent-soft);
 }
 
 .dark {
@@ -68,19 +71,18 @@
   --card-foreground: var(--text);
   --popover: var(--bg-elev-1);
   --popover-foreground: var(--text);
-  --primary: var(--blood);
+  --primary: var(--accent);
   --primary-foreground: var(--text);
   --secondary: var(--bg-elev-2);
   --secondary-foreground: var(--text);
   --muted: var(--bg-elev-2);
   --muted-foreground: var(--text-muted);
-  --accent: var(--gold-soft);
   --accent-foreground: var(--text);
   --destructive: var(--blood);
   --destructive-foreground: var(--text);
   --border: var(--border-dark);
   --input: var(--bg-elev-2);
-  --ring: var(--gold-soft);
+  --ring: var(--accent-soft);
 }
 
 @theme inline {
@@ -99,7 +101,6 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
@@ -117,6 +118,9 @@
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
   --color-paper-border: var(--paper-border);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-accent-soft: var(--accent-soft);
   --color-gold: var(--gold);
   --color-gold-2: var(--gold-2);
   --color-gold-soft: var(--gold-soft);
@@ -212,6 +216,31 @@
     line-height: 22px;
     font-weight: 400;
   }
+}
+
+.arcane-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(241, 245, 249, 0.22) transparent;
+}
+
+.arcane-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.arcane-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.arcane-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  background-color: rgba(241, 245, 249, 0.22);
+}
+
+.arcane-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(241, 245, 249, 0.34);
 }
 
 @media (prefers-reduced-motion: reduce) {

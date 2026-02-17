@@ -6,7 +6,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '../ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../ui/sheet';
 import { Textarea } from '../ui/textarea';
 import {
   deriveSpellCategory,
@@ -113,16 +113,15 @@ export function PrepareSpellDrawer({
         className={`border-border-dark bg-bg-1 text-text ${isMobile ? 'max-h-[92vh]' : 'w-[90vw] sm:max-w-[900px]'}`}
       >
         <SheetHeader className="border-b border-border-dark px-5 py-4">
-          <SheetTitle className="font-display text-xl tracking-wide text-gold">Replace Spell Slot</SheetTitle>
-          <SheetDescription className="text-base text-text-muted">
-            Current active spell: {currentSpellName}. Changes are queued automatically.
-          </SheetDescription>
+          <SheetTitle className="font-display text-xl tracking-wide text-gold">
+            Replace {currentSpellName}
+          </SheetTitle>
         </SheetHeader>
 
         <div className={`grid gap-4 overflow-hidden px-4 pb-4 pt-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-[1fr_380px]'}`}>
           <div className="min-h-0 space-y-4">
             {duplicateWarningText && (
-              <p className="flex items-start gap-2 rounded-md border border-gold-soft bg-gold-soft/60 px-3 py-2 text-sm text-text" role="status">
+              <p className="flex items-start gap-2 rounded-md border border-accent-soft bg-accent-soft px-3 py-2 text-sm text-text" role="status">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 {duplicateWarningText}
               </p>
@@ -201,10 +200,10 @@ export function PrepareSpellDrawer({
             </div>
 
             <div className="min-h-0 rounded-xl border border-border-dark bg-bg-2">
-              <div className="max-h-[40vh] overflow-y-auto p-2">
+              <div className="arcane-scrollbar max-h-[40vh] overflow-y-auto p-2">
                 <button
                   type="button"
-                  className={`mb-2 w-full rounded-md border px-3 py-2 text-left disabled:cursor-not-allowed disabled:opacity-[0.55] ${selectedSpellId === null ? 'border-gold bg-gold-soft/20' : 'border-border-dark hover:border-gold-soft'}`}
+                  className={`mb-2 w-full rounded-md border px-3 py-2 text-left disabled:cursor-not-allowed disabled:opacity-[0.55] ${selectedSpellId === null ? 'border-accent bg-accent-soft' : 'border-border-dark hover:border-accent-soft'}`}
                   onClick={() => onSelectedSpellIdChange(null)}
                   disabled={busy}
                 >
@@ -216,14 +215,14 @@ export function PrepareSpellDrawer({
                   <button
                     key={spell.id}
                     type="button"
-                    className={`mb-2 w-full rounded-md border px-3 py-2 text-left disabled:cursor-not-allowed disabled:opacity-[0.55] ${selectedSpellId === spell.id ? 'border-gold bg-gold-soft/20' : 'border-border-dark hover:border-gold-soft'}`}
+                    className={`mb-2 w-full rounded-md border px-3 py-2 text-left disabled:cursor-not-allowed disabled:opacity-[0.55] ${selectedSpellId === spell.id ? 'border-accent bg-accent-soft' : 'border-border-dark hover:border-accent-soft'}`}
                     onClick={() => onSelectedSpellIdChange(spell.id)}
                     onMouseEnter={() => setInspectedSpellId(spell.id)}
                     disabled={busy}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <p className="font-display text-sm font-semibold text-text">{spell.name}</p>
-                      {selectedSpellId === spell.id && <Badge className="border border-gold-soft bg-gold-soft text-text">Selected</Badge>}
+                      {selectedSpellId === spell.id && <Badge className="border border-accent-soft bg-accent-soft text-text">Selected</Badge>}
                     </div>
                     <p className="mt-1 text-xs text-text-dim">{formatSpellPickerMeta(spell)}</p>
                     <p className="mt-1 text-xs text-text-dim">Range: {spell.range || 'Unknown'}</p>
@@ -249,7 +248,7 @@ export function PrepareSpellDrawer({
             </div>
           </div>
 
-          <div className="min-h-0 overflow-y-auto rounded-xl border border-border-dark bg-paper p-2">
+          <div className="arcane-scrollbar min-h-0 overflow-y-auto rounded-xl border border-border-dark bg-paper p-2">
             <SpellDetailsPanel spell={inspectedSpell} title="Spell Details (In Ritual)" />
           </div>
         </div>
