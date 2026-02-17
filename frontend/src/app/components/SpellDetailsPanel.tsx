@@ -26,8 +26,8 @@ function DetailRow({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
   return (
     <div>
-      <p className="text-xs uppercase tracking-widest text-ink-muted">{label}</p>
-      <p className="mt-1 text-sm text-ink">{value}</p>
+      <p className="text-xs uppercase tracking-widest text-moon-ink-muted">{label}</p>
+      <p className="mt-1 text-sm text-moon-ink">{value}</p>
     </div>
   );
 }
@@ -35,10 +35,12 @@ function DetailRow({ label, value }: { label: string; value?: string }) {
 export function SpellDetailsPanel({ spell, title = 'Spell Details' }: SpellDetailsPanelProps) {
   if (!spell) {
     return (
-      <Card className="rounded-2xl border border-paper-border bg-paper text-ink shadow-insetPaper spellbook-paper-watermark">
+      <Card className="moonlit-surface overflow-hidden text-moon-ink">
+        <div className="moonlit-accent" />
+        <div className="moonlit-watermark" />
         <CardHeader>
-          <CardTitle className="font-display text-[20px] text-ink">{title}</CardTitle>
-          <CardDescription className="text-ink-muted">Select a spell to view details.</CardDescription>
+          <CardTitle className="font-display text-[20px] text-moon-ink">{title}</CardTitle>
+          <CardDescription className="text-moon-ink-muted">Select a spell to view details.</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -50,25 +52,27 @@ export function SpellDetailsPanel({ spell, title = 'Spell Details' }: SpellDetai
   const isHealing = /heal|restor/i.test(`${spell.description} ${spell.damage}`);
 
   return (
-    <Card className="rounded-2xl border border-paper-border bg-paper text-ink shadow-insetPaper spellbook-paper-watermark">
-      <CardHeader>
-        <CardTitle className="font-display text-[20px] text-ink">{spell.name}</CardTitle>
-        <CardDescription className="flex flex-wrap items-center gap-2 text-ink-muted">
-          <Badge variant="outline" className="border-accent-soft text-xs text-ink">Level {spell.level}</Badge>
+    <Card className="moonlit-surface overflow-hidden text-moon-ink">
+      <div className="moonlit-accent" />
+      <div className="moonlit-watermark" />
+      <CardHeader className="relative">
+        <CardTitle className="font-display text-[22px] leading-[1.1] text-gold">{spell.name}</CardTitle>
+        <CardDescription className="flex flex-wrap items-center gap-2 text-moon-ink-muted">
+          <Badge variant="outline" className="border-accent-soft text-xs text-moon-ink">Level {spell.level}</Badge>
           {spell.school && <SchoolTag school={spell.school} surface="paper" />}
           {hasRitual && <RuneIcon icon={RitualIcon} label="Ritual spell (no slot)" size={16} variant="gold" interactive />}
           {hasConcentration && <RuneIcon icon={ConcentrationIcon} label="Concentration required" size={16} variant="gold" interactive />}
-          <Badge className={spell.prepared ? 'border border-accent-soft bg-accent-soft text-ink' : 'border border-paper-border bg-paper-2 text-ink'}>
+          <Badge className={spell.prepared ? 'border border-accent-soft bg-accent-soft text-moon-ink' : 'border border-white/20 bg-white/10 text-moon-ink'}>
             {spell.prepared ? 'Prepared' : 'Not Prepared'}
           </Badge>
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="relative space-y-4">
         <DetailRow label="Source" value={spell.source.join(', ')} />
         <DetailRow label="Tags" value={spell.tags.join(', ')} />
 
         <div className="grid grid-cols-1 gap-3">
-          <div className="flex flex-wrap items-center gap-3 text-sm text-ink">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-moon-ink">
             <RuneIcon icon={VerbalIcon} label="Verbal component" size={16} variant="gold" interactive={componentFlags.verbal} />
             <RuneIcon icon={SomaticIcon} label="Somatic component" size={16} variant="gold" interactive={componentFlags.somatic} />
             <RuneIcon icon={MaterialIcon} label="Material component" size={16} variant="gold" interactive={componentFlags.material} />

@@ -16,6 +16,12 @@
   --ink: #181A1F;
   --ink-muted: rgba(24, 26, 31, 0.72);
   --paper-border: rgba(24, 26, 31, 0.14);
+  --moon-paper: #D6DAE2;
+  --moon-paper-2: #C7CCD6;
+  --moon-ink: #F1F5F9;
+  --moon-ink-muted: rgba(241, 245, 249, 0.72);
+  --moon-border: rgba(0, 0, 0, 0.10);
+  --moon-accent: rgba(59, 130, 246, 0.16);
 
   --accent: #3B82F6;
   --accent-2: #2563EB;
@@ -118,6 +124,12 @@
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
   --color-paper-border: var(--paper-border);
+  --color-moon-paper: var(--moon-paper);
+  --color-moon-paper-2: var(--moon-paper-2);
+  --color-moon-ink: var(--moon-ink);
+  --color-moon-ink-muted: var(--moon-ink-muted);
+  --color-moon-border: var(--moon-border);
+  --color-moon-accent: var(--moon-accent);
   --color-accent: var(--accent);
   --color-accent-2: var(--accent-2);
   --color-accent-soft: var(--accent-soft);
@@ -248,6 +260,37 @@
   background-repeat: repeat;
   background-size: 240px 240px;
   background-blend-mode: multiply;
+}
+
+.moonlit-surface {
+  position: relative;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: rgba(241, 245, 249, 0.92);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+  background: #0F172A;
+}
+
+.moonlit-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  border-radius: 1rem 0 0 1rem;
+  background: var(--moon-accent);
+  pointer-events: none;
+}
+
+.moonlit-watermark {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url('../assets/imagery/textures/paper-watermark.svg');
+  background-repeat: no-repeat;
+  background-position: right -80px top -60px;
+  background-size: 360px;
 }
 
 .spellbook-leather-watermark {

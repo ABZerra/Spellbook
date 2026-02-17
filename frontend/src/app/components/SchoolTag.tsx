@@ -59,7 +59,7 @@ export function SchoolTag({
       style={{
         backgroundColor: hexToRgba(color, 0.12),
         borderColor: hexToRgba(color, 0.45),
-        color: surface === 'paper' ? 'var(--ink)' : 'var(--text)',
+        color: surface === 'paper' ? 'var(--moon-ink)' : 'var(--text)',
       }}
     >
       {SchoolGlyph ? (

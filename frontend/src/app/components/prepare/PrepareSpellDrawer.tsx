@@ -248,7 +248,7 @@ export function PrepareSpellDrawer({
             </div>
           </div>
 
-          <div className="arcane-scrollbar min-h-0 overflow-y-auto rounded-xl border border-border-dark bg-paper p-2">
+          <div className="arcane-scrollbar min-h-0 overflow-y-auto rounded-xl border border-border-dark bg-bg-2 p-2">
             <SpellDetailsPanel spell={inspectedSpell} title="Spell Details (In Ritual)" />
           </div>
         </div>

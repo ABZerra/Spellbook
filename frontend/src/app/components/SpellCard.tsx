@@ -13,13 +13,9 @@ import { SchoolTag } from './SchoolTag';
 import { RuneIcon } from './icons/RuneIcon';
 import {
   CastingTimeIcon,
-  ConcentrationIcon,
-  DividerShortIcon,
   DurationIcon,
   RangeIcon,
-  RitualIcon,
 } from './icons/runeIcons';
-import { spellHasConcentration, spellHasRitual } from '../utils/spellIconUtils';
 
 interface SpellCardProps {
   spell: UiSpell;
@@ -44,8 +40,6 @@ export function SpellCard({
 
   const isPrepared = currentCharacter?.preparedSpellIds.includes(spell.id) || false;
   const sourceText = useMemo(() => spell.source.join(', '), [spell.source]);
-  const hasRitual = spellHasRitual(spell);
-  const hasConcentration = spellHasConcentration(spell);
 
   function shouldSkipInspect(target: EventTarget | null) {
     if (!(target instanceof HTMLElement)) return false;
@@ -200,27 +194,22 @@ export function SpellCard({
             </div>
           </>
         ) : (
-          <div className="rounded-2xl border border-paper-border bg-paper text-ink shadow-insetPaper spellbook-paper-watermark">
-            <div className="space-y-4 p-5">
-              <div className="flex items-center gap-3">
-                <RuneIcon icon={CastingTimeIcon} label="Casting time" size={16} variant="gold" interactive />
-                <p className="text-sm text-ink"><span className="font-semibold">{spell.castingTime || 'Casting time'}</span></p>
-
-                <RuneIcon icon={RangeIcon} label="Range" size={16} variant="gold" interactive />
-                <p className="text-sm text-ink">{spell.range || 'Range'}</p>
-
-                <RuneIcon icon={DurationIcon} label="Duration" size={16} variant="gold" interactive />
-                <p className="text-sm text-ink">{spell.duration || 'Duration'}</p>
+          <div className="moonlit-surface mt-4 max-h-[90px] min-h-[82px] overflow-hidden p-4 text-moon-ink">
+            <div className="moonlit-accent" />
+            <div className="moonlit-watermark" style={{ backgroundSize: '320px' }} />
+            <div className="relative flex flex-wrap items-center gap-6 text-[13px] leading-[1.55] text-moon-ink">
+              <div className="flex min-w-0 items-center gap-2">
+                <RuneIcon icon={CastingTimeIcon} label="Casting time" size={16} variant="muted" interactive className="text-moon-ink-muted" />
+                <p className="truncate text-sm"><span className="font-semibold">Casting time:</span> {spell.castingTime || 'Unknown'}</p>
               </div>
-
-              <RuneIcon icon={DividerShortIcon} label="" size={24} variant="gold" interactive={false} />
-
-              <div className="flex items-center gap-2">
-                {hasRitual && <RuneIcon icon={RitualIcon} label="Ritual spell (no slot)" size={16} variant="gold" interactive />}
-                {hasConcentration && <RuneIcon icon={ConcentrationIcon} label="Concentration required" size={16} variant="gold" interactive />}
+              <div className="flex min-w-0 items-center gap-2">
+                <RuneIcon icon={RangeIcon} label="Range" size={16} variant="muted" interactive className="text-moon-ink-muted" />
+                <p className="truncate text-sm"><span className="font-semibold">Range:</span> {spell.range || 'Unknown'}</p>
               </div>
-
-              {spell.description && <p className="line-clamp-5 max-w-[80ch] space-y-3 text-sm text-ink-muted">{spell.description}</p>}
+              <div className="flex min-w-0 items-center gap-2">
+                <RuneIcon icon={DurationIcon} label="Duration" size={16} variant="muted" interactive className="text-moon-ink-muted" />
+                <p className="truncate text-sm"><span className="font-semibold">Duration:</span> {spell.duration || 'Unknown'}</p>
+              </div>
             </div>
           </div>
         )}
