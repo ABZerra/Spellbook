@@ -237,16 +237,6 @@ export function PreparePage() {
               </div>
             </div>
 
-            <div className="mt-4 flex items-center gap-2 text-sm text-[#b8c8e4]">
-              <span>Current {currentList.length}</span>
-              <span className="text-[#7488b0]">→</span>
-              <span>Next {nextCount}</span>
-              <Badge
-                className={`ml-2 bg-amber-500 text-black transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
-              >
-                {diff.length} Changes
-              </Badge>
-            </div>
           </div>
         </div>
       </header>
@@ -254,7 +244,15 @@ export function PreparePage() {
       <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 px-6 py-8 md:grid-cols-2">
         {isMobile ? (
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-gray-100">✨ Next Long Rest</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-gray-100">✨ Next Long Rest</h2>
+              <Badge className="bg-[#1b2740] text-gray-100">{nextCount}</Badge>
+              <Badge
+                className={`bg-amber-500 text-black transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
+              >
+                {diff.length} Changes
+              </Badge>
+            </div>
             <NextList
               slots={nextList}
               diff={diff}
@@ -274,7 +272,10 @@ export function PreparePage() {
 
             <Accordion type="single" collapsible className="rounded-xl border border-[#2a3c5f] bg-[#0d1527] px-3">
               <AccordionItem value="current">
-                <AccordionTrigger>Current Prepared</AccordionTrigger>
+                <AccordionTrigger className="gap-2">
+                  <span>Current Prepared</span>
+                  <Badge className="bg-[#1b2740] text-gray-100">{currentList.length}</Badge>
+                </AccordionTrigger>
                 <AccordionContent>
                   <CurrentList currentSpells={currentSpells} isMobile />
                 </AccordionContent>
@@ -284,12 +285,23 @@ export function PreparePage() {
         ) : (
           <>
             <section className="rounded-2xl border border-[#1f2f4c] bg-[#091325] p-4">
-              <h2 className="mb-3 text-base font-medium text-[#93a8d0]">Current Prepared</h2>
+              <div className="mb-3 flex items-center gap-2">
+                <h2 className="text-base font-medium text-[#93a8d0]">Current Prepared</h2>
+                <Badge className="bg-[#1b2740] text-gray-100">{currentList.length}</Badge>
+              </div>
               <CurrentList currentSpells={currentSpells} />
             </section>
 
             <section className="rounded-2xl border border-[#2f4770] bg-[#0c1a33] p-4 shadow-[0_0_0_1px_rgba(250,209,120,0.2)]">
-              <h2 className="mb-3 text-lg font-semibold text-gray-100">✨ Next Long Rest</h2>
+              <div className="mb-3 flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-gray-100">✨ Next Long Rest</h2>
+                <Badge className="bg-[#1b2740] text-gray-100">{nextCount}</Badge>
+                <Badge
+                  className={`bg-amber-500 text-black transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
+                >
+                  {diff.length} Changes
+                </Badge>
+              </div>
               <NextList
                 slots={nextList}
                 diff={diff}
