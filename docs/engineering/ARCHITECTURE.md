@@ -1,28 +1,28 @@
 # Architecture
 
 ## Overview
-Spellbook is a browser + Node.js application with a shared domain planner and pluggable persistence adapters.
+
+Spellbook runs as a React frontend with a Node.js integrated API server.
 
 Primary runtime:
-- Browser UI (`ui/`)
+- Frontend app (`frontend/src`)
 - HTTP server (`scripts/serve-app.mjs`)
 - Domain planner (`src/domain/planner.js`)
-- Adapter/services layer (`src/adapters/`, `src/services/`)
-
-Secondary runtime:
-- Standalone local file-state API (`scripts/serve-spells-api.js`)
+- Services (`src/services/`)
+- Adapters (`src/adapters/`)
 
 ## Layers
-1. Transport/UI Layer
-- Static page serving and `/api/*` routes
-- Browser interactions and state rendering
+
+1. UI/Transport Layer
+- React routes and components in `frontend/src/app`
+- HTTP API + static asset serving in `scripts/serve-app.mjs`
 
 2. Domain Layer
 - `applyPlan`
 - `validatePlan`
 
 3. Service Layer
-- Pending plan orchestration
+- Pending-plan orchestration
 - Spell cache lifecycle
 
 4. Adapter Layer
@@ -31,20 +31,20 @@ Secondary runtime:
 - Postgres repositories for auth, characters, prepared lists, pending plans, snapshots
 
 ## Data Stores
+
 - JSON files:
   - `data/spells.json`
-  - `data/local-state.json` (standalone API)
-  - optional `data/spells-cache.json` (Notion mode cache)
+  - optional `data/spells-cache.json` (Notion mode)
 - Postgres (optional remote mode)
 - Notion database (optional catalog backend)
 - Browser `localStorage` (draft fallback)
 
 ## Runtime Modes
-1. Local JSON mode
-- Default backend uses local JSON spell file.
-- No remote auth required.
 
-2. Remote persistence mode
+1. Local JSON mode (default)
+- Catalog source is `data/spells.json`.
+
+2. Remote pending-plan mode
 - Enabled via `PERSIST_PENDING_PLAN_REMOTE=true`.
 - Uses Postgres schema and auth/session flow.
 
@@ -53,5 +53,9 @@ Secondary runtime:
 - Uses Notion as shared spell catalog source.
 
 4. Static pages mode
-- Built artifacts in `dist/`.
-- Read-only shared data with local draft fallback.
+- Built artifacts in `dist/` from `frontend/dist`.
+- Uses `spells.json` static fallback when API is unavailable.
+
+## Notes
+
+Legacy static UI and standalone local-state API are no longer active architecture components.

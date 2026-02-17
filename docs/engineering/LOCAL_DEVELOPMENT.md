@@ -1,42 +1,56 @@
 # Local Development
 
 ## Prerequisites
+
 - Node.js `>=20`
 - npm
 
 ## Install
+
 ```bash
 npm install
+npm install --prefix frontend
 ```
 
 ## Test
+
 ```bash
 npm test
+npm test --prefix frontend
 ```
 
-## Run Integrated App (UI + API)
+## Run API
+
 ```bash
-npm run dev
+npm run dev:api
 ```
 
-Default:
-- `http://localhost:3000/`
-- `http://localhost:3000/prepare`
+Default API URL:
+- `http://localhost:3000`
 
-## Run Standalone Local API
+## Run Frontend
+
 ```bash
-node scripts/serve-spells-api.js
+npm run dev:frontend
 ```
 
-Default:
-- `http://localhost:8787`
+Default frontend URL:
+- `http://localhost:5173`
 
 ## Rebuild Spell Catalog JSON from CSV
+
 ```bash
 node scripts/import-spells-csv.js Spells.csv data/spells.json
 ```
 
+## Build Frontend
+
+```bash
+npm run build:frontend
+```
+
 ## Build Static Bundle
+
 ```bash
 npm run build:pages
 ```

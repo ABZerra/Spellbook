@@ -1,234 +1,150 @@
 # Spellbook
 
-Spellbook is a local-first app for planning and managing prepared spells between long rests.
+Spellbook is a React + Node.js app for managing spell catalogs and planning prepared spells between long rests.
 
-## Current setup
+## Active Runtime (Supported)
 
-This repository currently provides:
+- Frontend: `frontend/` (React + Vite)
+- Backend/API: `scripts/serve-app.mjs`
+- Core logic: `src/domain/`, `src/services/`, `src/adapters/`
 
-- Product docs (`docs/`)
-- A domain core for spell planning (`src/domain/`)
-- Automated tests (`tests/`)
-- Spell import tooling
-- A local HTTP API for spell queries and single-character state management
-- A local design artifact of the first frontend version at `docs/artifacts/frontend-v1-figma-export/` (gitignored)
+Legacy runtime code (`ui/`, standalone local-state API) is no longer part of active repo paths.
 
-The domain core is intentionally framework-agnostic so it can be reused by other interfaces later.
+## Quick Start
 
-## Quick start
+Install root dependencies:
 
 ```bash
-npm test
+npm install
 ```
 
-## Run basic UI
+Install frontend dependencies:
 
 ```bash
-npm run dev
+npm install --prefix frontend
 ```
 
-Then open `http://localhost:3000`.
-
-Pages:
-- `http://localhost:3000/` (spell catalog/editor)
-- `http://localhost:3000/prepare` (pending spell preparation planner)
-
-## Run new React frontend (with existing API)
+Run API server:
 
 ```bash
-# Terminal 1
 npm run dev:api
+```
 
-# Terminal 2
+Run frontend dev server:
+
+```bash
 npm run dev:frontend
 ```
 
-Then open `http://localhost:5173`.
+Open:
 
-The UI serves a local API under:
+- Frontend: `http://localhost:5173`
+- API (health): `http://localhost:3000/api/health`
+
+## Routes
+
+React routes:
+
+- `/`
+- `/prepare`
+- `/catalog`
+- `/characters`
+
+## API Surface (`/api/*`)
 
 - `GET /api/health`
 - `GET /api/config`
-- `GET /api/spells`
-- `POST /api/spells`
-- `PATCH /api/spells/:id`
-- `DELETE /api/spells/:id`
-- `POST /api/spells/sync`
-
-`/api/spells` supports the same query params as the standalone API:
-- `name`
-- `level`
-- `source`
-- `tags`
-- `prepared`
-
-## GitHub Pages deployment
-
-This repo is configured to deploy a static build to GitHub Pages via `.github/workflows/deploy-pages.yml`.
-
-- Build command: `npm run build:pages`
-- Output folder: `dist/`
-- Publish trigger: push to `main` or `github-pages`
-
-For GitHub Pages, the app runs in static mode:
-- spells are read from `spells.json`
-- edit/save falls back to local browser draft storage
-- remote auth/session/pending-plan API features are unavailable
-
-## Render deployment (web service)
-
-Render must build the React frontend during deploy so `frontend/dist` exists. If it does not, the server falls back to the legacy `ui/` files.
-
-- Recommended: use `render.yaml` (Blueprint) in this repo.
-- Build command: `npm ci && npm run build:render`
-- Start command: `npm start`
-- Health check path: `/api/health`
-
-If you configure Render manually in the dashboard, use the same build/start commands above.
-
-### Local Draft Mode (static preview safe)
-
-The UI now supports local draft persistence for edits when API writes are unavailable (for example, static hosting like GitHub Pages).
-
-- Reads still come from `GET /api/spells` when available.
-- If `PATCH /api/spells/:id` fails due missing endpoint/network, edits are saved to browser `localStorage`.
-- Local drafts are per-browser/per-device and are not shared.
-- The table shows a mode badge (`Remote` or `Local draft`) and provides a `Reset local edits` action.
-
-### Remote Pending Plan Mode (cross-device drafts)
-
-Set `PERSIST_PENDING_PLAN_REMOTE=true` to store `/prepare` draft plans in Postgres per user+character.
-
-Required env vars:
-
-- `PERSIST_PENDING_PLAN_REMOTE=true`
-- `DATABASE_URL=postgres://...`
-
-Optional env vars:
-
-- `DEFAULT_CHARACTER_ID=default-character`
-- `DEFAULT_CHARACTER_NAME=Default Character`
-- `AUTH_SESSION_TTL_SECONDS=2592000` (30 days by default)
-
-When enabled, `/prepare` auto-saves each queued change to:
-
-- `GET /api/characters/:characterId/pending-plan`
-- `PUT /api/characters/:characterId/pending-plan`
-- `POST /api/characters/:characterId/pending-plan/changes`
-- `DELETE /api/characters/:characterId/pending-plan`
-- `POST /api/characters/:characterId/pending-plan/apply`
-
-Schema bootstrap SQL is available at `db/pending-plan-schema.sql` and is auto-applied at server startup in remote mode.
-
-### Notion spell backend (source of truth)
-
-Set `SPELLS_BACKEND=notion` to use a Notion database as the shared spell catalog.
-
-Required env vars:
-
-- `SPELLS_BACKEND=notion`
-- `NOTION_API_TOKEN=secret_...`
-- `NOTION_DATABASE_ID=...`
-
-Optional env vars:
-
-- `SPELLS_SYNC_INTERVAL_SECONDS=30`
-- `SPELLS_CACHE_PATH=data/spells-cache.json`
-
-Required Notion properties:
-
-- `Spell ID` (`rich_text` or `title`)
-- `Name` (`title` or `rich_text`)
-- `Level` (`number`)
-- `Source` (`multi_select` or `rich_text`)
-- `Tags` (`multi_select` or `rich_text`)
-- `Archived` (`checkbox`, optional but recommended for soft delete)
-
-### Auth: Signup / Signin / Logout (no password)
-
-When remote mode is enabled, both `/` and `/prepare` include an auth panel:
-
-- `Sign Up` creates a new user ID and signs in.
-- `Sign In` signs into an existing user ID.
-- `Log Out` ends the current session.
-- `Switch Character` changes the active character for the signed-in user.
-
-Session details:
-
-- Server-issued session token cookie: `spellbook_session_token` (HTTP-only).
-- Active character cookie: `spellbook_character_id`.
-- Prepared spell state and pending plans are scoped by `user + character`.
-- Local browser fallback drafts remain device-local and are keyed by `user + character`.
-
-Auth/session API endpoints:
-
 - `GET /api/auth/me`
 - `POST /api/auth/signup`
 - `POST /api/auth/signin`
 - `POST /api/auth/logout`
 - `GET /api/session`
-- `PUT /api/session` (character switch for signed-in user)
+- `PUT /api/session`
+- `GET /api/spells`
+- `POST /api/spells`
+- `PATCH /api/spells/:id`
+- `DELETE /api/spells/:id`
+- `POST /api/spells/sync`
+- `GET /api/characters/:characterId/pending-plan`
+- `PUT /api/characters/:characterId/pending-plan`
+- `DELETE /api/characters/:characterId/pending-plan`
+- `POST /api/characters/:characterId/pending-plan/changes`
+- `POST /api/characters/:characterId/pending-plan/apply`
+- `POST /api/characters/:characterId/pending-plan/apply-one`
 
-## Spell data workflow
+## Build and Deploy
 
-### Rebuild database from CSV
+Build frontend only:
+
+```bash
+npm run build:frontend
+```
+
+Build GitHub Pages bundle:
+
+```bash
+npm run build:pages
+```
+
+`build:pages` produces `dist/` from `frontend/dist` and includes `spells.json` for static fallback mode.
+
+Render build/start:
+
+- Build: `npm ci && npm run build:render`
+- Start: `npm start`
+- Health check: `/api/health`
+
+## Runtime Modes
+
+### Local JSON catalog mode (default)
+
+- Uses `data/spells.json`.
+- Supports local draft fallback in browser storage when API writes are unavailable.
+
+### Remote pending-plan mode (Postgres)
+
+Set:
+
+- `PERSIST_PENDING_PLAN_REMOTE=true`
+- `DATABASE_URL=postgres://...`
+
+Optional:
+
+- `DEFAULT_CHARACTER_ID`
+- `DEFAULT_CHARACTER_NAME`
+- `AUTH_SESSION_TTL_SECONDS`
+
+### Notion spell backend mode
+
+Set:
+
+- `SPELLS_BACKEND=notion`
+- `NOTION_API_TOKEN=secret_...`
+- `NOTION_DATABASE_ID=...`
+
+Optional:
+
+- `SPELLS_SYNC_INTERVAL_SECONDS=30`
+- `SPELLS_CACHE_PATH=data/spells-cache.json`
+
+## Data Workflow
+
+Rebuild spell JSON from CSV:
 
 ```bash
 node scripts/import-spells-csv.js Spells.csv data/spells.json
 ```
 
-### Start API server
+## Tests
+
+Root tests:
 
 ```bash
-node scripts/serve-spells-api.js
+npm test
 ```
 
-Defaults:
-- `PORT=8787`
-- `SPELLS_DB=data/spells.json`
-- `SPELLBOOK_STATE=data/local-state.json`
-
-### Endpoints
-
-- `GET /health`
-- `GET /spells`
-- `GET /state`
-- `PUT /plan`
-- `POST /plan/preview`
-- `POST /long-rest/apply`
-- `POST /state/reset`
-
-`/spells` query params:
-- `name` (substring, case-insensitive)
-- `level` (number)
-- `source` (comma-separated list; matches any)
-- `tags` (comma-separated list; must include all)
-- `prepared` (`true` or `false`)
-
-Example:
+Frontend tests:
 
 ```bash
-curl "http://localhost:8787/spells?level=1&source=Druid&tags=Concentration"
+npm test --prefix frontend
 ```
-
-`PUT /plan` JSON body:
-
-```json
-{
-  "changes": [
-    { "type": "replace", "spellId": "sleep", "replacementSpellId": "shield" }
-  ]
-}
-```
-
-`POST /plan/preview` previews the current pending plan without mutating state.
-
-`POST /long-rest/apply` applies the current pending plan, clears it, and appends an immutable history snapshot.
-
-`POST /state/reset` resets local state to the default seed (all spells in the DB with `prepared: true`).
-
-## Data model constraints (MVP)
-
-- Single character only (`local-character`)
-- Single device local state file (`data/local-state.json`)
-- No auth/account/session/sync support

@@ -4,9 +4,8 @@
 
 | Variable | Required | Default | Purpose |
 |---|---|---|---|
-| `PORT` | No | `3000` (main app) / `8787` (standalone API) | HTTP port |
+| `PORT` | No | `3000` | Integrated API server port |
 | `SPELLS_DB` | No | `data/spells.json` | JSON spell DB path |
-| `SPELLBOOK_STATE` | No (standalone API) | `data/local-state.json` | Local state file path |
 
 ## Spell Backend Selection
 
@@ -22,7 +21,7 @@
 
 | Variable | Required | Default | Purpose |
 |---|---|---|---|
-| `PERSIST_PENDING_PLAN_REMOTE` | No | `false` | Enables Postgres-backed remote state |
+| `PERSIST_PENDING_PLAN_REMOTE` | No | `false` | Enables Postgres-backed pending plans and character-scoped prepared lists |
 | `DATABASE_URL` | Yes when remote mode enabled | - | Postgres connection string |
 | `DEFAULT_CHARACTER_ID` | No | `default-character` | Default character ID |
 | `DEFAULT_CHARACTER_NAME` | No | `Default Character` | Default character name |

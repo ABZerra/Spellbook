@@ -1,6 +1,5 @@
 import type { ComponentType, SVGProps } from 'react';
 import {
-  AoeIcon,
   AttackRollIcon,
   CastingTimeIcon,
   CharacterIcon,
@@ -21,7 +20,6 @@ import {
   LibraryIcon,
   MaterialIcon,
   NoteIntentIcon,
-  PreparationRitualIcon,
   RangeIcon,
   ReplaceSpellIcon,
   RitualIcon,
@@ -36,7 +34,6 @@ import {
   SchoolTransmutationIcon,
   SomaticIcon,
   SpellCatalogIcon,
-  SpellbookMarkIcon,
   UndoChangeIcon,
   VerbalIcon,
 } from './generated-icons';
@@ -44,7 +41,6 @@ import {
 export type SvgIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 export {
-  AoeIcon,
   AttackRollIcon,
   CastingTimeIcon,
   CharacterIcon,
@@ -65,7 +61,6 @@ export {
   LibraryIcon,
   MaterialIcon,
   NoteIntentIcon,
-  PreparationRitualIcon,
   RangeIcon,
   ReplaceSpellIcon,
   RitualIcon,
@@ -80,7 +75,6 @@ export {
   SchoolTransmutationIcon,
   SomaticIcon,
   SpellCatalogIcon,
-  SpellbookMarkIcon,
   UndoChangeIcon,
   VerbalIcon,
 };

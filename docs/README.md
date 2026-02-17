@@ -1,6 +1,6 @@
 # Spellbook Documentation
 
-This documentation reflects the current behavior implemented in the repository.
+Documentation in this folder reflects currently implemented and supported code paths.
 
 ## Structure
 
@@ -21,10 +21,12 @@ This documentation reflects the current behavior implemented in the repository.
 
 ## Scope Note
 
-This set is grounded in code under:
-- `scripts/`
-- `src/`
-- `ui/`
+Active scope is grounded in:
+- `frontend/`
+- `scripts/serve-app.mjs`
+- `src/adapters/`
+- `src/services/`
+- `src/domain/`
 - `tests/`
 
-Any item not directly enforced by code is explicitly labeled as an **Assumption**.
+Legacy runtime artifacts are out of active scope and may be retained only in local ignored `archive/`.

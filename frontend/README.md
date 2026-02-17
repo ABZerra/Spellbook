@@ -1,27 +1,31 @@
+# Spellbook Frontend
 
-  # Spell Preparation Planner
+React + Vite frontend for Spellbook.
 
-  This is a code bundle for Spell Preparation Planner. The original project is available at https://www.figma.com/design/UDDRplZhnj0831ltHjdAD1/Spell-Preparation-Planner.
+## Run
 
-## Running the code
-
-1. Install dependencies:
-
-```bash
-npm i
-```
-
-2. Start the backend API from the repo root:
+Install dependencies:
 
 ```bash
-npm run dev:api
+npm install
 ```
 
-3. Start this frontend:
+Start frontend dev server:
 
 ```bash
 npm run dev
 ```
 
-The Vite dev server proxies `/api/*` requests to `http://localhost:3000`.
-  
+The dev server proxies `/api/*` requests to `http://localhost:3000`.
+
+## Build
+
+```bash
+npm run build
+```
+
+## Test
+
+```bash
+npm run test
+```

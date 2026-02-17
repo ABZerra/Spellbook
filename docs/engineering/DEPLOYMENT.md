@@ -1,29 +1,33 @@
 # Deployment
 
-## Mode 1: Node Runtime (Integrated App)
-Run the app server with appropriate env vars.
+## Mode 1: Integrated Node Runtime
 
 Command:
+
 ```bash
-npm run dev
+npm start
 ```
 
 Supports:
 - Full `/api/*` surface
 - Optional remote Postgres mode
 - Optional Notion catalog mode
+- Serving `frontend/dist` when present
 
 ## Mode 2: Static GitHub Pages
+
 Build:
+
 ```bash
 npm run build:pages
 ```
 
 Build output (`dist/`):
-- UI assets from `ui/`
+- Frontend assets from `frontend/dist`
 - `domain/planner.js`
 - `spells.json`
 - `.nojekyll`
+- `404.html` (copied from `index.html`)
 
 Supports:
 - Static spell browsing and prepare workflow
@@ -34,19 +38,15 @@ Does not support:
 - Remote pending-plan endpoints
 - Server-side sync operations
 
-## Mode 3: Standalone Spells API
-Command:
-```bash
-node scripts/serve-spells-api.js
-```
+## Render Deployment
 
-This mode is separate from the integrated app server and uses local file persistence for one local character state.
+Use repository `render.yaml` defaults:
+- Build command: `npm ci && npm run build:render`
+- Start command: `npm start`
+- Health check path: `/api/health`
 
 ## Operational Notes
-- In remote mode, schema initialization runs at server startup (`ensureSchema`).
-- In Notion mode, periodic cache refresh continues in-process.
-- Manual sync endpoint (`POST /api/spells/sync`) can force refresh.
 
-## Assumptions
-- Repository CI/CD currently focuses on static GitHub Pages publish workflow.
-- Additional production deployment topology (container/orchestrator/reverse proxy) is left to operator choice.
+- In remote mode, schema initialization runs at startup (`ensureSchema`).
+- In Notion mode, periodic cache refresh runs in-process.
+- Manual sync endpoint (`POST /api/spells/sync`) triggers immediate refresh.
