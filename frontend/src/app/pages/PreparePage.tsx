@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { BookOpen, CircleHelp, Sparkles, Wand2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Sparkles, Wand2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useApp } from '../context/AppContext';
 import type { DiffItem } from '../types/spell';
@@ -15,8 +15,8 @@ import {
 } from '../components/ui/accordion';
 import { useIsMobile } from '../components/ui/use-mobile';
 import { CurrentList } from '../components/prepare/CurrentList';
-import { DraftPersistence } from '../components/prepare/DraftPersistence';
 import { NextList } from '../components/prepare/NextList';
+import { PrepareSystemPanel } from '../components/prepare/PrepareSystemPanel';
 import { RitualSummary } from '../components/prepare/RitualSummary';
 import { SearchAutocomplete } from '../components/prepare/SearchAutocomplete';
 import {
@@ -67,6 +67,15 @@ export function PreparePage() {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [showComplete, setShowComplete] = useState(false);
+  const [animateChangeBadge, setAnimateChangeBadge] = useState(false);
+
+  const nextCount = useMemo(() => nextList.filter((slot) => slot.spellId).length, [nextList]);
+
+  useEffect(() => {
+    setAnimateChangeBadge(true);
+    const timeout = setTimeout(() => setAnimateChangeBadge(false), 220);
+    return () => clearTimeout(timeout);
+  }, [diff.length]);
 
   const spellMap = useMemo(() => new Map(spells.map((spell) => [spell.id, spell.name])), [spells]);
   const currentSpells = useMemo(
@@ -135,7 +144,7 @@ export function PreparePage() {
     await run(async () => {
       await applyAll();
       setShowComplete(true);
-      toast(`Long Rest Complete: applied ${count} change${count === 1 ? '' : 's'}.`);
+      toast(`Long Rest Updated: applied ${count} change${count === 1 ? '' : 's'}.`);
 
       const prefersReducedMotion =
         typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -177,56 +186,85 @@ export function PreparePage() {
     });
   }
 
+  async function applySingleChangeByIndex(index: number) {
+    const item = diff.find((entry) => entry.index === index);
+    if (!item) return;
+    await applySingleChange(item);
+  }
+
+  async function clearDiffByIndex(index: number) {
+    const item = diff.find((entry) => entry.index === index);
+    if (!item) return;
+    await clearDiffItem(item);
+  }
+
   return (
     <div className="min-h-screen bg-[#040a17] pb-44 text-gray-100">
       <header className="border-b border-[#1b2a46] bg-[#07142d]">
-        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-6 py-4">
-          <div className="flex items-center gap-3">
-            <Wand2 className="h-8 w-8 text-amber-300" />
-            <div>
-              <h1 className="text-3xl font-semibold">Preparation Ritual</h1>
-              <p className="text-sm text-[#90a2c0]">Edit next long rest spells directly</p>
+        <div className="mx-auto max-w-[1500px] px-6 py-4">
+          <div className="rounded-2xl border border-[#253a5f] bg-[#081734] p-4">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Wand2 className="h-7 w-7 text-amber-300" />
+                <div>
+                  <h1 className="text-2xl font-semibold">✨ Preparation Ritual</h1>
+                  <p className="text-sm text-[#90a2c0]">Edit next long rest spells</p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <Link to="/catalog">
+                  <Button className="h-10 border border-white/20 bg-white text-black hover:bg-gray-200">
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Spell Catalog
+                  </Button>
+                </Link>
+                <CharacterSwitcher showAccountDetails={false} />
+                <PrepareSystemPanel
+                  saveMode={saveMode}
+                  draftSaveStatus={draftSaveStatus}
+                  draftSaveTick={draftSaveTick}
+                  hasChanges={diff.length > 0}
+                  onRefresh={() => {
+                    void refreshNow();
+                  }}
+                  trigger={
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-[#9eb4da] hover:text-gray-100" title="Open system panel">
+                      <CircleHelp className="h-4 w-4" />
+                    </Button>
+                  }
+                />
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <CharacterSwitcher />
-            <Link to="/catalog">
-              <Button className="h-10 border border-white/20 bg-white text-black hover:bg-gray-200">
-                <BookOpen className="mr-2 h-4 w-4" />
-                Spell Catalog
-              </Button>
-            </Link>
+
           </div>
         </div>
       </header>
 
-      <section className="border-b border-[#1b2a46] bg-[#081734]">
-        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-4 px-6 py-3 text-sm">
-          <div className="flex items-center gap-2"><span>Current:</span><Badge className="bg-[#1b2740] text-gray-100">{currentList.length}</Badge></div>
-          <div className="flex items-center gap-2"><span>Next:</span><Badge className="bg-[#1b2740] text-gray-100">{nextList.filter((slot) => slot.spellId).length}</Badge></div>
-          <div className="flex items-center gap-2"><span>Changes:</span><Badge className="bg-amber-500 text-black">{diff.length}</Badge></div>
-          <div className="ml-auto flex items-center gap-2">
-            <DraftPersistence
-              saveMode={saveMode}
-              draftSaveStatus={draftSaveStatus}
-              draftSaveTick={draftSaveTick}
-              hasChanges={diff.length > 0}
-            />
-            <Button variant="outline" size="sm" onClick={() => void refreshNow()}>Refresh</Button>
-          </div>
-        </div>
-      </section>
-
       <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 px-6 py-8 md:grid-cols-2">
         {isMobile ? (
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold">Next Long Rest</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-gray-100">✨ Next Long Rest</h2>
+              <Badge className="bg-[#1b2740] text-gray-100">{nextCount}</Badge>
+              <Badge
+                className={`bg-amber-500 text-black transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
+              >
+                {diff.length} Changes
+              </Badge>
+            </div>
             <NextList
               slots={nextList}
               diff={diff}
               spellNameById={spellMap}
               replacedByIndex={replacedByIndex}
               duplicateCountByIndex={duplicateCountByIndex}
+              onApplySingleChangeByIndex={(index) => {
+                void applySingleChangeByIndex(index);
+              }}
+              onClearDiffByIndex={(index) => {
+                void clearDiffByIndex(index);
+              }}
               onRequestEdit={(index, slot) => {
                 setEditState({ index, selectedSpellId: slot.spellId, note: slot.note || '' });
               }}
@@ -234,7 +272,10 @@ export function PreparePage() {
 
             <Accordion type="single" collapsible className="rounded-xl border border-[#2a3c5f] bg-[#0d1527] px-3">
               <AccordionItem value="current">
-                <AccordionTrigger>Current Prepared</AccordionTrigger>
+                <AccordionTrigger className="gap-2">
+                  <span>Current Prepared</span>
+                  <Badge className="bg-[#1b2740] text-gray-100">{currentList.length}</Badge>
+                </AccordionTrigger>
                 <AccordionContent>
                   <CurrentList currentSpells={currentSpells} isMobile />
                 </AccordionContent>
@@ -243,19 +284,36 @@ export function PreparePage() {
           </section>
         ) : (
           <>
-            <section className="rounded-2xl border border-[#24385b] bg-[#070b14] p-4">
-              <h2 className="mb-3 text-lg font-semibold text-gray-100">Current Prepared</h2>
+            <section className="rounded-2xl border border-[#1f2f4c] bg-[#091325] p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <h2 className="text-base font-medium text-[#93a8d0]">Current Prepared</h2>
+                <Badge className="bg-[#1b2740] text-gray-100">{currentList.length}</Badge>
+              </div>
               <CurrentList currentSpells={currentSpells} />
             </section>
 
-            <section className="rounded-2xl border border-[#24385b] bg-[#070b14] p-4">
-              <h2 className="mb-3 text-lg font-semibold text-gray-100">Next Long Rest</h2>
+            <section className="rounded-2xl border border-[#2f4770] bg-[#0c1a33] p-4 shadow-[0_0_0_1px_rgba(250,209,120,0.2)]">
+              <div className="mb-3 flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-gray-100">✨ Next Long Rest</h2>
+                <Badge className="bg-[#1b2740] text-gray-100">{nextCount}</Badge>
+                <Badge
+                  className={`bg-amber-500 text-black transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
+                >
+                  {diff.length} Changes
+                </Badge>
+              </div>
               <NextList
                 slots={nextList}
                 diff={diff}
                 spellNameById={spellMap}
                 replacedByIndex={replacedByIndex}
                 duplicateCountByIndex={duplicateCountByIndex}
+                onApplySingleChangeByIndex={(index) => {
+                  void applySingleChangeByIndex(index);
+                }}
+                onClearDiffByIndex={(index) => {
+                  void clearDiffByIndex(index);
+                }}
                 onRequestEdit={(index, slot) => {
                   setEditState({ index, selectedSpellId: slot.spellId, note: slot.note || '' });
                 }}
@@ -308,7 +366,7 @@ export function PreparePage() {
         <div className="prepare-complete-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/35 motion-reduce:animate-none">
           <div className="rounded-2xl border border-amber-300/50 bg-[#111c32] px-6 py-5 text-center shadow-2xl motion-reduce:transition-none">
             <Sparkles className="mx-auto mb-2 h-6 w-6 text-amber-300" />
-            <p className="text-lg font-semibold text-amber-100">Long Rest Complete</p>
+            <p className="text-lg font-semibold text-amber-100">Long Rest Updated</p>
           </div>
         </div>
       )}
