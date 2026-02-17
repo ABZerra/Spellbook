@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { CircleHelp, Sparkles, Wand2 } from 'lucide-react';
+import { BookOpen, CircleHelp, Sparkles, Wand2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useApp } from '../context/AppContext';
 import type { DiffItem } from '../types/spell';
@@ -201,7 +202,7 @@ export function PreparePage() {
     <div className="min-h-screen bg-[#040a17] pb-44 text-gray-100">
       <header className="border-b border-[#1b2a46] bg-[#07142d]">
         <div className="mx-auto max-w-[1500px] px-6 py-4">
-          <div className="relative rounded-2xl border border-[#253a5f] bg-[#081734] p-4">
+          <div className="rounded-2xl border border-[#253a5f] bg-[#081734] p-4">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Wand2 className="h-7 w-7 text-amber-300" />
@@ -211,11 +212,14 @@ export function PreparePage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <Link to="/catalog">
+                  <Button variant="outline" className="h-10 border-[#2a3c5f] bg-[#0e1a33] text-gray-100 hover:bg-[#162744]">
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Catalog
+                  </Button>
+                </Link>
                 <CharacterSwitcher showAccountDetails={false} />
-              </div>
-
-              <div className="absolute right-3 top-3">
                 <PrepareSystemPanel
                   saveMode={saveMode}
                   draftSaveStatus={draftSaveStatus}

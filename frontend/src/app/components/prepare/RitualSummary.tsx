@@ -188,7 +188,7 @@ export function RitualSummary({
       <div className="mx-auto max-w-[1500px]">
         <button className="flex w-full items-center justify-between rounded-lg border border-[#2a3c5f] bg-[#101a30] px-3 py-2 text-left" onClick={() => setShowDesktopSummary((current) => !current)}>
           <div>
-            <p className="text-sm text-[#90a2c0]">{showDesktopSummary ? '▼' : '▲'} {diff.length} Changes</p>
+            <p className="text-sm text-[#90a2c0]">{diff.length} Changes</p>
           </div>
           <ChevronDown className={`h-5 w-5 transition-transform motion-reduce:transition-none ${showDesktopSummary ? 'rotate-180' : ''}`} />
         </button>
