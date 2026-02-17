@@ -1,5 +1,10 @@
 import type { DiffItem, SlotDraft, UiSpell } from '../../types/spell';
 import { getDuplicateSpellWarnings, type DuplicateSpellWarning } from '../../domain/planner';
+import {
+  parseComponentsFlags,
+  spellHasConcentration,
+  spellHasRitual,
+} from '../../utils/spellIconUtils';
 
 export type DuplicateWarning = DuplicateSpellWarning;
 
@@ -8,18 +13,7 @@ export function asSpellName(spellMap: Map<string, string>, spellId?: string | nu
   return spellMap.get(spellId) || spellId;
 }
 
-function includesTerm(value: string | null | undefined, term: string): boolean {
-  if (!value) return false;
-  return value.toLowerCase().includes(term);
-}
-
-export function spellHasConcentration(spell: UiSpell): boolean {
-  return includesTerm(spell.duration, 'concentration');
-}
-
-export function spellHasRitual(spell: UiSpell): boolean {
-  return spell.tags.some((tag) => tag.toLowerCase().includes('ritual')) || includesTerm(spell.description, 'ritual');
-}
+export { parseComponentsFlags, spellHasConcentration, spellHasRitual };
 
 export function deriveSpellCategory(spell: UiSpell): 'damage' | 'healing' | 'utility' {
   const allText = `${spell.tags.join(' ')} ${spell.description || ''} ${spell.damage || ''}`.toLowerCase();

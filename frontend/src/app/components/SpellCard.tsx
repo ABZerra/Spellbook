@@ -10,6 +10,16 @@ import { Switch } from './ui/switch';
 import { Textarea } from './ui/textarea';
 import { Pencil, Save, Trash2, X } from 'lucide-react';
 import { SchoolTag } from './SchoolTag';
+import { RuneIcon } from './icons/RuneIcon';
+import {
+  CastingTimeIcon,
+  ConcentrationIcon,
+  DividerShortIcon,
+  DurationIcon,
+  RangeIcon,
+  RitualIcon,
+} from './icons/runeIcons';
+import { spellHasConcentration, spellHasRitual } from '../utils/spellIconUtils';
 
 interface SpellCardProps {
   spell: UiSpell;
@@ -34,6 +44,8 @@ export function SpellCard({
 
   const isPrepared = currentCharacter?.preparedSpellIds.includes(spell.id) || false;
   const sourceText = useMemo(() => spell.source.join(', '), [spell.source]);
+  const hasRitual = spellHasRitual(spell);
+  const hasConcentration = spellHasConcentration(spell);
 
   function shouldSkipInspect(target: EventTarget | null) {
     if (!(target instanceof HTMLElement)) return false;
@@ -188,34 +200,26 @@ export function SpellCard({
             </div>
           </>
         ) : (
-          <div className="rounded-2xl border border-paper-border bg-paper text-ink shadow-insetPaper">
+          <div className="rounded-2xl border border-paper-border bg-paper text-ink shadow-insetPaper spellbook-paper-watermark">
             <div className="space-y-4 p-5">
-              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-                {spell.castingTime && (
-                  <p>
-                    <span className="font-semibold text-ink">Casting Time:</span>{' '}
-                    <span className="text-ink-muted">{spell.castingTime}</span>
-                  </p>
-                )}
-                {spell.range && (
-                  <p>
-                    <span className="font-semibold text-ink">Range:</span>{' '}
-                    <span className="text-ink-muted">{spell.range}</span>
-                  </p>
-                )}
-                {spell.components && (
-                  <p>
-                    <span className="font-semibold text-ink">Components:</span>{' '}
-                    <span className="text-ink-muted">{spell.components}</span>
-                  </p>
-                )}
-                {spell.duration && (
-                  <p>
-                    <span className="font-semibold text-ink">Duration:</span>{' '}
-                    <span className="text-ink-muted">{spell.duration}</span>
-                  </p>
-                )}
+              <div className="flex items-center gap-3">
+                <RuneIcon icon={CastingTimeIcon} label="Casting time" size={16} variant="gold" interactive />
+                <p className="text-sm text-ink"><span className="font-semibold">{spell.castingTime || 'Casting time'}</span></p>
+
+                <RuneIcon icon={RangeIcon} label="Range" size={16} variant="gold" interactive />
+                <p className="text-sm text-ink">{spell.range || 'Range'}</p>
+
+                <RuneIcon icon={DurationIcon} label="Duration" size={16} variant="gold" interactive />
+                <p className="text-sm text-ink">{spell.duration || 'Duration'}</p>
               </div>
+
+              <RuneIcon icon={DividerShortIcon} label="" size={24} variant="gold" interactive={false} />
+
+              <div className="flex items-center gap-2">
+                {hasRitual && <RuneIcon icon={RitualIcon} label="Ritual spell (no slot)" size={16} variant="gold" interactive />}
+                {hasConcentration && <RuneIcon icon={ConcentrationIcon} label="Concentration required" size={16} variant="gold" interactive />}
+              </div>
+
               {spell.description && <p className="line-clamp-5 max-w-[80ch] space-y-3 text-sm text-ink-muted">{spell.description}</p>}
             </div>
           </div>

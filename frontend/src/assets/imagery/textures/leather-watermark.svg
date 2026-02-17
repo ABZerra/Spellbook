@@ -1,0 +1,12 @@
+<svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="runes" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+      <g opacity="0.05" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M30 12 L42 30 L30 48 L18 30 Z" />
+        <path d="M30 18 V 42" />
+        <path d="M18 30 H 42" opacity="0.5"/>
+      </g>
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="600" height="600" fill="url(#runes)"/>
+</svg>

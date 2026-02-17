@@ -4,9 +4,11 @@ import {
   deriveSpellCategory,
   formatDiffLabel,
   formatSpellPickerMeta,
+  parseComponentsFlags,
   spellHasConcentration,
   spellHasRitual,
 } from './prepareUtils';
+import { normalizeSchoolKey } from '../icons/runeIcons';
 
 function makeSpell(overrides: Partial<UiSpell>): UiSpell {
   return {
@@ -35,7 +37,7 @@ function makeSpell(overrides: Partial<UiSpell>): UiSpell {
 
 describe('prepareUtils', () => {
   it('detects concentration and ritual traits', () => {
-    const concentrationSpell = makeSpell({ duration: 'Up to 1 minute (Concentration)' });
+    const concentrationSpell = makeSpell({ tags: ['Concentration'] });
     const ritualSpell = makeSpell({ tags: ['Ritual'] });
 
     expect(spellHasConcentration(concentrationSpell)).toBe(true);
@@ -71,5 +73,23 @@ describe('prepareUtils', () => {
     ]);
     const replaceDiff: DiffItem = { action: 'replace', index: 0, fromSpellId: 'a', toSpellId: 'b' };
     expect(formatDiffLabel(replaceDiff, map)).toBe('Detect Magic -> Maelstrom');
+  });
+
+  it('parses component flags', () => {
+    expect(parseComponentsFlags('V, S, M (a diamond)')).toEqual({
+      verbal: true,
+      somatic: true,
+      material: true,
+    });
+    expect(parseComponentsFlags('V')).toEqual({
+      verbal: true,
+      somatic: false,
+      material: false,
+    });
+  });
+
+  it('normalizes school keys', () => {
+    expect(normalizeSchoolKey('Evocation')).toBe('evocation');
+    expect(normalizeSchoolKey('unknown-school')).toBeNull();
   });
 });

@@ -1,10 +1,25 @@
 import React from 'react';
-import { AlertTriangle, Check, Eraser, Pencil, ScrollText } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
+import { RuneIcon } from '../icons/RuneIcon';
+import {
+  CommitRitualIcon,
+  ConcentrationIcon,
+  DiffChangesIcon,
+  DuplicateWarningIcon,
+  NoteIntentIcon,
+  ReplaceSpellIcon,
+  RitualIcon,
+  UndoChangeIcon,
+} from '../icons/runeIcons';
+import { SCHOOL_ICON_BY_KEY, normalizeSchoolKey } from '../icons/runeIcons';
 
 interface SpellSocketProps {
   name: string;
+  school?: string;
+  isRitual?: boolean;
+  isConcentration?: boolean;
   fromSpellName?: string;
   note?: string;
   hasDiff: boolean;
@@ -17,6 +32,9 @@ interface SpellSocketProps {
 
 export function SpellSocket({
   name,
+  school,
+  isRitual = false,
+  isConcentration = false,
   fromSpellName,
   note,
   hasDiff,
@@ -27,33 +45,57 @@ export function SpellSocket({
   onClick,
 }: SpellSocketProps) {
   const showActions = showInlineActions && hasDiff && (onApplyChange || onClearChange);
+  const schoolKey = normalizeSchoolKey(school);
+  const SchoolIcon = schoolKey ? SCHOOL_ICON_BY_KEY[schoolKey] : null;
 
   return (
     <div
       className={`group rounded-lg border px-3 py-2 transition-colors motion-reduce:transition-none ${hasDiff ? 'border-accent bg-accent-soft shadow-[inset_3px_0_0_var(--accent)]' : 'border-border-dark bg-bg-2 hover:border-accent-soft'}`}
     >
       <div className="flex items-center gap-2">
-        <button className="min-w-0 flex-1 text-left" onClick={onClick}>
-          <p className="flex flex-wrap items-center gap-2 text-sm">
+        {hasDiff && (
+          <RuneIcon icon={DiffChangesIcon} label="Queued change" size={16} interactive variant="muted" />
+        )}
+
+        <button className="min-w-0 flex-1 text-left" onClick={onClick} aria-label="Replace this spell">
+          <p className="flex flex-wrap items-center gap-2 text-sm leading-5">
+            {SchoolIcon && (
+              <RuneIcon
+                icon={SchoolIcon}
+                label={`${school || 'Unknown'} spell`}
+                size={16}
+                variant="gold"
+                interactive
+              />
+            )}
+
             {fromSpellName ? (
               <>
-                <span className="text-text-dim line-through">{fromSpellName}</span>
+                <span className="inline-flex items-center text-text-dim line-through">{fromSpellName}</span>
                 <span className="text-accent">→</span>
-                <span className="text-text">{name}</span>
+                <span className="inline-flex items-center text-text">{name}</span>
               </>
             ) : (
-              <span className="text-text">{name}</span>
+              <span className="inline-flex items-center text-text">{name}</span>
             )}
+
             {duplicateCount > 1 && (
               <Badge variant="destructive" className="inline-flex items-center gap-1 border border-blood-soft bg-blood text-text">
-                <AlertTriangle className="h-3 w-3" />
+                <RuneIcon icon={DuplicateWarningIcon} label="Duplicate warning" size={12} variant="danger" interactive={false} />
                 Duplicate x{duplicateCount}
               </Badge>
             )}
+
+            {isRitual && (
+              <RuneIcon icon={RitualIcon} label="Ritual spell (no slot)" size={16} interactive variant="gold" />
+            )}
+
+            {isConcentration && (
+              <RuneIcon icon={ConcentrationIcon} label="Concentration required" size={16} interactive variant="gold" />
+            )}
+
             {note && (
-              <span className="inline-flex items-center text-accent" title="Note saved">
-                <ScrollText className="h-3.5 w-3.5" />
-              </span>
+              <RuneIcon icon={NoteIntentIcon} label="Change note" size={16} interactive variant="gold" />
             )}
           </p>
         </button>
@@ -62,38 +104,71 @@ export function SpellSocket({
           {showActions && (
             <div className="flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
               {onClearChange && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-text-muted hover:text-text"
-                  title="Clear this change"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onClearChange();
-                  }}
-                >
-                  <Eraser className="h-4 w-4" />
-                </Button>
+                <Tooltip delayDuration={200}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-text-muted hover:text-text"
+                      aria-label="Undo this change"
+                      title="Undo this change"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onClearChange();
+                      }}
+                    >
+                      <RuneIcon icon={UndoChangeIcon} label="" size={16} interactive={false} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Undo this change</TooltipContent>
+                </Tooltip>
               )}
+
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-text-muted hover:text-text"
+                    aria-label="Add a note"
+                    title="Add a note"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onClick();
+                    }}
+                  >
+                    <RuneIcon icon={NoteIntentIcon} label="" size={16} interactive={false} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">Add a note</TooltipContent>
+              </Tooltip>
+
               {onApplyChange && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-accent hover:text-accent-2"
-                  title="Apply this change"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onApplyChange();
-                  }}
-                >
-                  <Check className="h-4 w-4" />
-                </Button>
+                <Tooltip delayDuration={200}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-text-muted hover:text-text"
+                      aria-label="Apply this change"
+                      title="Apply this change"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onApplyChange();
+                      }}
+                    >
+                      <RuneIcon icon={CommitRitualIcon} label="" size={16} interactive={false} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Apply this change</TooltipContent>
+                </Tooltip>
               )}
             </div>
           )}
 
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-text-muted hover:text-text" title="Edit slot" onClick={onClick}>
-            <Pencil className="h-4 w-4" />
+          <Button variant="brandSecondary" size="sm" className="h-8" onClick={onClick}>
+            <RuneIcon icon={ReplaceSpellIcon} label="Replace this spell" size={16} interactive={false} />
+            Replace
           </Button>
         </div>
       </div>

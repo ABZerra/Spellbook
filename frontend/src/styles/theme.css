@@ -243,6 +243,20 @@
   background-color: rgba(241, 245, 249, 0.34);
 }
 
+.spellbook-paper-watermark {
+  background-image: url('../assets/imagery/textures/paper-watermark.svg');
+  background-repeat: repeat;
+  background-size: 240px 240px;
+  background-blend-mode: multiply;
+}
+
+.spellbook-leather-watermark {
+  background-image: url('../assets/imagery/textures/leather-watermark.svg');
+  background-repeat: repeat;
+  background-size: 280px 280px;
+  background-blend-mode: soft-light;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-slot='dialog-overlay'],
   [data-slot='dialog-content'],
