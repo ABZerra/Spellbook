@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, CircleHelp, Sparkles, Wand2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -17,11 +17,12 @@ import { useIsMobile } from '../components/ui/use-mobile';
 import { CurrentList } from '../components/prepare/CurrentList';
 import { NextList } from '../components/prepare/NextList';
 import { PrepareSystemPanel } from '../components/prepare/PrepareSystemPanel';
+import { PrepareSpellDrawer } from '../components/prepare/PrepareSpellDrawer';
 import { RitualSummary } from '../components/prepare/RitualSummary';
-import { SearchAutocomplete } from '../components/prepare/SearchAutocomplete';
 import {
   asSpellName,
   buildDuplicateIndexMap,
+  formatDiffLabel,
   getDuplicateWarningForSelection,
   getDuplicateWarnings,
 } from '../components/prepare/prepareUtils';
@@ -58,8 +59,10 @@ export function PreparePage() {
     nextList,
     diff,
     setNextSlot,
+    setSlotNote,
     applyOne,
     applyAll,
+    clearPendingActions,
   } = useApp();
 
   const isMobile = useIsMobile();
@@ -68,6 +71,8 @@ export function PreparePage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [showComplete, setShowComplete] = useState(false);
   const [animateChangeBadge, setAnimateChangeBadge] = useState(false);
+  const slotPersistTimerRef = useRef<number | null>(null);
+  const notePersistTimerRef = useRef<number | null>(null);
 
   const nextCount = useMemo(() => nextList.filter((slot) => slot.spellId).length, [nextList]);
 
@@ -76,6 +81,13 @@ export function PreparePage() {
     const timeout = setTimeout(() => setAnimateChangeBadge(false), 220);
     return () => clearTimeout(timeout);
   }, [diff.length]);
+
+  useEffect(() => {
+    return () => {
+      if (slotPersistTimerRef.current) window.clearTimeout(slotPersistTimerRef.current);
+      if (notePersistTimerRef.current) window.clearTimeout(notePersistTimerRef.current);
+    };
+  }, []);
 
   const spellMap = useMemo(() => new Map(spells.map((spell) => [spell.id, spell.name])), [spells]);
   const currentSpells = useMemo(
@@ -118,33 +130,41 @@ export function PreparePage() {
     }
   }
 
-  async function saveSlot() {
-    if (!editState) return;
-    const currentSpellName = asSpellName(spellMap, currentList[editState.index] || null);
-    const selectedSpellName = asSpellName(spellMap, editState.selectedSpellId);
-    const message =
-      currentList[editState.index] && editState.selectedSpellId
-        ? `Draft saved: Replaced ${currentSpellName} with ${selectedSpellName}.`
-        : currentList[editState.index] && !editState.selectedSpellId
-          ? `Draft saved: Removed ${currentSpellName}.`
-          : !currentList[editState.index] && editState.selectedSpellId
-            ? `Draft saved: Added ${selectedSpellName}.`
-            : `Draft saved: Updated slot ${editState.index + 1}.`;
+  function queueSlotPersist(index: number, spellId: string | null, note: string, announce: boolean) {
+    if (slotPersistTimerRef.current) window.clearTimeout(slotPersistTimerRef.current);
 
-    await run(async () => {
-      await setNextSlot(editState.index, editState.selectedSpellId, editState.note);
-      setEditState(null);
-      toast(message);
-    });
+    slotPersistTimerRef.current = window.setTimeout(() => {
+      void run(async () => {
+        await setNextSlot(index, spellId, note);
+        if (announce) {
+          toast('Change queued.');
+        }
+      });
+    }, 300);
+  }
+
+  function queueNotePersist(index: number, note: string) {
+    if (notePersistTimerRef.current) window.clearTimeout(notePersistTimerRef.current);
+
+    notePersistTimerRef.current = window.setTimeout(() => {
+      void run(async () => {
+        await setSlotNote(index, note);
+      });
+    }, 350);
   }
 
   async function applyAllChanges() {
-    const count = diff.length;
+    const summaryLines = diff.map((item) => formatDiffLabel(item, spellMap));
 
     await run(async () => {
       await applyAll();
       setShowComplete(true);
-      toast(`Long Rest Updated: applied ${count} change${count === 1 ? '' : 's'}.`);
+
+      const visibleLines = summaryLines.slice(0, 3);
+      const overflow = summaryLines.length - visibleLines.length;
+      const detail = visibleLines.length > 0 ? ` ${visibleLines.join(' • ')}` : '';
+      const overflowLabel = overflow > 0 ? ` (+${overflow} more)` : '';
+      toast(`Long Rest Updated.${detail}${overflowLabel}`);
 
       const prefersReducedMotion =
         typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -155,34 +175,17 @@ export function PreparePage() {
 
   async function clearDiffItem(item: DiffItem) {
     const restoreSpellId = item.action === 'add' ? null : item.fromSpellId || null;
-    const fromName = asSpellName(spellMap, item.fromSpellId);
-    const toName = asSpellName(spellMap, item.toSpellId);
-    const summary =
-      item.action === 'replace'
-        ? `cleared replace (${fromName} -> ${toName})`
-        : item.action === 'remove'
-          ? `cleared removal (${fromName})`
-          : `cleared addition (${toName})`;
 
     await run(async () => {
       await setNextSlot(item.index, restoreSpellId);
-      toast(`Draft saved: ${summary}.`);
+      toast('Change undone.');
     });
   }
 
   async function applySingleChange(item: DiffItem) {
-    const fromName = asSpellName(spellMap, item.fromSpellId);
-    const toName = asSpellName(spellMap, item.toSpellId);
-    const summary =
-      item.action === 'replace'
-        ? `Applied replace: ${fromName} -> ${toName}.`
-        : item.action === 'remove'
-          ? `Applied remove: ${fromName}.`
-          : `Applied add: ${toName}.`;
-
     await run(async () => {
       await applyOne(item);
-      toast(summary);
+      toast(`Applied: ${formatDiffLabel(item, spellMap)}.`);
     });
   }
 
@@ -198,6 +201,13 @@ export function PreparePage() {
     await clearDiffItem(item);
   }
 
+  async function discardAllChanges() {
+    await run(async () => {
+      await clearPendingActions();
+      toast('Discarded all queued changes.');
+    });
+  }
+
   return (
     <div className="min-h-screen bg-[#040a17] pb-44 text-gray-100">
       <header className="border-b border-[#1b2a46] bg-[#07142d]">
@@ -208,7 +218,7 @@ export function PreparePage() {
                 <Wand2 className="h-7 w-7 text-amber-300" />
                 <div>
                   <h1 className="text-2xl font-semibold">✨ Preparation Ritual</h1>
-                  <p className="text-sm text-[#90a2c0]">Edit next long rest spells</p>
+                  <p className="text-sm text-[#90a2c0]">Plan your next long rest loadout in one flow</p>
                 </div>
               </div>
 
@@ -241,11 +251,11 @@ export function PreparePage() {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 px-6 py-8 md:grid-cols-2">
+      <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 px-6 py-8 md:grid-cols-[1.3fr_0.7fr]">
         {isMobile ? (
           <section className="space-y-3">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold text-gray-100">✨ Next Long Rest</h2>
+              <h2 className="text-lg font-semibold text-gray-100">✨ Next Long Rest Planned Spell List</h2>
               <Badge className="bg-[#1b2740] text-gray-100">{nextCount}</Badge>
               <Badge
                 className={`bg-amber-500 text-black transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
@@ -273,7 +283,7 @@ export function PreparePage() {
             <Accordion type="single" collapsible className="rounded-xl border border-[#2a3c5f] bg-[#0d1527] px-3">
               <AccordionItem value="current">
                 <AccordionTrigger className="gap-2">
-                  <span>Current Prepared</span>
+                  <span>Current Active Spell List</span>
                   <Badge className="bg-[#1b2740] text-gray-100">{currentList.length}</Badge>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -284,17 +294,9 @@ export function PreparePage() {
           </section>
         ) : (
           <>
-            <section className="rounded-2xl border border-[#1f2f4c] bg-[#091325] p-4">
-              <div className="mb-3 flex items-center gap-2">
-                <h2 className="text-base font-medium text-[#93a8d0]">Current Prepared</h2>
-                <Badge className="bg-[#1b2740] text-gray-100">{currentList.length}</Badge>
-              </div>
-              <CurrentList currentSpells={currentSpells} />
-            </section>
-
             <section className="rounded-2xl border border-[#2f4770] bg-[#0c1a33] p-4 shadow-[0_0_0_1px_rgba(250,209,120,0.2)]">
               <div className="mb-3 flex items-center gap-2">
-                <h2 className="text-lg font-semibold text-gray-100">✨ Next Long Rest</h2>
+                <h2 className="text-lg font-semibold text-gray-100">✨ Next Long Rest Planned Spell List</h2>
                 <Badge className="bg-[#1b2740] text-gray-100">{nextCount}</Badge>
                 <Badge
                   className={`bg-amber-500 text-black transition-transform motion-reduce:transition-none ${animateChangeBadge ? 'scale-105' : 'scale-100'}`}
@@ -319,29 +321,44 @@ export function PreparePage() {
                 }}
               />
             </section>
+
+            <section className="rounded-2xl border border-[#1f2f4c] bg-[#091325] p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <h2 className="text-base font-medium text-[#93a8d0]">Current Active Spell List</h2>
+                <Badge className="bg-[#1b2740] text-gray-100">{currentList.length}</Badge>
+              </div>
+              <CurrentList currentSpells={currentSpells} />
+            </section>
           </>
         )}
       </main>
 
-      <SearchAutocomplete
+      <PrepareSpellDrawer
         open={Boolean(editState)}
+        isMobile={isMobile}
         busy={busy}
         currentSpellName={asSpellName(spellMap, editState ? currentList[editState.index] || null : null)}
         selectedSpellId={editState?.selectedSpellId || null}
         note={editState?.note || ''}
         duplicateWarningText={duplicateWarningText}
         options={spells}
+        onOpenChange={(open) => {
+          if (!open) setEditState(null);
+        }}
         onSelectedSpellIdChange={(spellId) => {
-          setEditState((current) => (current ? { ...current, selectedSpellId: spellId } : current));
+          setEditState((current) => {
+            if (!current) return current;
+            const isMeaningfulChange = current.selectedSpellId !== spellId;
+            queueSlotPersist(current.index, spellId, current.note, isMeaningfulChange);
+            return { ...current, selectedSpellId: spellId };
+          });
         }}
         onNoteChange={(note) => {
-          setEditState((current) => (current ? { ...current, note } : current));
-        }}
-        onSave={() => {
-          void saveSlot();
-        }}
-        onClose={() => {
-          setEditState(null);
+          setEditState((current) => {
+            if (!current) return current;
+            queueNotePersist(current.index, note);
+            return { ...current, note };
+          });
         }}
       />
 
@@ -351,14 +368,11 @@ export function PreparePage() {
         busy={busy}
         spellNameById={spellMap}
         duplicateWarnings={duplicateWarnings}
-        onClearDiffItem={(item) => {
-          void clearDiffItem(item);
-        }}
-        onApplySingleChange={(item) => {
-          void applySingleChange(item);
-        }}
         onApplyAllChanges={() => {
           void applyAllChanges();
+        }}
+        onDiscardAllChanges={() => {
+          void discardAllChanges();
         }}
       />
 

@@ -10,8 +10,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '../ui/drawer';
-import { ApplyActions } from './ApplyActions';
-import { asSpellName, groupDiff, type DuplicateWarning } from './prepareUtils';
+import { asSpellName, formatDiffLabel, groupDiff, type DuplicateWarning } from './prepareUtils';
 
 interface RitualSummaryProps {
   isMobile: boolean;
@@ -19,40 +18,15 @@ interface RitualSummaryProps {
   busy: boolean;
   spellNameById: Map<string, string>;
   duplicateWarnings: DuplicateWarning[];
-  onClearDiffItem: (item: DiffItem) => void;
-  onApplySingleChange: (item: DiffItem) => void;
   onApplyAllChanges: () => void;
+  onDiscardAllChanges: () => void;
 }
 
-function renderDiffLabel(item: DiffItem, spellNameById: Map<string, string>): string {
-  const fromName = asSpellName(spellNameById, item.fromSpellId);
-  const toName = asSpellName(spellNameById, item.toSpellId);
-
-  if (item.action === 'replace') return `${fromName} -> ${toName}`;
-  if (item.action === 'remove') return fromName;
-  return toName;
-}
-
-function DiffItemCard({
-  item,
-  busy,
-  spellNameById,
-  onClear,
-  onApply,
-}: {
-  item: DiffItem;
-  busy: boolean;
-  spellNameById: Map<string, string>;
-  onClear: () => void;
-  onApply: () => void;
-}) {
+function DiffItemCard({ item, spellNameById }: { item: DiffItem; spellNameById: Map<string, string> }) {
   return (
     <div className="rounded-lg border border-[#2a3c5f] bg-[#101a30] p-3">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-gray-100">{renderDiffLabel(item, spellNameById)}</p>
-        <ApplyActions busy={busy} onClear={onClear} onApply={onApply} />
-      </div>
-      {item.note && <p className="mt-2 whitespace-pre-wrap text-xs text-[#9fb3d8]">{item.note}</p>}
+      <p className="text-sm text-gray-100">{formatDiffLabel(item, spellNameById)}</p>
+      {item.note ? <p className="mt-2 whitespace-pre-wrap text-xs text-[#9fb3d8]">{item.note}</p> : null}
     </div>
   );
 }
@@ -84,12 +58,11 @@ export function RitualSummary({
   busy,
   spellNameById,
   duplicateWarnings,
-  onClearDiffItem,
-  onApplySingleChange,
   onApplyAllChanges,
+  onDiscardAllChanges,
 }: RitualSummaryProps) {
-  const [showDesktopSummary, setShowDesktopSummary] = useState(false);
   const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false);
+  const [showDesktopSummary, setShowDesktopSummary] = useState(false);
   const diffGroups = useMemo(() => groupDiff(diff), [diff]);
   const hasAnyDiff = diff.length > 0;
   const hasDuplicateWarnings = duplicateWarnings.length > 0;
@@ -103,10 +76,7 @@ export function RitualSummary({
             <DiffItemCard
               key={`replaced-${item.index}-${item.fromSpellId || 'none'}-${item.toSpellId || 'none'}`}
               item={item}
-              busy={busy}
               spellNameById={spellNameById}
-              onClear={() => onClearDiffItem(item)}
-              onApply={() => onApplySingleChange(item)}
             />
           ))}
         </div>
@@ -119,10 +89,7 @@ export function RitualSummary({
             <DiffItemCard
               key={`removed-${item.index}-${item.fromSpellId || 'none'}`}
               item={item}
-              busy={busy}
               spellNameById={spellNameById}
-              onClear={() => onClearDiffItem(item)}
-              onApply={() => onApplySingleChange(item)}
             />
           ))}
         </div>
@@ -135,18 +102,9 @@ export function RitualSummary({
             <DiffItemCard
               key={`added-${item.index}-${item.toSpellId || 'none'}`}
               item={item}
-              busy={busy}
               spellNameById={spellNameById}
-              onClear={() => onClearDiffItem(item)}
-              onApply={() => onApplySingleChange(item)}
             />
           ))}
-        </div>
-      )}
-
-      {!hasAnyDiff && (
-        <div className="md:col-span-3">
-          <p className="rounded-lg border border-[#2a3c5f] bg-[#101a30] px-3 py-2 text-sm text-[#90a2c0]">No pending changes.</p>
         </div>
       )}
 
@@ -164,47 +122,60 @@ export function RitualSummary({
       <Drawer open={mobileSummaryOpen} onOpenChange={setMobileSummaryOpen}>
         <DrawerTrigger asChild>
           <Button className="fixed bottom-4 right-4 z-30 h-12 rounded-full px-4">
-            {diff.length} Changes
+            {diff.length} queued
           </Button>
         </DrawerTrigger>
         <DrawerContent className="bg-[#081734] text-gray-100">
           <DrawerHeader>
-            <DrawerTitle>Ritual Summary</DrawerTitle>
-            <DrawerDescription className="text-[#90a2c0]">Apply one change or complete the full ritual.</DrawerDescription>
+            <DrawerTitle>Queued Ritual Changes</DrawerTitle>
+            <DrawerDescription className="text-[#90a2c0]">Review queued changes before applying.</DrawerDescription>
           </DrawerHeader>
           <div className="max-h-[60vh] space-y-3 overflow-y-auto px-4 pb-4">
-            {content}
-            <Button className="w-full min-h-11" disabled={busy || !hasAnyDiff} onClick={onApplyAllChanges}>
-              Apply All Changes
-            </Button>
+            {hasAnyDiff ? content : <p className="rounded-lg border border-[#2a3c5f] bg-[#101a30] px-3 py-2 text-sm text-[#90a2c0]">No queued changes.</p>}
+            <div className="flex gap-2">
+              <Button className="flex-1 min-h-11" disabled={busy || !hasAnyDiff} onClick={onApplyAllChanges}>
+                Apply All
+              </Button>
+              <Button className="flex-1 min-h-11" variant="destructive" disabled={busy || !hasAnyDiff} onClick={onDiscardAllChanges}>
+                Discard All
+              </Button>
+            </div>
           </div>
         </DrawerContent>
       </Drawer>
     );
   }
 
+  if (!hasAnyDiff) return null;
+
   return (
     <section className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#24385b] bg-[#081734]/95 px-6 py-2 backdrop-blur">
       <div className="mx-auto max-w-[1500px]">
-        <button className="flex w-full items-center justify-between rounded-lg border border-[#2a3c5f] bg-[#101a30] px-3 py-2 text-left" onClick={() => setShowDesktopSummary((current) => !current)}>
-          <div>
-            <p className="text-sm text-[#90a2c0]">{diff.length} Changes</p>
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-[#2a3c5f] bg-[#101a30] px-3 py-2">
+          <button
+            className="flex items-center gap-2 text-left"
+            onClick={() => setShowDesktopSummary((current) => !current)}
+          >
+            <p className="text-sm text-[#90a2c0]">{diff.length} changes queued</p>
+            <ChevronDown className={`h-4 w-4 text-[#90a2c0] transition-transform ${showDesktopSummary ? 'rotate-180' : ''}`} />
+          </button>
+
+          <div className="flex items-center gap-2">
+            <Button className="min-h-10" variant="destructive" disabled={busy || !hasAnyDiff} onClick={onDiscardAllChanges}>
+              Discard All
+            </Button>
+            <Button className="min-h-10" disabled={busy || !hasAnyDiff} onClick={onApplyAllChanges}>
+              <Check className="mr-2 h-4 w-4" />
+              Apply All
+            </Button>
           </div>
-          <ChevronDown className={`h-5 w-5 transition-transform motion-reduce:transition-none ${showDesktopSummary ? 'rotate-180' : ''}`} />
-        </button>
+        </div>
 
         {showDesktopSummary && (
-          <div className="mt-3 grid gap-3 pb-1 md:grid-cols-3">
+          <div className="mt-3 max-h-[28vh] space-y-3 overflow-y-auto pb-1 md:grid md:grid-cols-3 md:gap-3 md:space-y-0">
             {content}
           </div>
         )}
-
-        <div className="mt-3 flex justify-end pb-1">
-          <Button className="min-h-11" disabled={busy || diff.length === 0} onClick={onApplyAllChanges}>
-            <Check className="mr-2 h-4 w-4" />
-            Apply All Changes
-          </Button>
-        </div>
       </div>
     </section>
   );
