@@ -6,6 +6,7 @@ import {
   computeDiffFromLists,
   diffToPendingChanges,
   generateActionId,
+  rebaseDraftFromCurrentPrepared,
 } from '../domain/planner';
 import {
   mapApiPendingToUiPending,
@@ -416,15 +417,28 @@ export function AppProvider({ children }: AppProviderProps) {
       if (!spell) return;
 
       const nextPrepared = !Boolean(spell.prepared);
+      const syncLocalDraftAfterPreparedToggle = (nextPreparedIds: string[]) => {
+        if (mode.remotePendingPlanEnabled) return;
+        const { nextList: nextDraft } = rebaseDraftFromCurrentPrepared(nextPreparedIds);
+        clearLocalPending(userId, characterId);
+        setLocalPendingDraft(userId, characterId, nextDraft);
+        setPendingActions([]);
+        setPendingVersion(1);
+        setNextList(nextDraft);
+        setDraftSaveStatus('idle');
+        setDraftSaveTick(0);
+      };
+
       try {
         const response = await updateSpellRequest(spellId, { prepared: nextPrepared });
         setApiSpells((current) => current.map((entry) => (entry.id === spellId ? response.spell : entry)));
-        setPreparedSpellIds((current) => {
-          if (nextPrepared) {
-            return current.includes(spellId) ? current : [...current, spellId];
-          }
-          return current.filter((id) => id !== spellId);
-        });
+        const nextPreparedIds = nextPrepared
+          ? preparedSpellIds.includes(spellId)
+            ? preparedSpellIds
+            : [...preparedSpellIds, spellId]
+          : preparedSpellIds.filter((id) => id !== spellId);
+        setPreparedSpellIds(nextPreparedIds);
+        syncLocalDraftAfterPreparedToggle(nextPreparedIds);
       } catch (nextError) {
         if (!mode.allowLocalDraftEdits) {
           throw nextError;
@@ -440,15 +454,20 @@ export function AppProvider({ children }: AppProviderProps) {
 
         setLocalPrepared(userId, characterId, localPrepared);
         updateLocalFallbackPatch(spellId, { prepared: nextPrepared });
-        setPreparedSpellIds((current) => {
-          if (nextPrepared) {
-            return current.includes(spellId) ? current : [...current, spellId];
-          }
-          return current.filter((id) => id !== spellId);
-        });
+        const nextPreparedIds = [...localPrepared];
+        setPreparedSpellIds(nextPreparedIds);
+        syncLocalDraftAfterPreparedToggle(nextPreparedIds);
       }
     },
-    [apiSpells, characterId, mode.allowLocalDraftEdits, updateLocalFallbackPatch, userId],
+    [
+      apiSpells,
+      characterId,
+      mode.allowLocalDraftEdits,
+      mode.remotePendingPlanEnabled,
+      preparedSpellIds,
+      updateLocalFallbackPatch,
+      userId,
+    ],
   );
 
   const persistLocalDraft = useCallback(

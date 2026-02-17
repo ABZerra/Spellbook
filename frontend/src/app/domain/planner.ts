@@ -178,6 +178,16 @@ export function applySingleDiff(currentSlots: SlotDraft[], diffItem: DiffItem): 
   return next;
 }
 
+export function rebaseDraftFromCurrentPrepared(currentIds: string[]): {
+  nextList: SlotDraft[];
+  changes: ApiPendingChange[];
+} {
+  return {
+    nextList: buildSlotsFromCurrent(currentIds),
+    changes: [],
+  };
+}
+
 export function getDuplicateSpellWarnings(nextSlots: SlotDraft[]): DuplicateSpellWarning[] {
   const slotsBySpell = new Map<string, number[]>();
 

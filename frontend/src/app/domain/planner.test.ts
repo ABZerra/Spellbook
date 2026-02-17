@@ -6,6 +6,7 @@ import {
   computeDiffFromLists,
   diffToPendingChanges,
   getDuplicateSpellWarnings,
+  rebaseDraftFromCurrentPrepared,
   removeAppliedDiffFromDraft,
 } from './planner';
 
@@ -96,5 +97,16 @@ describe('planner v2', () => {
       { spellId: 'sleep', indexes: [0, 2] },
       { spellId: 'shield', indexes: [1, 4] },
     ]);
+  });
+
+  it('rebases draft to current prepared list after external prepared toggles', () => {
+    const currentPrepared = ['shield', 'mage-armor'];
+    const rebased = rebaseDraftFromCurrentPrepared(currentPrepared);
+
+    expect(rebased.nextList).toEqual([{ spellId: 'shield' }, { spellId: 'mage-armor' }]);
+    expect(rebased.changes).toEqual([]);
+
+    const diffAfterRebase = computeDiffFromLists(buildSlotsFromCurrent(currentPrepared), rebased.nextList);
+    expect(diffAfterRebase).toEqual([]);
   });
 });
