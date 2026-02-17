@@ -1,6 +1,5 @@
 import React from 'react';
-import { BookOpen, RefreshCw } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { RefreshCw } from 'lucide-react';
 import { CharacterSwitcher } from '../CharacterSwitcher';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -64,13 +63,6 @@ export function PrepareSystemPanel({
             <p className="mb-2 text-sm font-semibold text-[#c9d8f6]">Account & Session</p>
             <CharacterSwitcher showAccountDetails showCharacterControl={false} />
           </div>
-
-          <Link to="/catalog">
-            <Button className="h-10 border border-white/20 bg-white text-black hover:bg-gray-200">
-              <BookOpen className="mr-2 h-4 w-4" />
-              Spell Catalog
-            </Button>
-          </Link>
         </div>
       </SheetContent>
     </Sheet>
