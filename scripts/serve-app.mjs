@@ -46,6 +46,7 @@ const spellsCachePath = process.env.SPELLS_CACHE_PATH
   ? path.resolve(process.cwd(), process.env.SPELLS_CACHE_PATH)
   : path.join(rootDir, 'data', 'spells-cache.json');
 const port = Number(process.env.PORT || 3000);
+const host = process.env.HOST || '127.0.0.1';
 
 const remotePendingPlanEnabled = process.env.PERSIST_PENDING_PLAN_REMOTE === 'true';
 const defaultCharacterId = process.env.DEFAULT_CHARACTER_ID || 'default-character';
@@ -1029,7 +1030,7 @@ async function startServer() {
     await ensureSchema();
   }
 
-  server.listen(port, () => {
+  server.listen(port, host, () => {
     console.log(`Spellbook UI listening on http://localhost:${port}`);
     console.log(`Static frontend: frontend/dist`);
     if (!hasFrontendBuild) {

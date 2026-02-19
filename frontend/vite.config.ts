@@ -6,6 +6,7 @@ import react from '@vitejs/plugin-react';
 const base =
   process.env.SPELLBOOK_BASE_PATH ||
   (process.env.GITHUB_ACTIONS ? '/Spellbook/' : '/');
+const apiTarget = process.env.SPELLBOOK_API_TARGET || 'http://localhost:3001';
 
 export default defineConfig({
   base,
@@ -16,18 +17,18 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: apiTarget,
         changeOrigin: false,
       },
       '/spells.json': {
-        target: 'http://localhost:3000',
+        target: apiTarget,
         changeOrigin: false,
       },
       '/domain': {
-        target: 'http://localhost:3000',
+        target: apiTarget,
         changeOrigin: false,
       },
     },

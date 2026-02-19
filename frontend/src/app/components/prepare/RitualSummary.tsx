@@ -185,8 +185,8 @@ export function RitualSummary({
             {hasAnyDiff ? content : <p className="rounded-lg border border-border-dark bg-bg-2 px-3 py-2 text-sm text-text-muted">No queued changes.</p>}
             <div className="flex gap-2">
               <Button variant="brandPrimary" className="flex-1 min-h-11" disabled={busy || !hasAnyDiff} onClick={onApplyAllChanges}>
-                <RuneIcon icon={CommitRitualIcon} label="Commit preparation plan" size={16} interactive={false} />
-                Apply All
+                <RuneIcon icon={CommitRitualIcon} label="Send plan to D&D Beyond" size={16} interactive={false} />
+                Send to D&D Beyond
               </Button>
               <Button className="flex-1 min-h-11" variant="brandSecondary" disabled={busy || !hasAnyDiff} onClick={onDiscardAllChanges}>
                 <RuneIcon icon={DiscardPlanIcon} label="Discard preparation plan" size={16} interactive={false} />
@@ -217,8 +217,8 @@ export function RitualSummary({
               Discard All
             </Button>
             <Button className="min-h-10" variant="brandPrimary" disabled={busy || !hasAnyDiff} onClick={onApplyAllChanges}>
-              <RuneIcon icon={CommitRitualIcon} label="Commit preparation plan" size={16} interactive={false} />
-              Apply All
+              <RuneIcon icon={CommitRitualIcon} label="Send plan to D&D Beyond" size={16} interactive={false} />
+              Send to D&D Beyond
             </Button>
           </div>
         </div>

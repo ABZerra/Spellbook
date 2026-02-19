@@ -1,0 +1,117 @@
+:root {
+  color-scheme: light;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  width: 340px;
+  background: #f6f0df;
+  color: #2b2315;
+}
+
+.popup {
+  padding: 12px;
+}
+
+h1 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.status {
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+
+.meta {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  border: 1px solid #d5c8ad;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.meta li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  background: #fffaf0;
+}
+
+.meta li + li {
+  border-top: 1px solid #eadfc8;
+}
+
+.result {
+  min-height: 36px;
+  margin: 0 0 10px;
+  font-size: 12px;
+  white-space: pre-line;
+}
+
+.changes {
+  margin: 0 0 10px;
+  padding: 8px;
+  border: 1px solid #d5c8ad;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.changes h2 {
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+
+.changes-status {
+  margin: 0 0 8px;
+  font-size: 12px;
+}
+
+.change-group {
+  margin: 0 0 8px;
+}
+
+.change-group:last-child {
+  margin-bottom: 0;
+}
+
+.change-group h3 {
+  margin: 0 0 4px;
+  font-size: 12px;
+}
+
+.change-list {
+  margin: 0;
+  padding-left: 18px;
+  max-height: 90px;
+  overflow: auto;
+  font-size: 12px;
+}
+
+.change-list li {
+  margin: 2px 0;
+}
+
+.hidden {
+  display: none;
+}
+
+button {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 700;
+  background: #8f3d1f;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
