@@ -12,6 +12,13 @@ export interface SpellSyncPayload {
   source: 'spellbook';
 }
 
+export interface SpellSyncAckResult {
+  acknowledged: boolean;
+  ok: boolean;
+  timedOut: boolean;
+  error?: string;
+}
+
 export function normalizeSpellName(name: string): string {
   return String(name || '')
     .toLowerCase()
@@ -65,4 +72,50 @@ export function publishSpellSyncPayload(payload: SpellSyncPayload) {
     },
     window.location.origin,
   );
+}
+
+export function waitForSpellSyncPayloadAck(timeoutMs = 1200): Promise<SpellSyncAckResult> {
+  if (typeof window === 'undefined') {
+    return Promise.resolve({
+      acknowledged: false,
+      ok: false,
+      timedOut: true,
+      error: 'Window is not available.',
+    });
+  }
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const timeoutId = window.setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      window.removeEventListener('message', onMessage);
+      resolve({
+        acknowledged: false,
+        ok: false,
+        timedOut: true,
+        error: 'No extension acknowledgement received.',
+      });
+    }, timeoutMs);
+
+    const onMessage = (event: MessageEvent) => {
+      if (settled) return;
+      if (event.source !== window) return;
+      if (event.origin !== window.location.origin) return;
+      if (!event.data || typeof event.data !== 'object') return;
+      if (event.data.type !== SYNC_PAYLOAD_ACK_EVENT_TYPE) return;
+
+      settled = true;
+      window.clearTimeout(timeoutId);
+      window.removeEventListener('message', onMessage);
+      resolve({
+        acknowledged: true,
+        ok: Boolean(event.data.ok),
+        timedOut: false,
+        error: typeof event.data.error === 'string' ? event.data.error : undefined,
+      });
+    };
+
+    window.addEventListener('message', onMessage);
+  });
 }

@@ -4,12 +4,14 @@ import {
   normalizeSpellName,
   publishSpellSyncPayload,
   SYNC_PAYLOAD_EVENT_TYPE,
+  waitForSpellSyncPayloadAck,
 } from './extensionSyncService';
 import type { ApiSpell } from '../types/api';
 import type { SlotDraft } from '../types/spell';
 
 describe('extensionSyncService', () => {
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllGlobals();
   });
 
@@ -64,5 +66,64 @@ describe('extensionSyncService', () => {
       },
       'https://spellbook.local',
     );
+  });
+
+  it('resolves when extension acknowledgement arrives', async () => {
+    let messageHandler: ((event: MessageEvent) => void) | null = null;
+    const fakeWindow = {
+      location: { origin: 'https://spellbook.local' },
+      postMessage: vi.fn(),
+      setTimeout,
+      clearTimeout,
+      addEventListener: vi.fn((type: string, handler: EventListenerOrEventListenerObject) => {
+        if (type === 'message') {
+          messageHandler = handler as (event: MessageEvent) => void;
+        }
+      }),
+      removeEventListener: vi.fn(),
+    };
+
+    vi.stubGlobal('window', fakeWindow);
+    const ackPromise = waitForSpellSyncPayloadAck(1200);
+
+    messageHandler?.({
+      source: fakeWindow,
+      origin: 'https://spellbook.local',
+      data: {
+        type: 'SPELLBOOK_SYNC_PAYLOAD_ACK',
+        ok: true,
+      },
+    } as MessageEvent);
+
+    await expect(ackPromise).resolves.toEqual({
+      acknowledged: true,
+      ok: true,
+      timedOut: false,
+      error: undefined,
+    });
+  });
+
+  it('times out when extension acknowledgement is missing', async () => {
+    vi.useFakeTimers();
+
+    const fakeWindow = {
+      location: { origin: 'https://spellbook.local' },
+      postMessage: vi.fn(),
+      setTimeout,
+      clearTimeout,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    };
+
+    vi.stubGlobal('window', fakeWindow);
+    const ackPromise = waitForSpellSyncPayloadAck(250);
+    await vi.advanceTimersByTimeAsync(250);
+
+    await expect(ackPromise).resolves.toEqual({
+      acknowledged: false,
+      ok: false,
+      timedOut: true,
+      error: 'No extension acknowledgement received.',
+    });
   });
 });
