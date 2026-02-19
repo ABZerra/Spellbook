@@ -36,6 +36,7 @@ import {
 } from '../services/pendingPlanService';
 import { signIn, signOut, signUp, switchCharacter } from '../services/sessionService';
 import { createSpell as createSpellRequest, deleteSpell as deleteSpellRequest, listSpells, syncSpells, updateSpell as updateSpellRequest } from '../services/spellService';
+import { buildSpellSyncPayload, publishSpellSyncPayload } from '../services/extensionSyncService';
 import type { ConfigResponse } from '../types/api';
 import type { ApiPendingChange } from '../types/api';
 import type { ApiSpell, AppMode, CharacterSummary, DiffItem, SlotDraft, UiPendingAction, UiSpell, UiSpellDraft } from '../types/spell';
@@ -601,6 +602,8 @@ export function AppProvider({ children }: AppProviderProps) {
   );
 
   const applyAll = useCallback(async () => {
+    const syncPayload = buildSpellSyncPayload(nextList, apiSpells, characterId);
+
     if (mode.remotePendingPlanEnabled && authenticated) {
       const payload = await applyPendingPlan(characterId);
       setPendingActions(mapApiPendingToUiPending(payload.plan.changes));
@@ -615,6 +618,7 @@ export function AppProvider({ children }: AppProviderProps) {
       setNextList(buildSlotsFromCurrent(payload.activeSpellIds));
       setDraftSaveStatus('idle');
       setDraftSaveTick(0);
+      publishSpellSyncPayload(syncPayload);
       return;
     }
 
@@ -631,7 +635,8 @@ export function AppProvider({ children }: AppProviderProps) {
     setNextList(buildSlotsFromCurrent(nextPreparedIds));
     setDraftSaveStatus('idle');
     setDraftSaveTick(0);
-  }, [authenticated, characterId, mode.remotePendingPlanEnabled, nextList, userId]);
+    publishSpellSyncPayload(syncPayload);
+  }, [apiSpells, authenticated, characterId, mode.remotePendingPlanEnabled, nextList, userId]);
 
   const queuePendingAction = useCallback(
     async (action: Omit<UiPendingAction, 'id'>) => {

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Spellbook Sync</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="popup">
+      <h1>Spellbook Sync</h1>
+      <p id="status" class="status">Loading status...</p>
+      <ul class="meta">
+        <li><span>Prepared spells</span><strong id="count">-</strong></li>
+        <li><span>Payload updated</span><strong id="timestamp">-</strong></li>
+        <li><span>Target tab</span><strong id="tab-state">-</strong></li>
+      </ul>
+      <section class="changes">
+        <h2>Planned Changes</h2>
+        <p id="changes-status" class="changes-status">Loading planned changes...</p>
+        <div class="change-group">
+          <h3>Prepare</h3>
+          <ul id="to-add-list" class="change-list"></ul>
+        </div>
+        <div class="change-group">
+          <h3>Unprepare</h3>
+          <ul id="to-remove-list" class="change-list"></ul>
+        </div>
+      </section>
+      <p id="result" class="result"></p>
+      <button id="sync-now" type="button">Sync Now</button>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
