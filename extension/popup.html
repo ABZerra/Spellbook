@@ -11,20 +11,30 @@
       <h1>Spellbook Sync</h1>
       <p id="status" class="status">Loading status...</p>
       <ul class="meta">
-        <li><span>Prepared spells</span><strong id="count">-</strong></li>
+        <li><span>Payload items</span><strong id="count">-</strong></li>
         <li><span>Payload updated</span><strong id="timestamp">-</strong></li>
         <li><span>Target tab</span><strong id="tab-state">-</strong></li>
       </ul>
       <section class="changes">
         <h2>Planned Changes</h2>
         <p id="changes-status" class="changes-status">Loading planned changes...</p>
-        <div class="change-group">
-          <h3>Prepare</h3>
-          <ul id="to-add-list" class="change-list"></ul>
+        <div id="ops-group" class="change-group hidden">
+          <h3>Per List Operations</h3>
+          <ul id="ops-summary-list" class="change-list"></ul>
         </div>
-        <div class="change-group">
-          <h3>Unprepare</h3>
-          <ul id="to-remove-list" class="change-list"></ul>
+        <div id="legacy-groups">
+          <div id="legacy-add-group" class="change-group">
+            <h3>Prepare</h3>
+            <ul id="to-add-list" class="change-list"></ul>
+          </div>
+          <div id="legacy-remove-group" class="change-group">
+            <h3>Unprepare</h3>
+            <ul id="to-remove-list" class="change-list"></ul>
+          </div>
+        </div>
+        <div id="unresolved-group" class="change-group hidden">
+          <h3>Skipped From Payload</h3>
+          <ul id="unresolved-list" class="change-list"></ul>
         </div>
       </section>
       <p id="result" class="result"></p>
