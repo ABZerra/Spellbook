@@ -537,14 +537,31 @@ function findRowContainerFromButton(button) {
 }
 
 function findRowContainerFromSpellNode(node) {
+  const hasActionButtons = (scope) => {
+    if (!(scope instanceof Element)) return false;
+    const buttons = Array.from(scope.querySelectorAll('button'));
+    return buttons.some((button) => {
+      const text = getNormalizedText(button);
+      if (text.includes('prepare') || text.includes('unprepare')) return true;
+      const span = button.querySelector('span.ct-button__content');
+      if (!(span instanceof Element)) return false;
+      const spanText = getNormalizedText(span);
+      return spanText === 'prepare' || spanText === 'unprepare';
+    });
+  };
+
+  const classBasedRow =
+    node.closest('div[class*="ct-spells-spell"], li[class*="ct-spells-spell"], article[class*="ct-spells-spell"]') ||
+    node.closest('.ct-spells-spell');
+  if (classBasedRow instanceof Element) {
+    if (hasActionButtons(classBasedRow)) return classBasedRow;
+    if (hasActionButtons(classBasedRow.parentElement)) return classBasedRow.parentElement;
+  }
+
   let current = node;
   for (let i = 0; i < 10; i += 1) {
     if (!current || !(current instanceof Element)) break;
-    const actionButtons = Array.from(current.querySelectorAll('button')).filter((button) => {
-      const text = getNormalizedText(button);
-      return text.includes('prepare') || text.includes('unprepare');
-    });
-    if (actionButtons.length > 0) {
+    if (hasActionButtons(current)) {
       return current;
     }
     current = current.parentElement;
@@ -1610,9 +1627,13 @@ function findSpellRowInSection(sectionRoot, spellName) {
   const matchScore = (candidateName) => {
     const normalized = normalizeSpellName(candidateName);
     if (!normalized) return 0;
-    if (normalized === target) return 4;
-    if (normalized.startsWith(`${target} `)) return 3;
-    if (normalized.includes(` ${target} `)) return 2;
+    if (normalized === target) return 6;
+    // Handles labels like "Thunderwave(1st) • Legacy" -> "thunderwave1st legacy".
+    if (normalized.startsWith(target)) return 5;
+    if (normalized.startsWith(`${target} `)) return 4;
+    if (normalized.includes(` ${target} `)) return 3;
+    if (normalized.includes(target)) return 2;
+    if (target.startsWith(normalized)) return 1;
     if (target.startsWith(`${normalized} `)) return 1;
     return 0;
   };
@@ -1685,6 +1706,52 @@ function findActionButtonInRowByText(row, text) {
   }
 
   return null;
+}
+
+function listActionButtonsInScope(scope, actionText) {
+  if (!(scope instanceof Element)) return [];
+  const target = String(actionText || '').trim().toLowerCase();
+  if (!target) return [];
+
+  const buttons = Array.from(scope.querySelectorAll('button'));
+  const candidates = [];
+
+  for (const button of buttons) {
+    const label = getNormalizedText(button);
+    const content = button.querySelector('span.ct-button__content');
+    const contentText = content instanceof Element ? getNormalizedText(content) : '';
+    const matches = contentText === target || label === target || label.includes(target);
+    if (!matches) continue;
+    if (!isVisible(button) && !(content instanceof Element && isVisible(content))) continue;
+    candidates.push(button);
+  }
+
+  return candidates;
+}
+
+function findNearestActionButtonInScope(scope, actionText, anchorNode) {
+  const candidates = listActionButtonsInScope(scope, actionText);
+  if (!candidates.length) return null;
+
+  if (!(anchorNode instanceof Element)) {
+    return candidates[0];
+  }
+
+  const anchorRect = anchorNode.getBoundingClientRect();
+  const anchorY = anchorRect.top + anchorRect.height / 2;
+
+  const ranked = candidates
+    .map((button) => {
+      const rect = button.getBoundingClientRect();
+      const centerY = rect.top + rect.height / 2;
+      return {
+        button,
+        distance: Math.abs(centerY - anchorY),
+      };
+    })
+    .sort((left, right) => left.distance - right.distance);
+
+  return ranked[0]?.button || null;
 }
 
 function setInputValue(input, value) {
@@ -1779,18 +1846,6 @@ async function clickSpellActionInSection(sectionRoot, list, spellName, actionTex
 
   let row = findSpellRowInSection(sectionRoot, spellName);
   if (!(row instanceof Element)) {
-    debugLog('spell row not found in section scope, trying global root', {
-      list,
-      actionText,
-      spellName,
-    });
-    const globalRoot = getManageSpellsRoot();
-    await applySpellNameFilter(globalRoot, list, spellName);
-    if (globalRoot !== sectionRoot) {
-      row = findSpellRowInSection(globalRoot, spellName);
-    }
-  }
-  if (!(row instanceof Element)) {
     debugLog('spell action lookup failed: row not found', {
       list,
       actionText,
@@ -1800,13 +1855,48 @@ async function clickSpellActionInSection(sectionRoot, list, spellName, actionTex
     return { ok: false, notFound: spellName };
   }
 
-  const button = findActionButtonInRowByText(row, actionText);
+  let button = findActionButtonInRowByText(row, actionText);
+  if (!(button instanceof HTMLElement)) {
+    let cursor = row.parentElement;
+    for (let depth = 1; depth <= 6 && cursor; depth += 1) {
+      button = findActionButtonInRowByText(cursor, actionText);
+      if (button instanceof HTMLElement) {
+        debugLog('spell action button found via ancestor traversal', {
+          list,
+          actionText,
+          spellName,
+          depth,
+          ancestor: describeElementForLog(cursor),
+        });
+        break;
+      }
+      cursor = cursor.parentElement;
+    }
+  }
+
+  if (!(button instanceof HTMLElement)) {
+    const nearest = findNearestActionButtonInScope(sectionRoot, actionText, row);
+    if (nearest instanceof HTMLElement) {
+      button = nearest;
+      debugLog('spell action button selected by nearest-in-scope fallback', {
+        list,
+        actionText,
+        spellName,
+        button: describeElementForLog(nearest),
+      });
+    }
+  }
+
   if (!(button instanceof HTMLElement)) {
     debugLog('spell action lookup failed: button not found', {
       list,
       actionText,
       spellName,
       row: describeElementForLog(row),
+      rowButtonLabels: Array.from(row.querySelectorAll('button'))
+        .map((candidate) => getTextContent(candidate))
+        .filter(Boolean)
+        .slice(0, 8),
     });
     return { ok: false, notFound: spellName };
   }
@@ -1982,102 +2072,6 @@ async function executeOpsOperationAcrossKnownSections(operation, sections, listL
         list: listLabel,
         sectionIndex: index,
         sectionLabel: section.label,
-        error: reason,
-      });
-    }
-  }
-
-  // Fallback pass: try global scope if section-level runs fail.
-  try {
-    const globalRoot = getManageSpellsRoot();
-    debugLog('operation global fallback start', {
-      list: listLabel,
-      type: operation.type,
-      errors: sectionErrors,
-    });
-
-    if (operation.type === 'replace') {
-      const removeStep = await clickSpellActionInSection(globalRoot, listLabel, operation.remove, 'Unprepare');
-      if (!removeStep.ok) {
-        debugLog('global fallback failed at replace remove step', {
-          list: listLabel,
-          remove: operation.remove,
-        });
-        return {
-          ok: false,
-          type: 'replace',
-          notFound: operation.remove,
-          error: sectionErrors.length
-            ? `All Known Spells sections failed for operation. ${[...new Set(sectionErrors)].join(' | ')}`
-            : null,
-        };
-      }
-
-      const addStep = await clickSpellActionInSection(globalRoot, listLabel, operation.add, 'Prepare');
-      if (!addStep.ok) {
-        debugLog('global fallback failed at replace add step', {
-          list: listLabel,
-          add: operation.add,
-        });
-        return { ok: false, type: 'replace', notFound: operation.add };
-      }
-      debugLog('global fallback replace succeeded', {
-        list: listLabel,
-        remove: operation.remove,
-        add: operation.add,
-      });
-      return { ok: true, type: 'replace' };
-    }
-
-    if (operation.type === 'prepare') {
-      const step = await clickSpellActionInSection(globalRoot, listLabel, operation.spell, 'Prepare');
-      if (!step.ok) {
-        debugLog('global fallback prepare failed', {
-          list: listLabel,
-          spell: operation.spell,
-        });
-        return {
-          ok: false,
-          type: 'prepare',
-          notFound: operation.spell,
-          error: sectionErrors.length
-            ? `All Known Spells sections failed for operation. ${[...new Set(sectionErrors)].join(' | ')}`
-            : null,
-        };
-      }
-      debugLog('global fallback prepare succeeded', {
-        list: listLabel,
-        spell: operation.spell,
-      });
-      return { ok: true, type: 'prepare' };
-    }
-
-    const step = await clickSpellActionInSection(globalRoot, listLabel, operation.spell, 'Unprepare');
-    if (!step.ok) {
-      debugLog('global fallback unprepare failed', {
-        list: listLabel,
-        spell: operation.spell,
-      });
-      return {
-        ok: false,
-        type: 'unprepare',
-        notFound: operation.spell,
-        error: sectionErrors.length
-          ? `All Known Spells sections failed for operation. ${[...new Set(sectionErrors)].join(' | ')}`
-          : null,
-      };
-    }
-    debugLog('global fallback unprepare succeeded', {
-      list: listLabel,
-      spell: operation.spell,
-    });
-    return { ok: true, type: 'unprepare' };
-  } catch (globalError) {
-    if (globalError) {
-      const reason = globalError instanceof Error ? globalError.message : String(globalError || 'Unknown global error.');
-      sectionErrors.push(reason);
-      debugLog('operation global fallback threw', {
-        list: listLabel,
         error: reason,
       });
     }
