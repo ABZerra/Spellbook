@@ -36,6 +36,7 @@ import {
 } from '../services/pendingPlanService';
 import { signIn, signOut, signUp, switchCharacter } from '../services/sessionService';
 import { createSpell as createSpellRequest, deleteSpell as deleteSpellRequest, listSpells, syncSpells, updateSpell as updateSpellRequest } from '../services/spellService';
+import type { SpellSyncPayload } from '../services/extensionSyncService';
 import { buildSpellSyncPayload, publishSpellSyncPayload } from '../services/extensionSyncService';
 import type { ConfigResponse } from '../types/api';
 import type { ApiPendingChange } from '../types/api';
@@ -78,7 +79,7 @@ interface AppContextType {
   setNextSlot: (index: number, spellId: string | null, note?: string) => Promise<void>;
   setSlotNote: (index: number, note: string) => Promise<void>;
   applyOne: (diffItem: DiffItem) => Promise<void>;
-  applyAll: () => Promise<void>;
+  applyAll: () => Promise<SpellSyncPayload>;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -103,6 +104,48 @@ function normalizeNote(note?: string): string | undefined {
   const normalized = String(note ?? '').trim();
   if (!normalized) return undefined;
   return normalized.slice(0, 500);
+}
+
+function pendingChangesToDiff(changes: ApiPendingChange[]): DiffItem[] {
+  const diff: DiffItem[] = [];
+
+  for (let index = 0; index < changes.length; index += 1) {
+    const change = changes[index];
+    const note = normalizeNote(change.note);
+
+    if (change.type === 'replace') {
+      if (!change.spellId || !change.replacementSpellId) continue;
+      diff.push({
+        action: 'replace',
+        index,
+        fromSpellId: change.spellId,
+        toSpellId: change.replacementSpellId,
+        note,
+      });
+      continue;
+    }
+
+    if (change.type === 'add') {
+      if (!change.spellId) continue;
+      diff.push({
+        action: 'add',
+        index,
+        toSpellId: change.spellId,
+        note,
+      });
+      continue;
+    }
+
+    if (!change.spellId) continue;
+    diff.push({
+      action: 'remove',
+      index,
+      fromSpellId: change.spellId,
+      note,
+    });
+  }
+
+  return diff;
 }
 
 export function useApp() {
@@ -602,7 +645,23 @@ export function AppProvider({ children }: AppProviderProps) {
   );
 
   const applyAll = useCallback(async () => {
-    const syncPayload = buildSpellSyncPayload(nextList, apiSpells, characterId);
+    let syncDiff = diff;
+
+    if (mode.remotePendingPlanEnabled && authenticated) {
+      try {
+        const pendingPlan = await getPendingPlan(characterId);
+        syncDiff = pendingChangesToDiff(pendingPlan.plan.changes);
+      } catch {
+        // Fallback to in-memory diff if pending plan lookup fails.
+      }
+    } else {
+      const localPending = getLocalPending(userId, characterId);
+      if (localPending.length > 0) {
+        syncDiff = pendingChangesToDiff(localPending);
+      }
+    }
+
+    const syncPayload = buildSpellSyncPayload(syncDiff, apiSpells, characterId);
 
     if (mode.remotePendingPlanEnabled && authenticated) {
       const payload = await applyPendingPlan(characterId);
@@ -619,7 +678,7 @@ export function AppProvider({ children }: AppProviderProps) {
       setDraftSaveStatus('idle');
       setDraftSaveTick(0);
       publishSpellSyncPayload(syncPayload);
-      return;
+      return syncPayload;
     }
 
     const nextPreparedIds = nextList
@@ -636,7 +695,8 @@ export function AppProvider({ children }: AppProviderProps) {
     setDraftSaveStatus('idle');
     setDraftSaveTick(0);
     publishSpellSyncPayload(syncPayload);
-  }, [apiSpells, authenticated, characterId, mode.remotePendingPlanEnabled, nextList, userId]);
+    return syncPayload;
+  }, [apiSpells, authenticated, characterId, diff, mode.remotePendingPlanEnabled, nextList, userId]);
 
   const queuePendingAction = useCallback(
     async (action: Omit<UiPendingAction, 'id'>) => {

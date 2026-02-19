@@ -150,8 +150,8 @@ export function SpellSocket({
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-text-muted hover:text-text"
-                      aria-label="Apply this change"
-                      title="Apply this change"
+                      aria-label="Send this change to D&D Beyond"
+                      title="Send this change to D&D Beyond"
                       onClick={(event) => {
                         event.stopPropagation();
                         onApplyChange();
@@ -160,7 +160,7 @@ export function SpellSocket({
                       <RuneIcon icon={CommitRitualIcon} label="" size={16} interactive={false} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="top">Apply this change</TooltipContent>
+                  <TooltipContent side="top">Send this change to D&amp;D Beyond</TooltipContent>
                 </Tooltip>
               )}
             </div>

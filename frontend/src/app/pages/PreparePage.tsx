@@ -163,12 +163,35 @@ export function PreparePage() {
   }
 
   async function applyAllChanges() {
-    const summaryLines = diff.map((item) => formatDiffLabel(item, spellMap));
     const extensionAckPromise = waitForSpellSyncPayloadAck();
 
     await run(async () => {
-      await applyAll();
+      // Flush debounced slot/note edits before publishing sync payload.
+      if (slotPersistTimerRef.current) {
+        window.clearTimeout(slotPersistTimerRef.current);
+        slotPersistTimerRef.current = null;
+      }
+      if (notePersistTimerRef.current) {
+        window.clearTimeout(notePersistTimerRef.current);
+        notePersistTimerRef.current = null;
+      }
+      if (editState) {
+        await setNextSlot(editState.index, editState.selectedSpellId, editState.note);
+      }
+
+      const syncPayload = await applyAll();
       const extensionAck = await extensionAckPromise;
+      const summaryLines = syncPayload.version === 2
+        ? syncPayload.operations.map((operation) => {
+            if (operation.type === 'replace') {
+              return `${operation.remove} -> ${operation.add} [${operation.list}]`;
+            }
+            if (operation.type === 'prepare') {
+              return `Prepared ${operation.spell} [${operation.list}]`;
+            }
+            return `Unprepared ${operation.spell} [${operation.list}]`;
+          })
+        : diff.map((item) => formatDiffLabel(item, spellMap));
       setShowComplete(true);
       toast(
         <div className="space-y-1">
@@ -184,7 +207,22 @@ export function PreparePage() {
       } else if (!extensionAck.ok) {
         toast(`Extension rejected sync payload: ${extensionAck.error || 'Unknown error.'}`);
       } else {
-        toast('Plan sent to extension. Open D&D Beyond and click Sync Now.');
+        const unresolved = syncPayload.version === 2 ? syncPayload.unresolved || [] : [];
+        if (unresolved.length > 0) {
+          toast(
+            <div className="space-y-1">
+              <p className="font-semibold">Plan sent with {unresolved.length} skipped operation(s).</p>
+              {unresolved.slice(0, 3).map((entry, index) => (
+                <p key={`sync-unresolved-${index}`} className="text-sm">
+                  {entry.code}: {entry.detail}
+                </p>
+              ))}
+              {unresolved.length > 3 ? <p className="text-sm">Additional skipped operations are in the extension popup.</p> : null}
+            </div>,
+          );
+        } else {
+          toast('Plan sent to extension. Open D&D Beyond and click Sync Now.');
+        }
       }
 
       const prefersReducedMotion =

@@ -1,29 +1,15 @@
+import {
+  extractDndBeyondCharacterId,
+  isDndBeyondCharacterUrl,
+  parseSyncPayload,
+  summarizeOpsPreview,
+} from './payload-utils.js';
+
 const SYNC_PAYLOAD_STORAGE_KEY = 'spellbook.syncPayload.v1';
-const DDB_CHARACTER_URL_REGEX = /^https:\/\/www\.dndbeyond\.com\/(?:[^/?#]+\/)*characters\/(\d+)(?:\/edit)?(?:[/?#]|$)/i;
 const SPELLBOOK_API_BASES = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
 ];
-
-function extractCharacterIdFromUrl(url) {
-  if (!url) return null;
-  const match = url.match(DDB_CHARACTER_URL_REGEX);
-  return match ? match[1] : null;
-}
-
-function isDndBeyondCharacterUrl(url) {
-  return Boolean(extractCharacterIdFromUrl(url));
-}
-
-function isValidPayload(payload) {
-  return Boolean(
-    payload &&
-      payload.version === 1 &&
-      payload.source === 'spellbook' &&
-      typeof payload.timestamp === 'number' &&
-      Array.isArray(payload.preparedSpells),
-  );
-}
 
 async function getPayload() {
   const stored = await chrome.storage.local.get(SYNC_PAYLOAD_STORAGE_KEY);
@@ -92,16 +78,31 @@ async function hydratePayloadFromSpellbookApi() {
 
 async function getPayloadWithFallback() {
   const storedPayload = await getPayload();
-  if (isValidPayload(storedPayload)) {
-    return { payload: storedPayload, hydrated: false, payloadError: null };
+  const storedValidation = parseSyncPayload(storedPayload);
+  if (storedValidation.ok) {
+    return {
+      payload: storedValidation.payload,
+      hydrated: false,
+      payloadError: null,
+    };
   }
 
   try {
     const hydratedPayload = await hydratePayloadFromSpellbookApi();
-    if (isValidPayload(hydratedPayload)) {
-      return { payload: hydratedPayload, hydrated: true, payloadError: null };
+    const hydratedValidation = parseSyncPayload(hydratedPayload);
+    if (hydratedValidation.ok) {
+      return {
+        payload: hydratedValidation.payload,
+        hydrated: true,
+        payloadError: null,
+      };
     }
-    return { payload: null, hydrated: false, payloadError: 'Hydrated Spellbook payload is invalid.' };
+
+    return {
+      payload: null,
+      hydrated: false,
+      payloadError: hydratedValidation.error || 'Hydrated Spellbook payload is invalid.',
+    };
   } catch (error) {
     const detail = error instanceof Error ? error.message : 'Unknown error.';
     return {
@@ -122,7 +123,7 @@ async function buildPopupStatus() {
   const payloadState = await getPayloadWithFallback();
   const payload = payloadState.payload;
   const tabUrl = tab?.url || '';
-  const tabCharacterId = extractCharacterIdFromUrl(tabUrl);
+  const tabCharacterId = extractDndBeyondCharacterId(tabUrl);
   const ddbCharacterPage = isDndBeyondCharacterUrl(tabUrl);
 
   return {
@@ -133,15 +134,7 @@ async function buildPopupStatus() {
       ddbCharacterPage,
       characterId: tabCharacterId,
     },
-    payload: isValidPayload(payload)
-      ? {
-          preparedSpells: payload.preparedSpells,
-          timestamp: payload.timestamp,
-          characterId: payload?.characterId ? String(payload.characterId) : null,
-          source: payload.source,
-          version: payload.version,
-        }
-      : null,
+    payload: payload || null,
     payloadError: payloadState.payloadError,
     hydrated: payloadState.hydrated,
   };
@@ -154,7 +147,7 @@ async function handleSyncRequest() {
   }
 
   const url = tab.url || '';
-  const tabCharacterId = extractCharacterIdFromUrl(url);
+  const tabCharacterId = extractDndBeyondCharacterId(url);
   if (!tabCharacterId) {
     return {
       ok: false,
@@ -183,6 +176,7 @@ async function handleSyncRequest() {
       return {
         ok: false,
         error: response?.error || 'Sync did not return a successful result.',
+        debugLog: Array.isArray(response?.debugLog) ? response.debugLog : undefined,
       };
     }
 
@@ -205,7 +199,7 @@ async function handlePreviewRequest() {
   }
 
   const url = tab.url || '';
-  const tabCharacterId = extractCharacterIdFromUrl(url);
+  const tabCharacterId = extractDndBeyondCharacterId(url);
   if (!tabCharacterId) {
     return {
       ok: false,
@@ -218,6 +212,13 @@ async function handlePreviewRequest() {
   const payload = payloadState.payload;
   if (!payload) {
     return { ok: false, error: payloadState.payloadError || 'No Spellbook payload found.' };
+  }
+
+  if (payload.version === 2) {
+    return {
+      ok: true,
+      preview: summarizeOpsPreview(payload),
+    };
   }
 
   try {
